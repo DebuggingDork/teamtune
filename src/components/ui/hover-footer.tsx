@@ -52,11 +52,11 @@ export const TextHoverEffect = ({
         >
           {hovered && (
             <>
-              <stop offset="0%" stopColor="hsl(var(--primary))" />
-              <stop offset="25%" stopColor="hsl(var(--muted-foreground))" />
-              <stop offset="50%" stopColor="hsl(var(--primary))" />
-              <stop offset="75%" stopColor="hsl(var(--muted-foreground))" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" />
+              <stop offset="0%" stopColor="#3ca2fa" />
+              <stop offset="25%" stopColor="#60a5fa" />
+              <stop offset="50%" stopColor="#3ca2fa" />
+              <stop offset="75%" stopColor="#60a5fa" />
+              <stop offset="100%" stopColor="#3ca2fa" />
             </>
           )}
         </linearGradient>
@@ -81,7 +81,8 @@ export const TextHoverEffect = ({
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.3"
-        className="fill-transparent stroke-border font-bold"
+        className="fill-transparent font-bold"
+        stroke="#3ca2fa"
         style={{ opacity: hovered ? 0.7 : 0 }}
       >
         {text}
@@ -92,7 +93,8 @@ export const TextHoverEffect = ({
         textAnchor="middle"
         dominantBaseline="middle"
         strokeWidth="0.3"
-        className="fill-transparent stroke-border font-bold"
+        className="fill-transparent font-bold"
+        stroke="#3ca2fa"
         initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
         animate={{
           strokeDashoffset: 0,
@@ -128,7 +130,7 @@ export const FooterBackgroundGradient = () => {
         className="pointer-events-none absolute inset-0 h-full animate-[spin_20s_linear_infinite]"
         style={{
           background:
-            "conic-gradient(from 0deg at 50% 50%, hsl(var(--primary) / 0.1) 0deg, transparent 60deg, transparent 300deg, hsl(var(--muted-foreground) / 0.1) 360deg)",
+            "conic-gradient(from 0deg at 50% 50%, rgba(60, 162, 250, 0.1) 0deg, transparent 60deg, transparent 300deg, rgba(60, 162, 250, 0.05) 360deg)",
           filter: "blur(60px)",
         }}
       />

@@ -1,109 +1,98 @@
-import { Github, Twitter, Linkedin, Mail, Phone, MapPin } from "lucide-react";
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Facebook, 
+  Instagram, 
+  Twitter, 
+  Dribbble,
+  Globe 
+} from "lucide-react";
 import TeamTuneLogo from "./TeamTuneLogo";
 import { TextHoverEffect, FooterBackgroundGradient } from "@/components/ui/hover-footer";
 
 const footerLinks = [
   {
-    title: "Product",
+    title: "About Us",
     links: [
-      { label: "Features", href: "#product" },
-      { label: "Pricing", href: "#pricing" },
-      { label: "Integrations", href: "#integrations" },
-      { label: "Changelog", href: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { label: "About", href: "#" },
-      { label: "Blog", href: "#" },
+      { label: "Company History", href: "#" },
+      { label: "Meet the Team", href: "#" },
+      { label: "Employee Handbook", href: "#" },
       { label: "Careers", href: "#" },
-      { label: "Contact", href: "#" },
     ],
   },
   {
-    title: "Resources",
+    title: "Helpful Links",
     links: [
-      { label: "Documentation", href: "#docs" },
-      { label: "API Reference", href: "#" },
-      { label: "Community", href: "#" },
-      { label: "Support", href: "#", pulse: true },
+      { label: "FAQs", href: "#" },
+      { label: "Support", href: "#" },
+      { label: "Live Chat", href: "#", pulse: true },
     ],
   },
 ];
 
 const contactInfo = [
   {
-    icon: Mail,
+    Icon: Mail,
     text: "hello@teamtune.io",
     href: "mailto:hello@teamtune.io",
   },
   {
-    icon: Phone,
+    Icon: Phone,
     text: "+1 (555) 123-4567",
     href: "tel:+15551234567",
   },
   {
-    icon: MapPin,
+    Icon: MapPin,
     text: "San Francisco, CA",
   },
 ];
 
 const socialLinks = [
-  { icon: Twitter, label: "Twitter", href: "#" },
-  { icon: Github, label: "GitHub", href: "#" },
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
-  { icon: Mail, label: "Email", href: "#" },
+  { Icon: Facebook, label: "Facebook", href: "#" },
+  { Icon: Instagram, label: "Instagram", href: "#" },
+  { Icon: Twitter, label: "Twitter", href: "#" },
+  { Icon: Dribbble, label: "Dribbble", href: "#" },
+  { Icon: Globe, label: "Globe", href: "#" },
 ];
 
 const Footer = () => {
   return (
-    <footer className="relative bg-card border-t border-border overflow-hidden">
+    <footer className="relative bg-[#0a0a0a] overflow-hidden">
       <FooterBackgroundGradient />
       
-      <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           {/* Brand section */}
-          <div className="col-span-2">
-            <TeamTuneLogo className="mb-4" />
-            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed mb-6">
-              Empowering teams to reach peak performance through intelligent analytics and actionable insights.
-            </p>
-            
-            {/* Contact Info */}
-            <div className="space-y-3">
-              {contactInfo.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <item.icon className="h-4 w-4 text-primary" />
-                  {item.href ? (
-                    <a href={item.href} className="hover:text-foreground transition-colors">
-                      {item.text}
-                    </a>
-                  ) : (
-                    <span>{item.text}</span>
-                  )}
-                </div>
-              ))}
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[#3ca2fa] text-xl">♥</span>
+              <span className="text-white text-xl font-semibold">
+                Team<span className="text-[#94a3b8]">/tune</span>
+              </span>
             </div>
+            <p className="text-[#6b7280] text-sm leading-relaxed max-w-[240px]">
+              TeamTune is a modern analytics platform for optimizing team performance.
+            </p>
           </div>
 
-          {/* Link Columns */}
+          {/* Footer link sections */}
           {footerLinks.map((section) => (
             <div key={section.title}>
-              <h4 className="font-semibold text-foreground mb-4">{section.title}</h4>
-              <ul className="space-y-3">
+              <h4 className="text-white font-semibold mb-6">{section.title}</h4>
+              <ul className="space-y-4">
                 {section.links.map((link) => (
                   <li key={link.label} className="flex items-center gap-2">
                     <a
                       href={link.href}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="text-[#6b7280] hover:text-white transition-colors text-sm"
                     >
                       {link.label}
                     </a>
                     {link.pulse && (
                       <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3ca2fa] opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3ca2fa]" />
                       </span>
                     )}
                   </li>
@@ -111,38 +100,62 @@ const Footer = () => {
               </ul>
             </div>
           ))}
+
+          {/* Contact section */}
+          <div>
+            <h4 className="text-white font-semibold mb-6">Contact Us</h4>
+            <ul className="space-y-4">
+              {contactInfo.map((item, i) => (
+                <li key={i} className="flex items-center gap-3">
+                  <item.Icon size={18} className="text-[#3ca2fa]" />
+                  {item.href ? (
+                    <a 
+                      href={item.href} 
+                      className="text-[#6b7280] hover:text-white transition-colors text-sm"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span className="text-[#6b7280] text-sm">{item.text}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Divider */}
-        <div className="border-t border-border my-12" />
+        <div className="border-t border-[#1f1f1f] my-12" />
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          {/* Social Links */}
-          <div className="flex gap-3">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                aria-label={social.label}
-                className="p-2 rounded-lg bg-accent hover:bg-accent/80 text-muted-foreground hover:text-foreground transition-colors"
+        {/* Footer bottom */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Social icons */}
+          <div className="flex items-center gap-4">
+            {socialLinks.map(({ Icon, label, href }) => (
+              <a 
+                key={label} 
+                href={href} 
+                aria-label={label}
+                className="text-[#6b7280] hover:text-white transition-colors"
               >
-                <social.icon className="h-4 w-4" />
+                <Icon size={20} />
               </a>
             ))}
           </div>
 
           {/* Copyright */}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-[#6b7280] text-sm">
             © {new Date().getFullYear()} TeamTune. All rights reserved.
           </p>
         </div>
       </div>
 
-      {/* Text Hover Effect */}
-      <div className="h-40 flex items-center justify-center relative z-10">
+      {/* Text hover effect */}
+      <div className="h-[200px] md:h-[280px] flex items-center justify-center relative z-10 -mt-8">
         <TextHoverEffect text="TEAMTUNE" />
       </div>
+
+      <FooterBackgroundGradient />
     </footer>
   );
 };
