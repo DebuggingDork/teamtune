@@ -158,7 +158,7 @@ const Footer = () => {
       </div>
 
       {/* Spacer for the large text */}
-      <div className="h-[150px] md:h-[200px]" />
+      <div className="h-[80px] md:h-[100px]" />
 
       <FooterBackgroundGradient />
     </footer>
