@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { PricingSection } from "@/components/ui/pricing";
+import PricingFAQ from "@/components/PricingFAQ";
 
 const pricingPlans = [
   {
@@ -63,6 +64,7 @@ const Pricing = () => {
           title="Find the Perfect Plan"
           description="Select the ideal package for your needs and start building today."
         />
+        <PricingFAQ />
       </main>
       <Footer />
     </div>

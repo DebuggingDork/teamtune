@@ -11,7 +11,7 @@ const navItems = [{
   link: "#integrations"
 }, {
   name: "Pricing",
-  link: "#pricing"
+  link: "/pricing"
 }, {
   name: "Docs",
   link: "#docs"

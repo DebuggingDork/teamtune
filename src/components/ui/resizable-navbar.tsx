@@ -8,6 +8,7 @@ import {
   useMotionValueEvent,
 } from "framer-motion";
 import React, { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface NavbarProps {
   children: React.ReactNode;
@@ -141,29 +142,52 @@ export const NavItems = ({ items, className, onItemClick, visible }: NavItemsPro
         className
       )}
     >
-      {items.map((item, idx) => (
-        <motion.a
-          layout
-          onMouseEnter={() => setHovered(idx)}
-          onClick={onItemClick}
-          className="relative px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-          key={`link-${idx}`}
-          href={item.link}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
-          {hovered === idx && (
-            <motion.span
-              layoutId="hovered-nav-item"
-              className="absolute inset-0 rounded-full bg-accent"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-            />
-          )}
-          <span className="relative z-20">{item.name}</span>
-        </motion.a>
-      ))}
+      {items.map((item, idx) => {
+        const isInternalLink = item.link.startsWith("/");
+        const commonProps = {
+          onMouseEnter: () => setHovered(idx),
+          onClick: onItemClick,
+          className: "relative px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap",
+        };
+
+        const content = (
+          <>
+            {hovered === idx && (
+              <motion.span
+                layoutId="hovered-nav-item"
+                className="absolute inset-0 rounded-full bg-accent"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              />
+            )}
+            <span className="relative z-20">{item.name}</span>
+          </>
+        );
+
+        return isInternalLink ? (
+          <motion.div
+            layout
+            key={`link-${idx}`}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <Link to={item.link} {...commonProps}>
+              {content}
+            </Link>
+          </motion.div>
+        ) : (
+          <motion.a
+            layout
+            {...commonProps}
+            key={`link-${idx}`}
+            href={item.link}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            {content}
+          </motion.a>
+        );
+      })}
     </motion.div>
   );
 };
