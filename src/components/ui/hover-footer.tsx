@@ -31,16 +31,20 @@ export const TextHoverEffect = ({
   }, [cursor]);
 
   return (
-    <svg
+    <motion.svg
       ref={svgRef}
       width="100%"
       height="100%"
-      viewBox="0 0 300 100"
+      viewBox="0 0 1000 200"
       xmlns="http://www.w3.org/2000/svg"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseMove={(e) => setCursor({ x: e.clientX, y: e.clientY })}
       className={cn("select-none uppercase cursor-pointer", className)}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 1, ease: "easeOut" }}
     >
       <defs>
         <linearGradient
@@ -64,7 +68,7 @@ export const TextHoverEffect = ({
         <motion.radialGradient
           id="revealMask"
           gradientUnits="userSpaceOnUse"
-          r="20%"
+          r="30%"
           animate={maskPosition}
           transition={{ duration: duration ?? 0, ease: "easeOut" }}
         >
@@ -75,51 +79,74 @@ export const TextHoverEffect = ({
           <rect x="0" y="0" width="100%" height="100%" fill="url(#revealMask)" />
         </mask>
       </defs>
-      <text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        strokeWidth="0.3"
-        className="fill-transparent font-bold"
-        stroke="#3ca2fa"
-        style={{ opacity: hovered ? 0.7 : 0 }}
-      >
-        {text}
-      </text>
+      
+      {/* Base outline text - always visible */}
       <motion.text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
-        strokeWidth="0.3"
+        strokeWidth="1"
         className="fill-transparent font-bold"
-        stroke="#3ca2fa"
-        initial={{ strokeDashoffset: 1000, strokeDasharray: 1000 }}
-        animate={{
-          strokeDashoffset: 0,
-          strokeDasharray: 1000,
+        stroke="#1e3a5f"
+        style={{ 
+          fontSize: "140px",
+          fontWeight: 800,
+          letterSpacing: "0.05em"
         }}
+        initial={{ strokeDashoffset: 2000, strokeDasharray: 2000 }}
+        whileInView={{
+          strokeDashoffset: 0,
+          strokeDasharray: 2000,
+        }}
+        viewport={{ once: true }}
         transition={{
-          duration: 4,
+          duration: 3,
           ease: "easeInOut",
         }}
       >
         {text}
       </motion.text>
+      
+      {/* Hover highlight text */}
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dominantBaseline="middle"
+        strokeWidth="1.5"
+        className="fill-transparent font-bold"
+        stroke="#3ca2fa"
+        style={{ 
+          opacity: hovered ? 0.8 : 0,
+          fontSize: "140px",
+          fontWeight: 800,
+          letterSpacing: "0.05em",
+          transition: "opacity 0.3s ease"
+        }}
+      >
+        {text}
+      </text>
+      
+      {/* Masked reveal text */}
       <text
         x="50%"
         y="50%"
         textAnchor="middle"
         dominantBaseline="middle"
         stroke="url(#textGradient)"
-        strokeWidth="0.3"
+        strokeWidth="2"
         mask="url(#textMask)"
         className="fill-transparent font-bold"
+        style={{ 
+          fontSize: "140px",
+          fontWeight: 800,
+          letterSpacing: "0.05em"
+        }}
       >
         {text}
       </text>
-    </svg>
+    </motion.svg>
   );
 };
 
