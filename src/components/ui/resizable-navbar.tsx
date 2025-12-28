@@ -88,6 +88,7 @@ export const Navbar = ({ children, className }: NavbarProps) => {
 export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   return (
     <motion.div
+      layout
       animate={{
         backdropFilter: visible ? "blur(16px)" : "none",
         boxShadow: visible
@@ -96,20 +97,24 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
       }}
       transition={{
         type: "spring",
-        stiffness: 200,
-        damping: 50,
+        stiffness: 300,
+        damping: 30,
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full lg:flex transition-all duration-500",
+        "relative z-[60] mx-auto hidden w-full lg:flex",
         visible 
           ? "max-w-2xl rounded-full bg-background/90 border border-border/50 px-4 py-2" 
           : "max-w-6xl rounded-none bg-transparent border-transparent px-0 py-2",
         className
       )}
     >
-      <div className="flex w-full flex-row items-center justify-between">
+      <motion.div 
+        layout
+        className="flex w-full flex-row items-center justify-between"
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         {children}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
@@ -119,26 +124,23 @@ export const NavItems = ({ items, className, onItemClick, visible }: NavItemsPro
 
   return (
     <motion.div
+      layout
       onMouseLeave={() => setHovered(null)}
-      initial={{ opacity: 0 }}
-      animate={{ 
-        opacity: visible ? 1 : 0,
-        scale: visible ? 1 : 0.95,
-      }}
-      transition={{ duration: 0.3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
         "hidden flex-row items-center justify-center space-x-1 text-sm font-medium text-muted-foreground lg:flex",
-        !visible && "pointer-events-none",
         className
       )}
     >
       {items.map((item, idx) => (
-        <a
+        <motion.a
+          layout
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
           className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
           key={`link-${idx}`}
           href={item.link}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           {hovered === idx && (
             <motion.span
@@ -151,7 +153,7 @@ export const NavItems = ({ items, className, onItemClick, visible }: NavItemsPro
             />
           )}
           <span className="relative z-20">{item.name}</span>
-        </a>
+        </motion.a>
       ))}
     </motion.div>
   );
