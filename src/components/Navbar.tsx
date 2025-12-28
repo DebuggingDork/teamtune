@@ -44,7 +44,7 @@ const Navbar = () => {
         
         <motion.div 
           layout
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 shrink-0"
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           <Link to="/auth">
