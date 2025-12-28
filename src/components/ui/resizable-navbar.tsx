@@ -103,17 +103,14 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
       className={cn(
         "relative z-[60] mx-auto hidden w-full lg:flex",
         visible 
-          ? "max-w-fit rounded-full bg-background/90 border border-border/50 px-3 py-1.5" 
+          ? "max-w-2xl rounded-full bg-background/90 border border-border/50 px-4 py-2" 
           : "max-w-6xl rounded-none bg-transparent border-transparent px-0 py-2",
         className
       )}
     >
       <motion.div 
         layout
-        className={cn(
-          "flex w-full flex-row items-center",
-          visible ? "justify-center gap-1" : "justify-between"
-        )}
+        className="flex w-full flex-row items-center justify-between"
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
         {children}
@@ -131,7 +128,7 @@ export const NavItems = ({ items, className, onItemClick, visible }: NavItemsPro
       onMouseLeave={() => setHovered(null)}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "hidden flex-row items-center justify-center text-xs font-medium text-muted-foreground lg:flex",
+        "hidden flex-row items-center justify-center space-x-1 text-sm font-medium text-muted-foreground lg:flex",
         className
       )}
     >
@@ -140,7 +137,7 @@ export const NavItems = ({ items, className, onItemClick, visible }: NavItemsPro
           layout
           onMouseEnter={() => setHovered(idx)}
           onClick={onItemClick}
-          className="relative px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+          className="relative px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
           key={`link-${idx}`}
           href={item.link}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -259,7 +256,7 @@ export const NavbarButton = ({
   | React.ComponentPropsWithoutRef<"button">
 )) => {
   const baseStyles =
-    "px-3 py-1.5 rounded-full text-xs font-medium relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center whitespace-nowrap";
+    "px-4 py-2 rounded-full text-sm font-medium relative cursor-pointer hover:-translate-y-0.5 transition duration-200 inline-block text-center";
 
   const variantStyles = {
     primary:

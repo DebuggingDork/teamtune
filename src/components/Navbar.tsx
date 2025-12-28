@@ -43,7 +43,7 @@ const Navbar = () => {
         
         <motion.div 
           layout
-          className="flex items-center gap-1"
+          className="flex items-center gap-2"
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
           <NavbarButton variant="secondary" href="#">
