@@ -45,6 +45,17 @@ export const TextHoverEffect = ({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 1, ease: "easeOut" }}
+      animate={{
+        y: [0, -10, 0],
+      }}
+      // @ts-ignore - framer-motion types issue
+      transition={{
+        y: {
+          duration: 4,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }
+      }}
     >
       <defs>
         <linearGradient
@@ -79,7 +90,7 @@ export const TextHoverEffect = ({
           <rect x="0" y="0" width="100%" height="100%" fill="url(#revealMask)" />
         </mask>
       </defs>
-      
+
       {/* Base outline text - always visible */}
       <motion.text
         x="50%"
@@ -89,7 +100,7 @@ export const TextHoverEffect = ({
         strokeWidth="1"
         className="fill-transparent font-bold"
         stroke="#1e3a5f"
-        style={{ 
+        style={{
           fontSize: "140px",
           fontWeight: 800,
           letterSpacing: "0.05em"
@@ -104,10 +115,21 @@ export const TextHoverEffect = ({
           duration: 3,
           ease: "easeInOut",
         }}
+        animate={{
+          stroke: ["#1e3a5f", "#3ca2fa", "#1e3a5f"],
+        }}
+        // @ts-ignore
+        transition={{
+          stroke: {
+            duration: 4,
+            repeat: Infinity,
+            ease: "linear",
+          }
+        }}
       >
         {text}
       </motion.text>
-      
+
       {/* Hover highlight text */}
       <text
         x="50%"
@@ -117,7 +139,7 @@ export const TextHoverEffect = ({
         strokeWidth="1.5"
         className="fill-transparent font-bold"
         stroke="#3ca2fa"
-        style={{ 
+        style={{
           opacity: hovered ? 0.8 : 0,
           fontSize: "140px",
           fontWeight: 800,
@@ -127,7 +149,7 @@ export const TextHoverEffect = ({
       >
         {text}
       </text>
-      
+
       {/* Masked reveal text */}
       <text
         x="50%"
@@ -138,7 +160,7 @@ export const TextHoverEffect = ({
         strokeWidth="2"
         mask="url(#textMask)"
         className="fill-transparent font-bold"
-        style={{ 
+        style={{
           fontSize: "140px",
           fontWeight: 800,
           letterSpacing: "0.05em"

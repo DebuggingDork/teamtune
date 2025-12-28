@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 const CTASection = () => {
   const [email, setEmail] = useState("");
@@ -27,58 +28,87 @@ const CTASection = () => {
   };
 
   return (
-    <section className="py-16 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-20 bg-background relative overflow-hidden">
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative max-w-4xl mx-auto"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative max-w-5xl mx-auto"
         >
-          {/* Card */}
-          <div className="relative overflow-hidden rounded-3xl bg-card border border-border p-8 md:p-16">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,hsl(var(--accent))_0%,transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,hsl(var(--accent))_0%,transparent_50%)]" />
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-white border border-white/20 shadow-2xl min-h-[500px] flex flex-col items-center justify-center p-8 md:p-16">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30 pointer-events-none" />
+            <BackgroundBeams className="opacity-60" />
 
-            <div className="relative z-10 text-center">
-              <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
-                Ready to tune your team?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-                Join thousands of teams already using TeamTune to unlock their full potential. 
-                Get early access and exclusive benefits.
+            <div className="relative z-10 max-w-3xl mx-auto text-center flex flex-col items-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold uppercase tracking-wider mb-8 shadow-sm"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                Limited Early Access
+              </motion.div>
+
+              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-gray-900 via-gray-800 to-gray-600 mb-6 font-sans drop-shadow-sm">
+                Ready to <span className="text-[#3ca2fa]">tune</span> your team?
+              </h1>
+
+              <p className="text-gray-600 text-lg md:text-xl mb-10 max-w-xl mx-auto leading-relaxed">
+                Join thousands of high-performing teams using TeamTune to unlock their full potential.
+                Get real-time analytics for your workflow.
               </p>
 
               {!isSubmitted ? (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                  <Input
-                    type="email"
-                    placeholder="Enter your work email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="flex-1 h-12 rounded-full px-6 bg-background border-border"
-                  />
-                  <Button type="submit" size="lg" className="rounded-full px-8 gap-2 group h-12">
-                    Get Early Access
-                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto w-full relative">
+                  <div className="flex-1 relative group">
+                    <Input
+                      type="email"
+                      placeholder="Enter your work email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full h-14 rounded-full px-8 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus-visible:ring-2 focus-visible:ring-[#3ca2fa]/20 focus-visible:border-[#3ca2fa] transition-all shadow-sm group-hover:shadow-md"
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="h-14 rounded-full px-10 gap-2 bg-[#0a0a0a] text-white hover:bg-[#3ca2fa] shadow-xl hover:shadow-[#3ca2fa]/25 hover:scale-105 transition-all duration-300 font-medium text-base"
+                  >
+                    Join Waitlist
+                    <ArrowRight className="h-5 w-5" />
                   </Button>
                 </form>
               ) : (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center justify-center gap-2 text-primary"
+                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  className="flex flex-col items-center gap-3 bg-green-50/80 backdrop-blur-sm border border-green-100 px-8 py-6 rounded-2xl shadow-sm"
                 >
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-medium">You're on the list! We'll be in touch soon.</span>
+                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-1">
+                    <CheckCircle className="h-6 w-6" />
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-bold text-gray-900">You're on the list!</h3>
+                    <p className="text-gray-500 text-sm">We'll notify you as soon as spots open up.</p>
+                  </div>
                 </motion.div>
               )}
 
-              <p className="text-sm text-muted-foreground mt-4">
-                No spam, ever. Unsubscribe anytime.
-              </p>
+              <div className="flex items-center gap-6 mt-10 text-xs font-medium text-gray-400 grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+                <span>Trusted by innovators at</span>
+                <div className="flex gap-4">
+                  <span>ACME Inc.</span>
+                  <span>Globex</span>
+                  <span>Soylent Corp</span>
+                </div>
+              </div>
             </div>
           </div>
         </motion.div>

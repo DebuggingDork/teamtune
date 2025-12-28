@@ -1,12 +1,12 @@
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Facebook, 
-  Instagram, 
-  Twitter, 
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Instagram,
+  Twitter,
   Dribbble,
-  Globe 
+  Globe
 } from "lucide-react";
 import TeamTuneLogo from "./TeamTuneLogo";
 import { TextHoverEffect, FooterBackgroundGradient } from "@/components/ui/hover-footer";
@@ -60,7 +60,7 @@ const Footer = () => {
   return (
     <footer className="relative bg-[#0a0a0a] overflow-hidden">
       <FooterBackgroundGradient />
-      
+
       <div className="max-w-7xl mx-auto px-6 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           {/* Brand section */}
@@ -109,8 +109,8 @@ const Footer = () => {
                 <li key={i} className="flex items-center gap-3">
                   <item.Icon size={18} className="text-[#3ca2fa]" />
                   {item.href ? (
-                    <a 
-                      href={item.href} 
+                    <a
+                      href={item.href}
                       className="text-[#6b7280] hover:text-white transition-colors text-sm"
                     >
                       {item.text}
@@ -128,37 +128,37 @@ const Footer = () => {
         <div className="border-t border-[#1f1f1f] my-12" />
 
         {/* Footer bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-20 md:pb-24 relative z-20">
           {/* Social icons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             {socialLinks.map(({ Icon, label, href }) => (
-              <a 
-                key={label} 
-                href={href} 
+              <a
+                key={label}
+                href={href}
                 aria-label={label}
-                className="text-[#6b7280] hover:text-white transition-colors"
+                className="text-[#6b7280] hover:text-[#3ca2fa] transition-all transform hover:scale-110 hover:-translate-y-1 duration-300"
               >
-                <Icon size={20} />
+                <Icon size={22} strokeWidth={1.5} />
               </a>
             ))}
           </div>
 
           {/* Copyright */}
-          <p className="text-[#6b7280] text-sm">
-            © {new Date().getFullYear()} TeamTune. All rights reserved.
+          <p className="text-[#6b7280] text-sm font-medium tracking-wide">
+            © 2026 TeamTune. All rights reserved.
           </p>
         </div>
       </div>
 
       {/* Text hover effect - Large background text */}
-      <div className="absolute bottom-0 left-0 right-0 h-[300px] md:h-[400px] flex items-center justify-center pointer-events-none overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-[200px] md:h-[250px] flex items-center justify-center pointer-events-none overflow-hidden">
         <div className="w-full max-w-[1400px] h-full pointer-events-auto">
           <TextHoverEffect text="TEAMTUNE" />
         </div>
       </div>
 
       {/* Spacer for the large text */}
-      <div className="h-[150px] md:h-[200px]" />
+      <div className="h-[80px] md:h-[120px]" />
 
       <FooterBackgroundGradient />
     </footer>

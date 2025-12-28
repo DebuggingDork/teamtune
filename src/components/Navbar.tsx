@@ -12,9 +12,6 @@ const navItems = [{
 }, {
   name: "Pricing",
   link: "/pricing"
-}, {
-  name: "Docs",
-  link: "#docs"
 }];
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,61 +23,61 @@ const Navbar = () => {
     setIsScrolled(latest > 100);
   });
   return <NavbarWrapper>
-      {/* Desktop Navigation */}
-      <NavBody>
-        <motion.div layout transition={{
+    {/* Desktop Navigation */}
+    <NavBody>
+      <motion.div layout transition={{
         type: "spring",
         stiffness: 300,
         damping: 30
       }}>
-          <TeamTuneLogo />
-        </motion.div>
-        
-        <NavItems items={navItems} visible={true} />
-        
-        <motion.div layout className="flex items-center gap-1 shrink-0" transition={{
+        <TeamTuneLogo />
+      </motion.div>
+
+      <NavItems items={navItems} visible={true} />
+
+      <motion.div layout className="flex items-center gap-1 shrink-0" transition={{
         type: "spring",
         stiffness: 300,
         damping: 30
       }}>
-          <Link to="/auth" className="">
-            <NavbarButton variant="secondary">
+        <Link to="/auth" className="">
+          <NavbarButton variant="secondary">
+            Log in
+          </NavbarButton>
+        </Link>
+        <Link to="/auth/signup">
+          <NavbarButton variant="primary">
+            Get Started
+          </NavbarButton>
+        </Link>
+      </motion.div>
+    </NavBody>
+
+    {/* Mobile Navigation */}
+    <MobileNav>
+      <MobileNavHeader>
+        <TeamTuneLogo />
+        <MobileNavToggle isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+      </MobileNavHeader>
+
+      <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+        {navItems.map((item, idx) => <a key={`mobile-link-${idx}`} href={item.link} onClick={() => setIsMobileMenuOpen(false)} className="relative text-muted-foreground hover:text-foreground transition-colors w-full py-2">
+          {item.name}
+        </a>)}
+        <div className="flex w-full flex-col gap-3 pt-4 border-t border-border">
+          <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
+            <NavbarButton variant="secondary" className="w-full">
               Log in
             </NavbarButton>
           </Link>
-          <Link to="/auth/signup">
-            <NavbarButton variant="primary">
+          <Link to="/auth/signup" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
+            <NavbarButton variant="primary" className="w-full">
               Get Started
             </NavbarButton>
           </Link>
-        </motion.div>
-      </NavBody>
-
-      {/* Mobile Navigation */}
-      <MobileNav>
-        <MobileNavHeader>
-          <TeamTuneLogo />
-          <MobileNavToggle isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-        </MobileNavHeader>
-
-        <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
-          {navItems.map((item, idx) => <a key={`mobile-link-${idx}`} href={item.link} onClick={() => setIsMobileMenuOpen(false)} className="relative text-muted-foreground hover:text-foreground transition-colors w-full py-2">
-              {item.name}
-            </a>)}
-          <div className="flex w-full flex-col gap-3 pt-4 border-t border-border">
-            <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-              <NavbarButton variant="secondary" className="w-full">
-                Log in
-              </NavbarButton>
-            </Link>
-            <Link to="/auth/signup" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-              <NavbarButton variant="primary" className="w-full">
-                Get Started
-              </NavbarButton>
-            </Link>
-          </div>
-        </MobileNavMenu>
-      </MobileNav>
-    </NavbarWrapper>;
+        </div>
+      </MobileNavMenu>
+    </MobileNav>
+  </NavbarWrapper>;
 };
 export default Navbar;
