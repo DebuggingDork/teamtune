@@ -88,30 +88,39 @@ export const Navbar = ({ children, className }: NavbarProps) => {
 export const NavBody = ({ children, className, visible }: NavBodyProps) => {
   return (
     <motion.div
-      layout
+      layout="position"
+      initial={false}
       animate={{
-        backdropFilter: visible ? "blur(20px)" : "blur(12px)",
+        width: visible ? "auto" : "100%",
+        backdropFilter: visible ? "blur(20px)" : "blur(0px)",
+        backgroundColor: visible ? "hsl(var(--background) / 0.85)" : "transparent",
         boxShadow: visible
           ? "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset"
-          : "none",
+          : "0 0 0 rgba(0, 0, 0, 0)",
+        borderRadius: visible ? "9999px" : "0px",
+        paddingLeft: visible ? "16px" : "0px",
+        paddingRight: visible ? "16px" : "0px",
+        borderWidth: visible ? "1px" : "0px",
       }}
       transition={{
         type: "spring",
-        stiffness: 300,
-        damping: 30,
+        stiffness: 400,
+        damping: 35,
+        mass: 0.8,
+      }}
+      style={{
+        borderColor: visible ? "hsl(var(--border) / 0.5)" : "transparent",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full lg:flex whitespace-nowrap",
-        visible 
-          ? "max-w-fit rounded-full bg-background/80 border border-border/50 px-4 py-1.5" 
-          : "max-w-6xl rounded-none bg-transparent border-transparent px-0 py-1.5",
+        "relative z-[60] mx-auto hidden lg:flex whitespace-nowrap py-1.5",
+        visible ? "max-w-fit" : "max-w-6xl",
         className
       )}
     >
       <motion.div 
-        layout
+        layout="position"
         className="flex w-full flex-row items-center justify-between gap-4"
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{ type: "spring", stiffness: 400, damping: 35, mass: 0.8 }}
       >
         {children}
       </motion.div>
