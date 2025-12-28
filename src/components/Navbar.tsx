@@ -1,53 +1,49 @@
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Link } from "react-router-dom";
-import {
-  Navbar as NavbarWrapper,
-  NavBody,
-  NavItems,
-  MobileNav,
-  MobileNavHeader,
-  MobileNavToggle,
-  MobileNavMenu,
-  NavbarButton,
-} from "@/components/ui/resizable-navbar";
+import { Navbar as NavbarWrapper, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavToggle, MobileNavMenu, NavbarButton } from "@/components/ui/resizable-navbar";
 import TeamTuneLogo from "./TeamTuneLogo";
-
-const navItems = [
-  { name: "Product", link: "#product" },
-  { name: "Integrations", link: "#integrations" },
-  { name: "Pricing", link: "#pricing" },
-  { name: "Docs", link: "#docs" },
-];
-
+const navItems = [{
+  name: "Product",
+  link: "#product"
+}, {
+  name: "Integrations",
+  link: "#integrations"
+}, {
+  name: "Pricing",
+  link: "#pricing"
+}, {
+  name: "Docs",
+  link: "#docs"
+}];
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { scrollY } = useScroll();
-
-  useMotionValueEvent(scrollY, "change", (latest) => {
+  const {
+    scrollY
+  } = useScroll();
+  useMotionValueEvent(scrollY, "change", latest => {
     setIsScrolled(latest > 100);
   });
-
-  return (
-    <NavbarWrapper>
+  return <NavbarWrapper>
       {/* Desktop Navigation */}
       <NavBody>
-        <motion.div
-          layout
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
+        <motion.div layout transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }}>
           <TeamTuneLogo />
         </motion.div>
         
         <NavItems items={navItems} visible={true} />
         
-        <motion.div 
-          layout
-          className="flex items-center gap-1 shrink-0"
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
-          <Link to="/auth">
+        <motion.div layout className="flex items-center gap-1 shrink-0" transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }}>
+          <Link to="/auth" className="">
             <NavbarButton variant="secondary">
               Log in
             </NavbarButton>
@@ -64,48 +60,27 @@ const Navbar = () => {
       <MobileNav>
         <MobileNavHeader>
           <TeamTuneLogo />
-          <MobileNavToggle
-            isOpen={isMobileMenuOpen}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          />
+          <MobileNavToggle isOpen={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
         </MobileNavHeader>
 
-        <MobileNavMenu
-          isOpen={isMobileMenuOpen}
-          onClose={() => setIsMobileMenuOpen(false)}
-        >
-          {navItems.map((item, idx) => (
-            <a
-              key={`mobile-link-${idx}`}
-              href={item.link}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="relative text-muted-foreground hover:text-foreground transition-colors w-full py-2"
-            >
+        <MobileNavMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)}>
+          {navItems.map((item, idx) => <a key={`mobile-link-${idx}`} href={item.link} onClick={() => setIsMobileMenuOpen(false)} className="relative text-muted-foreground hover:text-foreground transition-colors w-full py-2">
               {item.name}
-            </a>
-          ))}
+            </a>)}
           <div className="flex w-full flex-col gap-3 pt-4 border-t border-border">
             <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-              <NavbarButton
-                variant="secondary"
-                className="w-full"
-              >
+              <NavbarButton variant="secondary" className="w-full">
                 Log in
               </NavbarButton>
             </Link>
             <Link to="/auth/signup" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-              <NavbarButton
-                variant="primary"
-                className="w-full"
-              >
+              <NavbarButton variant="primary" className="w-full">
                 Get Started
               </NavbarButton>
             </Link>
           </div>
         </MobileNavMenu>
       </MobileNav>
-    </NavbarWrapper>
-  );
+    </NavbarWrapper>;
 };
-
 export default Navbar;
