@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useScroll, useMotionValueEvent } from "framer-motion";
 import {
   Navbar as NavbarWrapper,
   NavBody,
@@ -20,17 +21,25 @@ const navItems = [
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 100);
+  });
 
   return (
     <NavbarWrapper>
       {/* Desktop Navigation */}
       <NavBody>
         <TeamTuneLogo />
-        <NavItems items={navItems} />
+        <NavItems items={navItems} visible={isScrolled} />
         <div className="flex items-center gap-2">
-          <NavbarButton variant="secondary" href="#">
-            Log in
-          </NavbarButton>
+          {isScrolled && (
+            <NavbarButton variant="secondary" href="#">
+              Log in
+            </NavbarButton>
+          )}
           <NavbarButton variant="primary" href="#">
             Get Started
           </NavbarButton>
