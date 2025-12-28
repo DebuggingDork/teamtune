@@ -137,7 +137,7 @@ const TestimonialsColumn = ({
 
 const TestimonialsSection = () => {
   return (
-    <section className="pt-24 pb-12 bg-background overflow-hidden">
+    <section className="py-16 bg-background overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}

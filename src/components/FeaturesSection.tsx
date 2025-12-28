@@ -78,7 +78,7 @@ const FeatureCard = ({
 
 const FeaturesSection = () => {
   return (
-    <section className="py-24 bg-background" id="product">
+    <section className="py-16 bg-background" id="product">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
