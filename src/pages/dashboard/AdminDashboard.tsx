@@ -19,11 +19,15 @@ import {
   GitCommit,
   Building2,
   UserCog,
-  Layers
+  Layers,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
+import { useAuth } from "@/hooks/useAuth";
+import { usePendingUsers, useAllUsers, useApproveUser, useRejectUser } from "@/hooks/useAdmin";
+import { format } from "date-fns";
 import {
   LineChart,
   Line,
@@ -36,31 +40,62 @@ import {
   Area,
 } from "recharts";
 
-// Static data for demonstration
-const commitActivityData = [
-  { name: "Mon", commits: 45 },
-  { name: "Tue", commits: 52 },
-  { name: "Wed", commits: 78 },
-  { name: "Thu", commits: 61 },
-  { name: "Fri", commits: 89 },
-  { name: "Sat", commits: 34 },
-  { name: "Sun", commits: 28 },
-];
-
-const contributorTrendData = [
-  { name: "Week 1", contributors: 12 },
-  { name: "Week 2", contributors: 15 },
-  { name: "Week 3", contributors: 18 },
-  { name: "Week 4", contributors: 22 },
-];
-
-const pendingApprovals = [
-  { id: 1, name: "Sarah Johnson", email: "sarah.j@company.com", requestedDate: "Dec 26, 2025" },
-  { id: 2, name: "Michael Chen", email: "m.chen@company.com", requestedDate: "Dec 27, 2025" },
-  { id: 3, name: "Emily Rodriguez", email: "e.rodriguez@company.com", requestedDate: "Dec 28, 2025" },
-];
-
 const AdminDashboard = () => {
+  const { user, logout } = useAuth();
+  const { data: pendingUsers = [], isLoading: isLoadingPending } = usePendingUsers();
+  const { data: allUsers = [], isLoading: isLoadingAll } = useAllUsers();
+  const approveUserMutation = useApproveUser();
+  const rejectUserMutation = useRejectUser();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const handleApprove = async (id: string) => {
+    approveUserMutation.mutate({
+      id,
+      data: { role: "employee" },
+    });
+  };
+
+  const handleReject = async (id: string) => {
+    rejectUserMutation.mutate({
+      id,
+      data: { reason: "Rejected by admin" },
+    });
+  };
+
+  // Calculate stats from real data
+  const totalUsers = allUsers.length;
+  const activeUsers = allUsers.filter(u => u.status === "active").length;
+  const blockedUsers = allUsers.filter(u => u.status === "blocked").length;
+  const pendingCount = pendingUsers.length;
+
+  // Role distribution
+  const roleDistribution = {
+    admin: allUsers.filter(u => u.role === "admin").length,
+    project_manager: allUsers.filter(u => u.role === "project_manager").length,
+    team_lead: allUsers.filter(u => u.role === "team_lead").length,
+    employee: allUsers.filter(u => u.role === "employee").length,
+  };
+
+  // Mock chart data (can be replaced with real git activity data later)
+  const commitActivityData = [
+    { name: "Mon", commits: 45 },
+    { name: "Tue", commits: 52 },
+    { name: "Wed", commits: 78 },
+    { name: "Thu", commits: 61 },
+    { name: "Fri", commits: 89 },
+    { name: "Sat", commits: 34 },
+    { name: "Sun", commits: 28 },
+  ];
+
+  const contributorTrendData = [
+    { name: "Week 1", contributors: 12 },
+    { name: "Week 2", contributors: 15 },
+    { name: "Week 3", contributors: 18 },
+    { name: "Week 4", contributors: 22 },
+  ];
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
@@ -95,12 +130,14 @@ const AdminDashboard = () => {
         </nav>
 
         <div className="border-t border-border pt-4">
-          <Link to="/auth">
-            <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </Link>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-2 text-muted-foreground"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
         </div>
       </aside>
 
@@ -132,8 +169,8 @@ const AdminDashboard = () => {
                   <Shield className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-foreground">Admin User</p>
-                  <p className="text-xs text-muted-foreground">System Administrator</p>
+                  <p className="text-sm font-medium text-foreground">{user?.full_name || "Admin User"}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email || "System Administrator"}</p>
                 </div>
               </div>
             </div>
@@ -153,10 +190,10 @@ const AdminDashboard = () => {
             {/* System Overview Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {[
-                { label: "Total Users", value: "1,234", icon: Users, color: "bg-primary/10 text-primary" },
-                { label: "Pending", value: "8", icon: Clock, color: "bg-warning/10 text-warning" },
-                { label: "Active", value: "1,156", icon: UserCheck, color: "bg-emerald-500/10 text-emerald-500" },
-                { label: "Blocked", value: "12", icon: UserX, color: "bg-destructive/10 text-destructive" },
+                { label: "Total Users", value: totalUsers.toString(), icon: Users, color: "bg-primary/10 text-primary", isLoading: isLoadingAll },
+                { label: "Pending", value: pendingCount.toString(), icon: Clock, color: "bg-warning/10 text-warning", isLoading: isLoadingPending },
+                { label: "Active", value: activeUsers.toString(), icon: UserCheck, color: "bg-emerald-500/10 text-emerald-500", isLoading: isLoadingAll },
+                { label: "Blocked", value: blockedUsers.toString(), icon: UserX, color: "bg-destructive/10 text-destructive", isLoading: isLoadingAll },
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -168,10 +205,16 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm text-muted-foreground">{stat.label}</p>
                     <div className={`p-2 rounded-lg ${stat.color}`}>
-                      <stat.icon className="h-4 w-4" />
+                      {stat.isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <stat.icon className="h-4 w-4" />
+                      )}
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {stat.isLoading ? "..." : stat.value}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -186,10 +229,10 @@ const AdminDashboard = () => {
               <h2 className="text-lg font-semibold text-foreground mb-4">Role Distribution</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
-                  { role: "Admins", count: 4, icon: Shield },
-                  { role: "Project Managers", count: 28, icon: FolderKanban },
-                  { role: "Team Leads", count: 86, icon: UsersRound },
-                  { role: "Members", count: 1116, icon: Users },
+                  { role: "Admins", count: roleDistribution.admin, icon: Shield },
+                  { role: "Project Managers", count: roleDistribution.project_manager, icon: FolderKanban },
+                  { role: "Team Leads", count: roleDistribution.team_lead, icon: UsersRound },
+                  { role: "Members", count: roleDistribution.employee, icon: Users },
                 ].map((item) => (
                   <div key={item.role} className="flex items-center gap-3 p-4 bg-accent/50 rounded-lg">
                     <div className="p-2 bg-primary/10 rounded-lg">
@@ -222,44 +265,63 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <Badge variant="secondary" className="bg-warning/10 text-warning border-warning/20">
-                  {pendingApprovals.length} pending
+                  {pendingUsers.length} pending
                 </Badge>
               </div>
               
               <div className="space-y-3">
-                {pendingApprovals.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between p-4 bg-accent/50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <span className="text-sm font-medium text-primary">
-                          {user.name.split(' ').map(n => n[0]).join('')}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground hidden sm:block">
-                        Requested {user.requestedDate}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                          <XCircle className="h-4 w-4 mr-1" />
-                          Reject
-                        </Button>
-                        <Button size="sm" className="bg-primary hover:bg-primary/90">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Approve
-                        </Button>
-                      </div>
-                    </div>
+                {isLoadingPending ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
-                ))}
+                ) : pendingUsers.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">No pending approvals</p>
+                ) : (
+                  pendingUsers.map((pendingUser) => (
+                    <div
+                      key={pendingUser.id}
+                      className="flex items-center justify-between p-4 bg-accent/50 rounded-lg"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {pendingUser.full_name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{pendingUser.full_name}</p>
+                          <p className="text-xs text-muted-foreground">{pendingUser.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-muted-foreground hidden sm:block">
+                          Requested {pendingUser.created_at ? format(new Date(pendingUser.created_at), "MMM d, yyyy") : "N/A"}
+                        </span>
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleReject(pendingUser.id)}
+                            disabled={rejectUserMutation.isPending}
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Reject
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="bg-primary hover:bg-primary/90"
+                            onClick={() => handleApprove(pendingUser.id)}
+                            disabled={approveUserMutation.isPending}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </motion.div>
 

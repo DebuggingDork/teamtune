@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { handleError } from "@/utils/errorHandler";
 import loginHero from "@/assets/login-hero.jpg";
 
 interface LoginFormProps {
@@ -23,11 +25,16 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    // Trim whitespace from email and password
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    
+    if (!trimmedEmail || !trimmedPassword) {
       toast({
         title: "Missing fields",
         description: "Please enter both email and password.",
@@ -38,15 +45,19 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
 
     setIsLoading(true);
 
-    // Mock authentication - simulates login and redirects to dashboard
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await login(trimmedEmail, trimmedPassword);
       toast({
         title: "Welcome back!",
         description: `Signed in as ${roleTitle}`,
       });
       navigate(dashboardPath);
-    }, 1000);
+    } catch (error) {
+      // Error is already handled by handleError in login function
+      // But we can add additional handling here if needed
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -123,6 +134,10 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-12 bg-background pr-10"
+                    autoComplete="current-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                   <button
                     type="button"

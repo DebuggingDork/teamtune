@@ -7,10 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { useToast } from "@/hooks/use-toast";
+import * as authService from "@/services/auth.service";
+import { handleError } from "@/utils/errorHandler";
 import loginHero from "@/assets/login-hero.jpg";
 
 const EmployeeSignUp = () => {
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,7 +26,7 @@ const EmployeeSignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!fullName || !username || !email || !password || !confirmPassword) {
       toast({
         title: "Missing fields",
         description: "Please fill in all required fields.",
@@ -41,10 +44,11 @@ const EmployeeSignUp = () => {
       return;
     }
 
+    // Basic client-side validation (server will do full validation)
     if (password.length < 8) {
       toast({
         title: "Password too short",
-        description: "Password must be at least 8 characters long.",
+        description: "Password must be at least 8 characters with uppercase, lowercase, and number.",
         variant: "destructive",
       });
       return;
@@ -52,11 +56,28 @@ const EmployeeSignUp = () => {
 
     setIsLoading(true);
 
-    // TODO: Replace with actual registration when Cloud is enabled
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await authService.register({
+        email: email.trim(),
+        password: password.trim(),
+        username: username.trim(),
+        full_name: fullName.trim(),
+      });
+      
+      toast({
+        title: "Registration successful",
+        description: "Your account request has been submitted. Awaiting admin approval.",
+      });
+      
       navigate("/auth/pending-approval");
-    }, 1500);
+    } catch (error) {
+      // Log error for debugging
+      console.log('Registration error:', error);
+      // Don't pass custom message - let the actual API error message show
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -116,6 +137,18 @@ const EmployeeSignUp = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="johndoe"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="h-12 bg-background"
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="email">Work Email</Label>
                 <Input
                   id="email"
@@ -133,10 +166,14 @@ const EmployeeSignUp = () => {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Min. 8 characters"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-12 bg-background pr-10"
+                    autoComplete="new-password"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                   <button
                     type="button"
@@ -150,6 +187,9 @@ const EmployeeSignUp = () => {
                     )}
                   </button>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Must be at least 8 characters with uppercase, lowercase, and number
+                </p>
               </div>
 
               <div className="space-y-2">

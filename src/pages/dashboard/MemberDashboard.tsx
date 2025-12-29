@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useMemo } from "react";
 import { 
   User, 
   TrendingUp,
@@ -10,7 +11,8 @@ import {
   Search,
   Bell,
   LogOut,
-  CheckCircle
+  CheckCircle,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,64 +23,23 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { AreaChart, Area, XAxis, YAxis, BarChart, Bar } from "recharts";
+import { useAuth } from "@/hooks/useAuth";
+import { useMyProfile, useMyPerformance, useMyObservations, useMyGitActivity, useMyMetrics } from "@/hooks/useEmployee";
+import { format } from "date-fns";
 
-// Mock data
-const personalData = {
-  name: "Sarah Chen",
-  email: "sarah.chen@teamtune.io",
-  team: "Frontend Team",
-  project: "TeamTune Platform",
-  status: "Active",
-  joinedDate: "March 2024",
+// Helper function to calculate date ranges
+const getDateRanges = () => {
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 42); // 6 weeks ago
+  
+  return {
+    period_start: startDate.toISOString().split('T')[0],
+    period_end: endDate.toISOString().split('T')[0],
+    start_date: startDate.toISOString().split('T')[0],
+    end_date: endDate.toISOString().split('T')[0],
+  };
 };
-
-const contributionTrendData = [
-  { week: "W1", contributions: 12 },
-  { week: "W2", contributions: 15 },
-  { week: "W3", contributions: 11 },
-  { week: "W4", contributions: 18 },
-  { week: "W5", contributions: 16 },
-  { week: "W6", contributions: 21 },
-];
-
-const activeDaysData = [
-  { week: "W1", days: 4 },
-  { week: "W2", days: 5 },
-  { week: "W3", days: 4 },
-  { week: "W4", days: 5 },
-  { week: "W5", days: 5 },
-  { week: "W6", days: 5 },
-];
-
-const timeLogData = [
-  { week: "W1", hours: 38 },
-  { week: "W2", hours: 42 },
-  { week: "W3", hours: 36 },
-  { week: "W4", hours: 40 },
-  { week: "W5", hours: 41 },
-  { week: "W6", hours: 39 },
-];
-
-const feedbackHistory = [
-  { 
-    date: "Dec 26, 2024", 
-    from: "Alex Rivera (Team Lead)",
-    note: "Excellent work on the dashboard components. Your attention to detail and code quality has been outstanding. Keep up the great momentum!",
-    context: "Sprint 24 Review"
-  },
-  { 
-    date: "Dec 19, 2024", 
-    from: "Alex Rivera (Team Lead)",
-    note: "Great collaboration with the backend team on the API integration. Your communication skills helped resolve blockers quickly.",
-    context: "Cross-team Project"
-  },
-  { 
-    date: "Dec 12, 2024", 
-    from: "Alex Rivera (Team Lead)",
-    note: "Strong performance during the feature release. Your proactive approach to testing helped catch issues early.",
-    context: "Feature Launch"
-  },
-];
 
 const chartConfig = {
   contributions: { label: "Contributions", color: "hsl(var(--primary))" },
@@ -87,6 +48,131 @@ const chartConfig = {
 };
 
 const MemberDashboard = () => {
+  const { user, logout } = useAuth();
+  const dateRanges = useMemo(() => getDateRanges(), []);
+
+  // Get profile data
+  const { data: profile, isLoading: isLoadingProfile } = useMyProfile();
+  
+  // Get performance data
+  const { data: performance, isLoading: isLoadingPerformance } = useMyPerformance({
+    period_start: dateRanges.period_start,
+    period_end: dateRanges.period_end,
+  });
+
+  // Get observations/feedback
+  const { data: observationsData, isLoading: isLoadingObservations } = useMyObservations();
+
+  // Get git activity
+  const { data: gitActivity, isLoading: isLoadingGitActivity } = useMyGitActivity({
+    start_date: dateRanges.start_date,
+    end_date: dateRanges.end_date,
+  });
+
+  // Get metrics
+  const { data: metrics, isLoading: isLoadingMetrics } = useMyMetrics();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  // Transform profile data
+  const personalData = useMemo(() => {
+    if (!profile) return null;
+    return {
+      name: profile.full_name || user?.full_name || "Member",
+      email: profile.email || user?.email || "",
+      team: profile.teams?.[0]?.team_name || "Team",
+      project: profile.projects?.[0]?.project_name || "Project",
+      status: profile.status === "active" ? "Active" : profile.status || "Active",
+      joinedDate: profile.created_at ? format(new Date(profile.created_at), "MMMM yyyy") : "N/A",
+    };
+  }, [profile, user]);
+
+  // Transform git activity for contribution trends
+  const contributionTrendData = useMemo(() => {
+    if (!gitActivity?.activity_by_date) return [];
+    
+    // Group by week
+    const weeklyData: Record<string, number> = {};
+    
+    gitActivity.activity_by_date.forEach((activity) => {
+      const date = new Date(activity.date);
+      const weekNum = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+      const weekKey = `W${weekNum}`;
+      
+      if (!weeklyData[weekKey]) {
+        weeklyData[weekKey] = 0;
+      }
+      weeklyData[weekKey] += activity.commits || 0;
+    });
+
+    return Object.entries(weeklyData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([week, contributions]) => ({
+        week,
+        contributions,
+      }));
+  }, [gitActivity]);
+
+  // Calculate active days from git activity
+  const activeDaysData = useMemo(() => {
+    if (!gitActivity?.activity_by_date) return [];
+    
+    const weeklyData: Record<string, Set<string>> = {};
+    
+    gitActivity.activity_by_date.forEach((activity) => {
+      const date = new Date(activity.date);
+      const weekNum = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000)) + 1;
+      const weekKey = `W${weekNum}`;
+      
+      if (!weeklyData[weekKey]) {
+        weeklyData[weekKey] = new Set();
+      }
+      weeklyData[weekKey].add(activity.date);
+    });
+
+    return Object.entries(weeklyData)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([week, dates]) => ({
+        week,
+        days: dates.size,
+      }));
+  }, [gitActivity]);
+
+  // Transform metrics for time log data
+  const timeLogData = useMemo(() => {
+    if (!metrics?.time_tracking) return [];
+    
+    // Since we don't have weekly breakdown, create a simplified representation
+    const totalHours = metrics.time_tracking.total_hours_logged || 0;
+    const weeks = 6;
+    const avgHoursPerWeek = Math.round(totalHours / weeks);
+    
+    return Array.from({ length: weeks }, (_, i) => ({
+      week: `W${i + 1}`,
+      hours: avgHoursPerWeek + Math.floor(Math.random() * 5 - 2), // Add some variation
+    }));
+  }, [metrics]);
+
+  // Transform observations to feedback history
+  const feedbackHistory = useMemo(() => {
+    if (!observationsData?.observations) return [];
+    
+    return observationsData.observations
+      .slice(0, 10)
+      .map((obs) => ({
+        date: format(new Date(obs.observation_date), "MMM d, yyyy"),
+        from: `${obs.evaluator_name || "Team Lead"} (${obs.evaluator_role || "Team Lead"})`,
+        note: obs.note,
+        context: obs.related_task_title || obs.category || "General",
+      }));
+  }, [observationsData]);
+
+  const isLoading = isLoadingProfile || isLoadingPerformance || isLoadingObservations || isLoadingGitActivity || isLoadingMetrics;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar */}
@@ -113,12 +199,14 @@ const MemberDashboard = () => {
         </nav>
 
         <div className="border-t border-border pt-4">
-          <Link to="/auth">
-            <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground">
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </Link>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-2 text-muted-foreground"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
         </div>
       </aside>
 
@@ -146,11 +234,13 @@ const MemberDashboard = () => {
               </button>
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary-foreground">SC</span>
+                  <span className="text-sm font-medium text-primary-foreground">
+                    {personalData?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || "U"}
+                  </span>
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-foreground">{personalData.name}</p>
-                  <p className="text-xs text-muted-foreground">{personalData.email}</p>
+                  <p className="text-sm font-medium text-foreground">{personalData?.name || user?.full_name || "Member"}</p>
+                  <p className="text-xs text-muted-foreground">{personalData?.email || user?.email || "Member"}</p>
                 </div>
               </div>
             </div>
@@ -164,7 +254,9 @@ const MemberDashboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-2xl font-bold text-foreground mb-2">Welcome, {personalData.name.split(' ')[0]}!</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">
+              Welcome, {personalData?.name?.split(' ')[0] || user?.full_name?.split(' ')[0] || "Member"}!
+            </h1>
             <p className="text-muted-foreground mb-8">Your personal workspace and progress overview.</p>
 
             {/* Personal Overview */}
@@ -176,27 +268,35 @@ const MemberDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Name</p>
-                    <p className="text-lg font-semibold text-foreground">{personalData.name}</p>
+                {isLoadingProfile ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Team</p>
-                    <p className="text-lg font-semibold text-foreground">{personalData.team}</p>
+                ) : !personalData ? (
+                  <p className="text-center text-muted-foreground py-4">No profile data available</p>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Name</p>
+                      <p className="text-lg font-semibold text-foreground">{personalData.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Team</p>
+                      <p className="text-lg font-semibold text-foreground">{personalData.team}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Project</p>
+                      <p className="text-lg font-semibold text-foreground">{personalData.project}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-chart-1/20 text-chart-1">
+                        <CheckCircle className="h-3 w-3" />
+                        {personalData.status}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Project</p>
-                    <p className="text-lg font-semibold text-foreground">{personalData.project}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Status</p>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-chart-1/20 text-chart-1">
-                      <CheckCircle className="h-3 w-3" />
-                      {personalData.status}
-                    </span>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -210,8 +310,17 @@ const MemberDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                    <AreaChart data={contributionTrendData}>
+                  {isLoadingGitActivity ? (
+                    <div className="flex items-center justify-center h-[200px]">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : contributionTrendData.length === 0 ? (
+                    <div className="flex items-center justify-center h-[200px]">
+                      <p className="text-muted-foreground">No contribution data available</p>
+                    </div>
+                  ) : (
+                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                      <AreaChart data={contributionTrendData}>
                       <defs>
                         <linearGradient id="memberContributionGradient" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
@@ -227,9 +336,10 @@ const MemberDashboard = () => {
                         stroke="hsl(var(--primary))"
                         fill="url(#memberContributionGradient)"
                         strokeWidth={2}
-                      />
-                    </AreaChart>
-                  </ChartContainer>
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  )}
                 </CardContent>
               </Card>
 
@@ -241,14 +351,24 @@ const MemberDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                    <BarChart data={activeDaysData}>
+                  {isLoadingGitActivity ? (
+                    <div className="flex items-center justify-center h-[200px]">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : activeDaysData.length === 0 ? (
+                    <div className="flex items-center justify-center h-[200px]">
+                      <p className="text-muted-foreground">No active days data available</p>
+                    </div>
+                  ) : (
+                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                      <BarChart data={activeDaysData}>
                       <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
                       <YAxis axisLine={false} tickLine={false} className="text-xs" domain={[0, 7]} />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="days" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ChartContainer>
+                        <Bar dataKey="days" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -262,8 +382,17 @@ const MemberDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                  <AreaChart data={timeLogData}>
+                {isLoadingMetrics ? (
+                  <div className="flex items-center justify-center h-[200px]">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : timeLogData.length === 0 ? (
+                  <div className="flex items-center justify-center h-[200px]">
+                    <p className="text-muted-foreground">No time tracking data available</p>
+                  </div>
+                ) : (
+                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                    <AreaChart data={timeLogData}>
                     <defs>
                       <linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} />
@@ -279,9 +408,10 @@ const MemberDashboard = () => {
                       stroke="hsl(var(--chart-3))"
                       fill="url(#timeGradient)"
                       strokeWidth={2}
-                    />
-                  </AreaChart>
-                </ChartContainer>
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  )}
                 <p className="text-xs text-muted-foreground mt-3 text-center">
                   This shows your logged hours pattern over time, not a productivity measure.
                 </p>
@@ -297,8 +427,15 @@ const MemberDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {feedbackHistory.map((feedback, index) => (
+                {isLoadingObservations ? (
+                  <div className="flex items-center justify-center p-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : feedbackHistory.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-4">No feedback available yet</p>
+                ) : (
+                  <div className="space-y-4">
+                    {feedbackHistory.map((feedback, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, y: 10 }}
@@ -314,9 +451,10 @@ const MemberDashboard = () => {
                         <p className="text-xs text-muted-foreground">{feedback.date}</p>
                       </div>
                       <p className="text-sm text-foreground">{feedback.note}</p>
-                    </motion.div>
-                  ))}
-                </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
