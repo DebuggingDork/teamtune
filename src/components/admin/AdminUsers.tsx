@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   Users, 
   Search, 
@@ -17,7 +17,12 @@ import {
   CheckSquare,
   Square,
   X,
-  Trash2
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  ChevronLeft,
+  ArrowDown,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,23 +61,124 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAllUsers, useBlockUser, useUnblockUser, useBulkApproveUsers, useBulkRejectUsers, useDeleteUser, useBulkDeleteUsers } from "@/hooks/useAdmin";
+import { useAllUsers, useBlockUser, useUnblockUser, useBulkApproveUsers, useBulkRejectUsers, useDeleteUser, useBulkDeleteUsers, useManagedProjects, useLedTeams, useDemoteProjectManager, useDemoteTeamLead } from "@/hooks/useAdmin";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import type { UserRole } from "@/api/types";
 
+// Component to show user details (projects/teams)
+const UserDetailsSection = ({ userId, role }: { userId: string; role: UserRole }) => {
+  const { data: managedProjects, isLoading: isLoadingProjects } = useManagedProjects(userId);
+  const { data: ledTeams, isLoading: isLoadingTeams } = useLedTeams(userId);
+
+  if (role === "project_manager") {
+    return (
+      <div className="border-t border-border bg-muted/30 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <FolderKanban className="h-4 w-4 text-primary" />
+          <h4 className="text-sm font-semibold text-foreground">Managed Projects</h4>
+          {managedProjects && (
+            <Badge variant="secondary" className="text-xs">
+              {managedProjects.total}
+            </Badge>
+          )}
+        </div>
+        {isLoadingProjects ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        ) : managedProjects && managedProjects.projects.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {managedProjects.projects.map((project) => (
+              <div
+                key={project.id}
+                className="flex items-center justify-between p-3 bg-background rounded-lg border border-border"
+              >
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{project.name}</p>
+                  <p className="text-xs text-muted-foreground">{project.project_code}</p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {project.status}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground py-2">No projects managed</p>
+        )}
+      </div>
+    );
+  }
+
+  if (role === "team_lead") {
+    return (
+      <div className="border-t border-border bg-muted/30 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <UsersRound className="h-4 w-4 text-primary" />
+          <h4 className="text-sm font-semibold text-foreground">Led Teams</h4>
+          {ledTeams && (
+            <Badge variant="secondary" className="text-xs">
+              {ledTeams.total}
+            </Badge>
+          )}
+        </div>
+        {isLoadingTeams ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        ) : ledTeams && ledTeams.teams.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {ledTeams.teams.map((team) => (
+              <div
+                key={team.id}
+                className="flex items-center justify-between p-3 bg-background rounded-lg border border-border"
+              >
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{team.name}</p>
+                  <p className="text-xs text-muted-foreground">{team.team_code}</p>
+                </div>
+                <Badge variant="outline" className="text-xs">
+                  {team.member_count || 0} members
+                </Badge>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground py-2">No teams led</p>
+        )}
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const AdminUsers = () => {
-  const { data: allUsers = [], isLoading } = useAllUsers();
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  
+  const { data: usersData, isLoading } = useAllUsers({
+    page,
+    limit,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    role: roleFilter !== "all" ? roleFilter : undefined,
+  });
+  
+  const allUsers = usersData?.users || [];
+  const pagination = usersData?.pagination;
+  
   const blockUserMutation = useBlockUser();
   const unblockUserMutation = useUnblockUser();
   const bulkApproveMutation = useBulkApproveUsers();
   const bulkRejectMutation = useBulkRejectUsers();
   const deleteUserMutation = useDeleteUser();
   const bulkDeleteMutation = useBulkDeleteUsers();
-  
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const demotePMMutation = useDemoteProjectManager();
+  const demoteTLMutation = useDemoteTeamLead();
   const [isBlockDialogOpen, setIsBlockDialogOpen] = useState(false);
   const [isUnblockDialogOpen, setIsUnblockDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -87,6 +193,12 @@ const AdminUsers = () => {
   const [bulkRejectReason, setBulkRejectReason] = useState<string>("");
   const [bulkOperationResult, setBulkOperationResult] = useState<any>(null);
   const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
+  const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
+  const [selectedUserForDemote, setSelectedUserForDemote] = useState<any>(null);
+  const [isDemotePMDialogOpen, setIsDemotePMDialogOpen] = useState(false);
+  const [isDemoteTLDialogOpen, setIsDemoteTLDialogOpen] = useState(false);
+  const [replacementManagerId, setReplacementManagerId] = useState<string>("");
+  const [replacementLeadId, setReplacementLeadId] = useState<string>("");
 
   const handleBlockUser = async () => {
     if (!selectedUser) return;
@@ -140,9 +252,16 @@ const AdminUsers = () => {
       setIsDeleteDialogOpen(false);
       setSelectedUser(null);
     } catch (error: any) {
+      // Extract error message from API response
+      const errorMessage = 
+        error?.response?.data?.error?.message || 
+        error?.response?.data?.message || 
+        error?.message || 
+        "Failed to delete user";
+      
       toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Failed to delete user",
+        title: "Cannot Delete User",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -173,10 +292,17 @@ const AdminUsers = () => {
         title: "Bulk Deletion Complete",
         description: `Deleted ${result.total_deleted} of ${result.total_requested} users`,
       });
-    } catch (error) {
+    } catch (error: any) {
+      // Extract error message from API response - check nested error structure
+      const errorMessage = 
+        error?.response?.data?.error?.message || 
+        error?.response?.data?.message || 
+        error?.message || 
+        "Failed to delete users";
+      
       toast({
-        title: "Error",
-        description: "Failed to delete users",
+        title: "Cannot Delete Users",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -197,14 +323,102 @@ const AdminUsers = () => {
     setIsUnblockDialogOpen(true);
   };
 
-  // Filter users based on search and filters
+  const toggleUserExpansion = (userId: string) => {
+    const newExpanded = new Set(expandedUsers);
+    if (newExpanded.has(userId)) {
+      newExpanded.delete(userId);
+    } else {
+      newExpanded.add(userId);
+    }
+    setExpandedUsers(newExpanded);
+  };
+
+  const openDemotePMDialog = (user: any) => {
+    setSelectedUserForDemote(user);
+    setIsDemotePMDialogOpen(true);
+    setReplacementManagerId("");
+  };
+
+  const openDemoteTLDialog = (user: any) => {
+    setSelectedUserForDemote(user);
+    setIsDemoteTLDialogOpen(true);
+    setReplacementLeadId("");
+  };
+
+  const handleDemotePM = async () => {
+    if (!selectedUserForDemote || !replacementManagerId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a replacement manager",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await demotePMMutation.mutateAsync({
+        id: selectedUserForDemote.id,
+        data: { replacement_manager_id: replacementManagerId },
+      });
+      
+      toast({
+        title: "Success",
+        description: `${selectedUserForDemote.full_name} has been demoted. ${result.projects_reassigned} project(s) reassigned.`,
+      });
+      setIsDemotePMDialogOpen(false);
+      setSelectedUserForDemote(null);
+      setReplacementManagerId("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to demote project manager",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDemoteTL = async () => {
+    if (!selectedUserForDemote || !replacementLeadId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a replacement team lead",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await demoteTLMutation.mutateAsync({
+        id: selectedUserForDemote.id,
+        data: { replacement_lead_id: replacementLeadId },
+      });
+      
+      toast({
+        title: "Success",
+        description: `${selectedUserForDemote.full_name} has been demoted. ${result.teams_reassigned} team(s) reassigned.`,
+      });
+      setIsDemoteTLDialogOpen(false);
+      setSelectedUserForDemote(null);
+      setReplacementLeadId("");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to demote team lead",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [roleFilter, statusFilter]);
+
+  // Filter users based on search (client-side search, server-side handles role/status)
   const filteredUsers = allUsers.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = roleFilter === "all" || user.role === roleFilter;
-    const matchesStatus = statusFilter === "all" || user.status === statusFilter;
-    
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch;
   });
 
   // Get pending users for bulk operations
@@ -346,7 +560,13 @@ const AdminUsers = () => {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case "admin": return <Shield className="h-4 w-4 text-primary" />;
+      case "admin": 
+        return (
+          <div className="relative inline-flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/40 via-red-500/40 to-yellow-500/40 rounded-full blur-[3px]"></div>
+            <Shield className="h-4 w-4 text-orange-500 relative z-10 drop-shadow-[0_0_2px_rgba(251,146,60,0.5)]" />
+          </div>
+        );
       case "project_manager": return <FolderKanban className="h-4 w-4 text-blue-500" />;
       case "team_lead": return <UsersRound className="h-4 w-4 text-purple-500" />;
       default: return <Users className="h-4 w-4 text-muted-foreground" />;
@@ -558,7 +778,13 @@ const AdminUsers = () => {
       <div className="bg-card border border-border rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground">Users</h3>
-          <Badge variant="secondary">{filteredUsers.length} users</Badge>
+          <div className="flex items-center gap-2">
+            {pagination && (
+              <Badge variant="secondary">
+                Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -574,97 +800,238 @@ const AdminUsers = () => {
           <div className="space-y-3">
             {filteredUsers.map((user) => {
               const isSelected = isBulkMode && user.status === "pending" && selectedUserIds.has(user.id);
+              const isExpanded = expandedUsers.has(user.id);
+              const isPM = user.role === "project_manager";
+              const isTL = user.role === "team_lead";
+              
               return (
               <div
                 key={user.id}
-                className={`flex items-center justify-between p-4 rounded-lg transition-colors ${
+                className={`rounded-lg transition-all ${
                   isSelected 
                     ? "bg-primary/10 border-2 border-primary" 
-                    : "bg-accent/50 hover:bg-accent"
+                    : "bg-accent/50 hover:bg-accent border border-transparent"
                 }`}
               >
-                <div className="flex items-center gap-4">
-                  {isBulkMode && user.role !== "admin" && (
-                    <Checkbox
-                      checked={selectedUserIds.has(user.id)}
-                      onCheckedChange={() => handleToggleUser(user.id, user.role)}
-                    />
-                  )}
-                  <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-primary">
-                      {user.full_name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-foreground">{user.full_name}</p>
-                      {getStatusIcon(user.status)}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                    {user.department && (
-                      <p className="text-xs text-muted-foreground">Department: {user.department}</p>
+                <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-4 flex-1">
+                    {isBulkMode && user.role !== "admin" && (
+                      <Checkbox
+                        checked={selectedUserIds.has(user.id)}
+                        onCheckedChange={() => handleToggleUser(user.id, user.role)}
+                      />
                     )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    {getRoleIcon(user.role)}
-                    <Badge variant="outline" className="text-xs">
-                      {user.role.replace('_', ' ')}
-                    </Badge>
-                  </div>
-                  <Badge variant={getStatusBadgeVariant(user.status)}>
-                    {user.status}
-                  </Badge>
-                  {user.created_at && (
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      Joined {format(new Date(user.created_at), "MMM d, yyyy")}
-                    </span>
-                  )}
-                  
-                  {/* Actions Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
+                    {(isPM || isTL) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => toggleUserExpansion(user.id)}
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4" />
+                        )}
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {user.status === "blocked" ? (
-                        <DropdownMenuItem 
-                          onClick={() => openUnblockDialog(user)}
-                          className="text-emerald-600 focus:text-emerald-600"
+                    )}
+                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-medium text-primary">
+                        {user.full_name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-foreground">{user.full_name}</p>
+                        {getStatusIcon(user.status)}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                      {user.department && (
+                        <p className="text-xs text-muted-foreground">Department: {user.department}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      {getRoleIcon(user.role)}
+                      {user.role === "admin" ? (
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-yellow-500/10 text-transparent bg-clip-text"
                         >
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Unblock User
-                        </DropdownMenuItem>
-                      ) : user.status === "active" ? (
-                        <DropdownMenuItem 
-                          onClick={() => openBlockDialog(user)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Ban className="h-4 w-4 mr-2" />
-                          Block User
-                        </DropdownMenuItem>
-                      ) : null}
-                      {user.role !== "admin" && (
-                        <>
-                          <DropdownMenuSeparator />
+                          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
+                            {user.role.replace('_', ' ')}
+                          </span>
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-xs">
+                          {user.role.replace('_', ' ')}
+                        </Badge>
+                      )}
+                    </div>
+                    <Badge variant={getStatusBadgeVariant(user.status)}>
+                      {user.status}
+                    </Badge>
+                    {user.created_at && (
+                      <span className="text-xs text-muted-foreground hidden sm:block">
+                        Joined {format(new Date(user.created_at), "MMM d, yyyy")}
+                      </span>
+                    )}
+                    
+                    {/* Actions Menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {user.status === "blocked" ? (
                           <DropdownMenuItem 
-                            onClick={() => openDeleteDialog(user)}
+                            onClick={() => openUnblockDialog(user)}
+                            className="text-emerald-600 focus:text-emerald-600"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            Unblock User
+                          </DropdownMenuItem>
+                        ) : user.status === "active" ? (
+                          <DropdownMenuItem 
+                            onClick={() => openBlockDialog(user)}
                             className="text-destructive focus:text-destructive"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete User
+                            <Ban className="h-4 w-4 mr-2" />
+                            Block User
                           </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        ) : null}
+                        {isPM && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => toggleUserExpansion(user.id)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              {isExpanded ? "Hide" : "View"} Projects
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openDemotePMDialog(user)}
+                              className="text-orange-600 focus:text-orange-600"
+                            >
+                              <ArrowDown className="h-4 w-4 mr-2" />
+                              Demote to Employee
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {isTL && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => toggleUserExpansion(user.id)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              {isExpanded ? "Hide" : "View"} Teams
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openDemoteTLDialog(user)}
+                              className="text-orange-600 focus:text-orange-600"
+                            >
+                              <ArrowDown className="h-4 w-4 mr-2" />
+                              Demote to Employee
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        {user.role !== "admin" && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => openDeleteDialog(user)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete User
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
+                
+                {/* Expanded Content - Projects/Teams */}
+                {isExpanded && (isPM || isTL) && (
+                  <UserDetailsSection userId={user.id} role={user.role} />
+                )}
               </div>
             );
             })}
+          </div>
+        )}
+        
+        {/* Pagination Controls */}
+        {pagination && pagination.total_pages > 1 && (
+          <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">
+                Page {pagination.page} of {pagination.total_pages}
+              </p>
+              <Select value={limit.toString()} onValueChange={(value) => { setLimit(Number(value)); setPage(1); }}>
+                <SelectTrigger className="w-20 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">per page</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={!pagination.has_prev || isLoading}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
+                  let pageNum;
+                  if (pagination.total_pages <= 5) {
+                    pageNum = i + 1;
+                  } else if (pagination.page <= 3) {
+                    pageNum = i + 1;
+                  } else if (pagination.page >= pagination.total_pages - 2) {
+                    pageNum = pagination.total_pages - 4 + i;
+                  } else {
+                    pageNum = pagination.page - 2 + i;
+                  }
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={pagination.page === pageNum ? "default" : "outline"}
+                      size="sm"
+                      className="w-8 h-8 p-0"
+                      onClick={() => setPage(pageNum)}
+                      disabled={isLoading}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(p => Math.min(pagination.total_pages, p + 1))}
+                disabled={!pagination.has_next || isLoading}
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -956,16 +1323,17 @@ const AdminUsers = () => {
               {bulkOperationResult.approved && bulkOperationResult.approved.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    Successfully Approved ({bulkOperationResult.approved.length})
+                    Approved ({bulkOperationResult.approved.length})
                   </p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1">
                       {bulkOperationResult.approved.map((userId: any, index: number) => {
-                        const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+                        const user = allUsers.find(u => u.id === userId);
+                        const email = user?.email || 'Unknown';
                         return (
-                          <Badge key={index} variant="outline" className="text-emerald-600 dark:text-emerald-400">
-                            {userIdStr.length > 8 ? `${userIdStr.substring(0, 8)}...` : userIdStr}
-                          </Badge>
+                          <p key={index} className="text-sm text-foreground">
+                            {email}
+                          </p>
                         );
                       })}
                     </div>
@@ -976,16 +1344,17 @@ const AdminUsers = () => {
               {bulkOperationResult.rejected && bulkOperationResult.rejected.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    Successfully Rejected ({bulkOperationResult.rejected.length})
+                    Rejected ({bulkOperationResult.rejected.length})
                   </p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1">
                       {bulkOperationResult.rejected.map((userId: any, index: number) => {
-                        const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+                        const user = allUsers.find(u => u.id === userId);
+                        const email = user?.email || 'Unknown';
                         return (
-                          <Badge key={index} variant="outline" className="text-emerald-600 dark:text-emerald-400">
-                            {userIdStr.length > 8 ? `${userIdStr.substring(0, 8)}...` : userIdStr}
-                          </Badge>
+                          <p key={index} className="text-sm text-foreground">
+                            {email}
+                          </p>
                         );
                       })}
                     </div>
@@ -996,16 +1365,17 @@ const AdminUsers = () => {
               {bulkOperationResult.deleted && bulkOperationResult.deleted.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    Successfully Deleted ({bulkOperationResult.deleted.length})
+                    Deleted ({bulkOperationResult.deleted.length})
                   </p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1">
                       {bulkOperationResult.deleted.map((userId: any, index: number) => {
-                        const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+                        const user = allUsers.find(u => u.id === userId);
+                        const email = user?.email || 'Unknown';
                         return (
-                          <Badge key={index} variant="outline" className="text-emerald-600 dark:text-emerald-400">
-                            {userIdStr.length > 8 ? `${userIdStr.substring(0, 8)}...` : userIdStr}
-                          </Badge>
+                          <p key={index} className="text-sm text-foreground">
+                            {email}
+                          </p>
                         );
                       })}
                     </div>
@@ -1016,6 +1386,132 @@ const AdminUsers = () => {
           )}
           <DialogFooter>
             <Button onClick={() => setIsResultDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Demote Project Manager Dialog */}
+      <Dialog open={isDemotePMDialogOpen} onOpenChange={setIsDemotePMDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Demote Project Manager</DialogTitle>
+            <DialogDescription>
+              Demote {selectedUserForDemote?.full_name} from Project Manager to Employee. You must select a replacement manager to take over their projects.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Replacement Manager *</label>
+              <Select value={replacementManagerId} onValueChange={setReplacementManagerId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a replacement manager" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allUsers
+                    .filter(u => u.id !== selectedUserForDemote?.id && u.role === "employee" && u.status === "active")
+                    .map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.full_name} ({user.email})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select an active employee to become the new project manager
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDemotePMDialogOpen(false);
+                setSelectedUserForDemote(null);
+                setReplacementManagerId("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDemotePM}
+              disabled={demotePMMutation.isPending || !replacementManagerId}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {demotePMMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Demoting...
+                </>
+              ) : (
+                <>
+                  <ArrowDown className="h-4 w-4 mr-2" />
+                  Demote to Employee
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Demote Team Lead Dialog */}
+      <Dialog open={isDemoteTLDialogOpen} onOpenChange={setIsDemoteTLDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Demote Team Lead</DialogTitle>
+            <DialogDescription>
+              Demote {selectedUserForDemote?.full_name} from Team Lead to Employee. You must select a replacement lead to take over their teams.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Replacement Team Lead *</label>
+              <Select value={replacementLeadId} onValueChange={setReplacementLeadId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a replacement team lead" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allUsers
+                    .filter(u => u.id !== selectedUserForDemote?.id && u.role === "employee" && u.status === "active")
+                    .map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.full_name} ({user.email})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Select an active employee to become the new team lead
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDemoteTLDialogOpen(false);
+                setSelectedUserForDemote(null);
+                setReplacementLeadId("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDemoteTL}
+              disabled={demoteTLMutation.isPending || !replacementLeadId}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              {demoteTLMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Demoting...
+                </>
+              ) : (
+                <>
+                  <ArrowDown className="h-4 w-4 mr-2" />
+                  Demote to Employee
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

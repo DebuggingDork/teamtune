@@ -24,6 +24,10 @@ export const ENDPOINTS = {
       BULK_REJECT: `${API_BASE}${API_PREFIX}/admin/users/bulk-reject`,
       DELETE: (id: string) => `${API_BASE}${API_PREFIX}/admin/users/${id}`,
       BULK_DELETE: `${API_BASE}${API_PREFIX}/admin/users/bulk-delete`,
+      DEMOTE_PM: (id: string) => `${API_BASE}${API_PREFIX}/admin/users/${id}/demote-pm`,
+      DEMOTE_TL: (id: string) => `${API_BASE}${API_PREFIX}/admin/users/${id}/demote-tl`,
+      MANAGED_PROJECTS: (id: string) => `${API_BASE}${API_PREFIX}/admin/users/${id}/managed-projects`,
+      LED_TEAMS: (id: string) => `${API_BASE}${API_PREFIX}/admin/users/${id}/led-teams`,
     },
     PLUGINS: {
       LIST: `${API_BASE}${API_PREFIX}/admin/plugins`,

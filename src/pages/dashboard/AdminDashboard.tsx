@@ -82,7 +82,8 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: pendingUsers = [], isLoading: isLoadingPending } = usePendingUsers();
-  const { data: allUsers = [], isLoading: isLoadingAll } = useAllUsers();
+  const { data: usersData, isLoading: isLoadingAll } = useAllUsers();
+  const allUsers = usersData?.users || [];
   const approveUserMutation = useApproveUser();
   const rejectUserMutation = useRejectUser();
   const unblockUserMutation = useUnblockUser();
@@ -383,8 +384,13 @@ const AdminDashboard = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-3 p-2">
-                    <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                      <Shield className="h-4 w-4 text-primary-foreground" />
+                    <div className="relative h-8 w-8 rounded-full flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full opacity-70 blur-[3px]"></div>
+                      <div className="relative h-8 w-8 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full flex items-center justify-center p-[1.5px]">
+                        <div className="h-full w-full bg-background rounded-full flex items-center justify-center">
+                          <Shield className="h-4 w-4 text-orange-500 drop-shadow-[0_0_3px_rgba(251,146,60,0.6)]" />
+                        </div>
+                      </div>
                     </div>
                     <div className="hidden sm:block text-left">
                       <p className="text-sm font-medium text-foreground">{user?.full_name || "Admin User"}</p>
@@ -950,16 +956,17 @@ const AdminDashboard = () => {
               {bulkOperationResult.approved && bulkOperationResult.approved.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    Successfully Approved ({bulkOperationResult.approved.length})
+                    Approved ({bulkOperationResult.approved.length})
                   </p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1">
                       {bulkOperationResult.approved.map((userId: any, index: number) => {
-                        const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+                        const user = allUsers.find(u => u.id === userId);
+                        const email = user?.email || 'Unknown';
                         return (
-                          <Badge key={index} variant="outline" className="text-emerald-600 dark:text-emerald-400">
-                            {userIdStr.length > 8 ? `${userIdStr.substring(0, 8)}...` : userIdStr}
-                          </Badge>
+                          <p key={index} className="text-sm text-foreground">
+                            {email}
+                          </p>
                         );
                       })}
                     </div>
@@ -970,16 +977,17 @@ const AdminDashboard = () => {
               {bulkOperationResult.rejected && bulkOperationResult.rejected.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                    Successfully Rejected ({bulkOperationResult.rejected.length})
+                    Rejected ({bulkOperationResult.rejected.length})
                   </p>
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 max-h-48 overflow-y-auto">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="space-y-1">
                       {bulkOperationResult.rejected.map((userId: any, index: number) => {
-                        const userIdStr = typeof userId === 'string' ? userId : String(userId || '');
+                        const user = allUsers.find(u => u.id === userId);
+                        const email = user?.email || 'Unknown';
                         return (
-                          <Badge key={index} variant="outline" className="text-emerald-600 dark:text-emerald-400">
-                            {userIdStr.length > 8 ? `${userIdStr.substring(0, 8)}...` : userIdStr}
-                          </Badge>
+                          <p key={index} className="text-sm text-foreground">
+                            {email}
+                          </p>
                         );
                       })}
                     </div>

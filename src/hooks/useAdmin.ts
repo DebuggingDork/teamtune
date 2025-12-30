@@ -4,12 +4,15 @@ import type {
   PendingUser,
   User,
   UserFilters,
+  UsersResponse,
   ApproveUserRequest,
   RejectUserRequest,
   PromoteToAdminRequest,
   BulkApproveUserRequest,
   BulkRejectUserRequest,
   BulkDeleteUserRequest,
+  DemotePMRequest,
+  DemoteTLRequest,
   UpdatePluginRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
@@ -40,7 +43,7 @@ export const usePendingUsers = () => {
 };
 
 /**
- * Get all users with filters
+ * Get all users with filters and pagination
  */
 export const useAllUsers = (filters?: UserFilters) => {
   return useQuery({
@@ -180,6 +183,62 @@ export const useBulkDeleteUsers = () => {
 
   return useMutation({
     mutationFn: (data: BulkDeleteUserRequest) => adminService.bulkDeleteUsers(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Get managed projects query
+ */
+export const useManagedProjects = (userId: string) => {
+  return useQuery({
+    queryKey: ['admin', 'users', userId, 'managed-projects'],
+    queryFn: () => adminService.getManagedProjects(userId),
+    enabled: !!userId,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get led teams query
+ */
+export const useLedTeams = (userId: string) => {
+  return useQuery({
+    queryKey: ['admin', 'users', userId, 'led-teams'],
+    queryFn: () => adminService.getLedTeams(userId),
+    enabled: !!userId,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Demote project manager mutation
+ */
+export const useDemoteProjectManager = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: DemotePMRequest }) =>
+      adminService.demoteProjectManager(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Demote team lead mutation
+ */
+export const useDemoteTeamLead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: DemoteTLRequest }) =>
+      adminService.demoteTeamLead(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },

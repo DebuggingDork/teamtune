@@ -4,6 +4,7 @@ import type {
   PendingUser,
   User,
   UserFilters,
+  UsersResponse,
   ApproveUserRequest,
   ApproveUserResponse,
   RejectUserRequest,
@@ -19,6 +20,12 @@ import type {
   DeleteUserResponse,
   BulkDeleteUserRequest,
   BulkDeleteUserResponse,
+  DemotePMRequest,
+  DemotePMResponse,
+  DemoteTLRequest,
+  DemoteTLResponse,
+  ManagedProjectsResponse,
+  LedTeamsResponse,
   Plugin,
   UpdatePluginRequest,
   GitHubConnectResponse,
@@ -34,9 +41,9 @@ export const getPendingUsers = async (): Promise<PendingUser[]> => {
 };
 
 /**
- * Get all users with filters
+ * Get all users with filters and pagination
  */
-export const getAllUsers = async (filters?: UserFilters): Promise<User[]> => {
+export const getAllUsers = async (filters?: UserFilters): Promise<UsersResponse> => {
   const params = new URLSearchParams();
   if (filters?.status) params.append('status', filters.status);
   if (filters?.role) params.append('role', filters.role);
@@ -47,7 +54,7 @@ export const getAllUsers = async (filters?: UserFilters): Promise<User[]> => {
   const queryString = params.toString();
   const url = queryString ? `${ENDPOINTS.ADMIN.USERS.ALL}?${queryString}` : ENDPOINTS.ADMIN.USERS.ALL;
   
-  const response = await apiClient.get<User[]>(url);
+  const response = await apiClient.get<UsersResponse>(url);
   return response.data;
 };
 
@@ -120,6 +127,38 @@ export const deleteUser = async (id: string): Promise<DeleteUserResponse> => {
  */
 export const bulkDeleteUsers = async (data: BulkDeleteUserRequest): Promise<BulkDeleteUserResponse> => {
   const response = await apiClient.post<BulkDeleteUserResponse>(ENDPOINTS.ADMIN.USERS.BULK_DELETE, data);
+  return response.data;
+};
+
+/**
+ * Get projects managed by a user
+ */
+export const getManagedProjects = async (id: string): Promise<ManagedProjectsResponse> => {
+  const response = await apiClient.get<ManagedProjectsResponse>(ENDPOINTS.ADMIN.USERS.MANAGED_PROJECTS(id));
+  return response.data;
+};
+
+/**
+ * Get teams led by a user
+ */
+export const getLedTeams = async (id: string): Promise<LedTeamsResponse> => {
+  const response = await apiClient.get<LedTeamsResponse>(ENDPOINTS.ADMIN.USERS.LED_TEAMS(id));
+  return response.data;
+};
+
+/**
+ * Demote project manager to employee
+ */
+export const demoteProjectManager = async (id: string, data: DemotePMRequest): Promise<DemotePMResponse> => {
+  const response = await apiClient.post<DemotePMResponse>(ENDPOINTS.ADMIN.USERS.DEMOTE_PM(id), data);
+  return response.data;
+};
+
+/**
+ * Demote team lead to employee
+ */
+export const demoteTeamLead = async (id: string, data: DemoteTLRequest): Promise<DemoteTLResponse> => {
+  const response = await apiClient.post<DemoteTLResponse>(ENDPOINTS.ADMIN.USERS.DEMOTE_TL(id), data);
   return response.data;
 };
 

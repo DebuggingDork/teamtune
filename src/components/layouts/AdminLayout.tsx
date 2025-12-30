@@ -233,8 +233,13 @@ export const AdminLayout = ({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-3 p-2">
-                    <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                      <Shield className="h-4 w-4 text-primary-foreground" />
+                    <div className="relative h-8 w-8 rounded-full flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full opacity-70 blur-[3px]"></div>
+                      <div className="relative h-8 w-8 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full flex items-center justify-center p-[1.5px]">
+                        <div className="h-full w-full bg-background rounded-full flex items-center justify-center">
+                          <Shield className="h-4 w-4 text-orange-500 drop-shadow-[0_0_3px_rgba(251,146,60,0.6)]" />
+                        </div>
+                      </div>
                     </div>
                     <div className="hidden sm:block text-left">
                       <p className="text-sm font-medium text-foreground">

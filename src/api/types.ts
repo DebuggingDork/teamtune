@@ -719,6 +719,42 @@ export interface BulkDeleteUserResponse {
   total_failed: number;
 }
 
+export interface DemotePMRequest {
+  replacement_manager_id: string;
+}
+
+export interface DemotePMResponse {
+  message: string;
+  user_id: string;
+  new_role: UserRole;
+  projects_reassigned: number;
+}
+
+export interface DemoteTLRequest {
+  replacement_lead_id: string;
+}
+
+export interface DemoteTLResponse {
+  message: string;
+  user_id: string;
+  new_role: UserRole;
+  teams_reassigned: number;
+}
+
+export interface ManagedProjectsResponse {
+  user_id: string;
+  user_name: string;
+  projects: Project[];
+  total: number;
+}
+
+export interface LedTeamsResponse {
+  user_id: string;
+  user_name: string;
+  teams: Team[];
+  total: number;
+}
+
 // Employee Types
 export interface EmployeeProfile {
   id: string;
@@ -780,6 +816,18 @@ export interface UserFilters extends PaginationParams {
   status?: UserStatus;
   role?: UserRole;
   department_id?: string;
+}
+
+export interface UsersResponse {
+  users: User[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
 }
 
 export interface TaskFilters extends PaginationParams {
