@@ -38,6 +38,7 @@ export interface ProfileData {
   full_name: string;
   email: string;
   role?: string;
+  username?: string;
   avatar_url?: string | null;
   timezone?: string;
   notification_preferences?: {
@@ -53,6 +54,7 @@ export interface ProfileFormProps {
   isLoading?: boolean;
   onUpdate: (data: {
     full_name?: string;
+    username?: string;
     timezone?: string;
     notification_preferences?: {
       email?: boolean;
@@ -63,6 +65,7 @@ export interface ProfileFormProps {
   isUpdating?: boolean;
   showTimezone?: boolean;
   showNotifications?: boolean;
+  showUsername?: boolean;
 }
 
 export const ProfileForm = ({
@@ -72,9 +75,11 @@ export const ProfileForm = ({
   isUpdating = false,
   showTimezone = true,
   showNotifications = true,
+  showUsername = false,
 }: ProfileFormProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [timezone, setTimezone] = useState("UTC");
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [inAppNotifications, setInAppNotifications] = useState(true);
@@ -83,6 +88,7 @@ export const ProfileForm = ({
   useEffect(() => {
     if (profile && !isEditing) {
       setFullName(profile.full_name || "");
+      setUsername((profile as any).username || "");
       setTimezone(profile.timezone || "UTC");
       setEmailNotifications(profile.notification_preferences?.email ?? true);
       setInAppNotifications(profile.notification_preferences?.in_app ?? true);
@@ -100,14 +106,26 @@ export const ProfileForm = ({
     }
 
     try {
-      await onUpdate({
+      const updateData: any = {
         full_name: fullName,
-        timezone: timezone,
-        notification_preferences: {
+      };
+      
+      if (showUsername && username) {
+        updateData.username = username;
+      }
+      
+      if (showTimezone) {
+        updateData.timezone = timezone;
+      }
+      
+      if (showNotifications) {
+        updateData.notification_preferences = {
           email: emailNotifications,
           in_app: inAppNotifications,
-        },
-      });
+        };
+      }
+      
+      await onUpdate(updateData);
       toast({
         title: "Success",
         description: "Profile updated successfully.",
@@ -126,6 +144,7 @@ export const ProfileForm = ({
     // Reset to original values
     if (profile) {
       setFullName(profile.full_name || "");
+      setUsername((profile as any).username || "");
       setTimezone(profile.timezone || "UTC");
       setEmailNotifications(profile.notification_preferences?.email ?? true);
       setInAppNotifications(profile.notification_preferences?.in_app ?? true);
@@ -340,6 +359,17 @@ export const ProfileForm = ({
             />
             <p className="text-xs text-muted-foreground">Email cannot be changed</p>
           </div>
+          {showUsername && (
+            <div className="grid gap-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={!isEditing}
+              />
+            </div>
+          )}
           {profile.role && (
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>

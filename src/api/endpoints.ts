@@ -56,6 +56,10 @@ export const ENDPOINTS = {
   // Project Manager
   PROJECT_MANAGER: {
     EMPLOYEES: `${API_BASE}${API_PREFIX}/project-manager/employees`,
+    PROFILE: {
+      GET: `${API_BASE}${API_PREFIX}/project-manager/profile`,
+      UPDATE: `${API_BASE}${API_PREFIX}/project-manager/profile`,
+    },
     PROJECTS: {
       LIST: `${API_BASE}${API_PREFIX}/project-manager/projects`,
       CREATE: `${API_BASE}${API_PREFIX}/project-manager/projects`,
@@ -83,6 +87,11 @@ export const ENDPOINTS = {
 
   // Team Lead
   TEAM_LEAD: {
+    // Profile
+    PROFILE: {
+      GET: `${API_BASE}${API_PREFIX}/team-lead/profile`,
+      UPDATE: `${API_BASE}${API_PREFIX}/team-lead/profile`,
+    },
     // Team Management
     MY_TEAMS: `${API_BASE}${API_PREFIX}/team-lead/my-teams`,
     TEAM_INFO: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}`,

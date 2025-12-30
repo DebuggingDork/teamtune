@@ -20,7 +20,25 @@ import type {
   TeamMembersResponse,
   ProjectHealthResponse,
   TeamPerformanceResponse,
+  EmployeeProfile,
+  UpdateProfileRequest,
 } from '@/api/types';
+
+/**
+ * Get project manager's profile
+ */
+export const getProjectManagerProfile = async (): Promise<EmployeeProfile> => {
+  const response = await apiClient.get<EmployeeProfile>(ENDPOINTS.PROJECT_MANAGER.PROFILE.GET);
+  return response.data;
+};
+
+/**
+ * Update project manager's profile
+ */
+export const updateProjectManagerProfile = async (data: UpdateProfileRequest): Promise<EmployeeProfile> => {
+  const response = await apiClient.put<EmployeeProfile>(ENDPOINTS.PROJECT_MANAGER.PROFILE.UPDATE, data);
+  return response.data;
+};
 
 /**
  * Get all employees

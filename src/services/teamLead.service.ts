@@ -59,7 +59,30 @@ import type {
   // Team Lead team types
   MyTeamsResponse,
   TeamLeadTeam,
+  // Profile types
+  EmployeeProfile,
+  UpdateProfileRequest,
 } from '@/api/types';
+
+// ============================================================================
+// PROFILE MANAGEMENT
+// ============================================================================
+
+/**
+ * Get team lead's profile
+ */
+export const getTeamLeadProfile = async (): Promise<EmployeeProfile> => {
+  const response = await apiClient.get<EmployeeProfile>(ENDPOINTS.TEAM_LEAD.PROFILE.GET);
+  return response.data;
+};
+
+/**
+ * Update team lead's profile
+ */
+export const updateTeamLeadProfile = async (data: UpdateProfileRequest): Promise<EmployeeProfile> => {
+  const response = await apiClient.put<EmployeeProfile>(ENDPOINTS.TEAM_LEAD.PROFILE.UPDATE, data);
+  return response.data;
+};
 
 // ============================================================================
 // TEAM MANAGEMENT

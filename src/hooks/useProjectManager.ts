@@ -10,12 +10,16 @@ import type {
   AddTeamMembersRequest,
   BulkDeleteProjectsRequest,
   PerformanceFilters,
+  UpdateProfileRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
 // Query Keys
 export const projectManagerKeys = {
   all: ['project-manager'] as const,
+  profile: {
+    all: ['project-manager', 'profile'] as const,
+  },
   employees: {
     all: ['project-manager', 'employees'] as const,
     list: (params?: PaginationParams) => ['project-manager', 'employees', params] as const,
@@ -36,6 +40,32 @@ export const projectManagerKeys = {
     members: (code: string, params?: PaginationParams) =>
       ['project-manager', 'teams', code, 'members', params] as const,
   },
+};
+
+/**
+ * Get project manager's profile
+ */
+export const useProjectManagerProfile = () => {
+  return useQuery({
+    queryKey: projectManagerKeys.profile.all,
+    queryFn: projectManagerService.getProjectManagerProfile,
+    staleTime: 300000, // 5 minutes
+  });
+};
+
+/**
+ * Update project manager's profile mutation
+ */
+export const useUpdateProjectManagerProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateProfileRequest) => projectManagerService.updateProjectManagerProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectManagerKeys.profile.all });
+    },
+    onError: handleError,
+  });
 };
 
 /**

@@ -25,6 +25,7 @@ import type {
   CreateRiskRequest,
   CreateFlagRequest,
   CreateTaskTemplateRequest,
+  UpdateProfileRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
@@ -34,6 +35,11 @@ import { handleError } from '@/utils/errorHandler';
 
 export const teamLeadKeys = {
   all: ['team-lead'] as const,
+
+  // Profile
+  profile: {
+    all: ['team-lead', 'profile'] as const,
+  },
 
   // Team Management
   myTeams: () => ['team-lead', 'my-teams'] as const,
@@ -95,6 +101,36 @@ export const teamLeadKeys = {
 
   // Flags
   flags: (teamCode: string) => ['team-lead', 'flags', teamCode] as const,
+};
+
+// ============================================================================
+// PROFILE HOOKS
+// ============================================================================
+
+/**
+ * Get team lead's profile
+ */
+export const useTeamLeadProfile = () => {
+  return useQuery({
+    queryKey: teamLeadKeys.profile.all,
+    queryFn: teamLeadService.getTeamLeadProfile,
+    staleTime: 300000, // 5 minutes
+  });
+};
+
+/**
+ * Update team lead's profile mutation
+ */
+export const useUpdateTeamLeadProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateProfileRequest) => teamLeadService.updateTeamLeadProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: teamLeadKeys.profile.all });
+    },
+    onError: handleError,
+  });
 };
 
 // ============================================================================
