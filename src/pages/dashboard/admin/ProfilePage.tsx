@@ -1,237 +1,56 @@
-import { useState } from "react";
-import { User, Mail, Lock, Loader2, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useMyProfile, useUpdateMyProfile } from "@/hooks/useEmployee";
-import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { motion } from "framer-motion";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
+import { ProfileForm, type ProfileData } from "@/components/profile/ProfileForm";
+import { useAdminProfile, useUpdateAdminProfile } from "@/hooks/useAdmin";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminProfilePage = () => {
+  const { data: profile, isLoading } = useAdminProfile();
   const { user } = useAuth();
-  const { data: profile, isLoading: isLoadingProfile } = useMyProfile();
-  const updateProfileMutation = useUpdateMyProfile();
+  const updateProfileMutation = useUpdateAdminProfile();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Initialize form when profile loads
-  if (profile && !isEditing && fullName === "") {
-    setFullName(profile.full_name || "");
-    setEmail(profile.email || "");
-  }
-
-  const handleUpdateProfile = async () => {
-    if (!fullName.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Full name is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      await updateProfileMutation.mutateAsync({
-        full_name: fullName,
-      });
-      toast({
-        title: "Success",
-        description: "Profile updated successfully.",
-      });
-      setIsEditing(false);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Failed to update profile.",
-        variant: "destructive",
-      });
-    }
+  const handleUpdate = async (data: {
+    full_name?: string;
+    timezone?: string;
+    notification_preferences?: {
+      email?: boolean;
+      in_app?: boolean;
+      [key: string]: any;
+    };
+  }) => {
+    await updateProfileMutation.mutateAsync(data);
   };
 
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast({
-        title: "Validation Error",
-        description: "Please fill in all password fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast({
-        title: "Validation Error",
-        description: "New passwords do not match.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      toast({
-        title: "Validation Error",
-        description: "Password must be at least 8 characters long.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Info",
-      description: "Password change functionality will be available soon.",
-    });
-  };
-
-  if (isLoadingProfile) {
-    return (
-      <AdminLayout>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center justify-center p-8"
-        >
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </motion.div>
-      </AdminLayout>
-    );
-  }
+  // Transform profile data to match ProfileForm interface
+  // Use created_at from profile if available, otherwise fallback to user context
+  const profileData: ProfileData | null = profile
+    ? {
+        id: profile.id,
+        user_code: profile.user_code,
+        full_name: profile.full_name,
+        email: profile.email,
+        role: profile.role,
+        avatar_url: profile.avatar_url,
+        timezone: profile.timezone,
+        notification_preferences: profile.notification_preferences,
+        created_at: profile.created_at || user?.created_at,
+      }
+    : null;
 
   return (
     <AdminLayout
       headerTitle="Profile"
       headerDescription="Manage your profile and account settings"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-6 max-w-2xl"
-      >
-
-      {/* Profile Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Profile Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="full_name">Full Name</Label>
-            <Input
-              id="full_name"
-              value={fullName || profile?.full_name || user?.full_name || ""}
-              onChange={(e) => setFullName(e.target.value)}
-              disabled={!isEditing}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email || profile?.email || user?.email || ""}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled
-              className="bg-muted"
-            />
-            <p className="text-xs text-muted-foreground">Email cannot be changed</p>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="role">Role</Label>
-            <Input
-              id="role"
-              value={profile?.role || user?.role || "admin"}
-              disabled
-              className="bg-muted"
-            />
-          </div>
-          <div className="flex gap-2">
-            {isEditing ? (
-              <>
-                <Button onClick={handleUpdateProfile} disabled={updateProfileMutation.isPending}>
-                  {updateProfileMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Changes
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button onClick={() => setIsEditing(true)}>
-                <User className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Change Password */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Change Password
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="current_password">Current Password</Label>
-            <Input
-              id="current_password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="new_password">New Password</Label>
-            <Input
-              id="new_password"
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirm_password">Confirm New Password</Label>
-            <Input
-              id="confirm_password"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-          <Button onClick={handleChangePassword}>
-            <Lock className="h-4 w-4 mr-2" />
-            Change Password
-          </Button>
-        </CardContent>
-      </Card>
-      </motion.div>
+      <ProfileForm
+        profile={profileData}
+        isLoading={isLoading}
+        onUpdate={handleUpdate}
+        isUpdating={updateProfileMutation.isPending}
+        showTimezone={true}
+        showNotifications={true}
+      />
     </AdminLayout>
   );
 };
 
 export default AdminProfilePage;
-

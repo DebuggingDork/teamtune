@@ -821,6 +821,34 @@ export interface UpdateProfileRequest {
   username?: string;
 }
 
+// Admin Profile Types
+export interface AdminProfile {
+  id: string;
+  user_code: string;
+  full_name: string;
+  email: string;
+  role: UserRole;
+  avatar_url?: string | null;
+  timezone?: string;
+  notification_preferences?: {
+    email?: boolean;
+    in_app?: boolean;
+    [key: string]: any;
+  };
+  created_at?: string;
+}
+
+export interface UpdateAdminProfileRequest {
+  full_name?: string;
+  avatar_url?: string;
+  timezone?: string;
+  notification_preferences?: {
+    email?: boolean;
+    in_app?: boolean;
+    [key: string]: any;
+  };
+}
+
 export interface EmployeeProjectsResponse {
   projects: Array<{
     id: string;

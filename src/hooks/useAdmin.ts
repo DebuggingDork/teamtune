@@ -17,6 +17,7 @@ import type {
   PromoteTLRequest,
   ChangeRoleRequest,
   UpdatePluginRequest,
+  UpdateAdminProfileRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
@@ -31,6 +32,9 @@ export const adminKeys = {
   plugins: {
     all: ['admin', 'plugins'] as const,
     list: ['admin', 'plugins', 'list'] as const,
+  },
+  profile: {
+    all: ['admin', 'profile'] as const,
   },
 };
 
@@ -371,6 +375,32 @@ export const useUpdatePlugin = () => {
 export const useSyncPlugin = () => {
   return useMutation({
     mutationFn: adminService.syncPlugin,
+    onError: handleError,
+  });
+};
+
+/**
+ * Get admin's own profile
+ */
+export const useAdminProfile = () => {
+  return useQuery({
+    queryKey: adminKeys.profile.all,
+    queryFn: adminService.getAdminProfile,
+    staleTime: 300000, // 5 minutes
+  });
+};
+
+/**
+ * Update admin's own profile mutation
+ */
+export const useUpdateAdminProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateAdminProfileRequest) => adminService.updateAdminProfile(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.profile.all });
+    },
     onError: handleError,
   });
 };

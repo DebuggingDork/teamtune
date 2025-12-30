@@ -37,6 +37,8 @@ import type {
   UpdatePluginRequest,
   GitHubConnectResponse,
   SyncPluginResponse,
+  AdminProfile,
+  UpdateAdminProfileRequest,
 } from '@/api/types';
 
 /**
@@ -245,6 +247,22 @@ export const updatePlugin = async (pluginId: string, data: UpdatePluginRequest):
  */
 export const syncPlugin = async (pluginId: string): Promise<SyncPluginResponse> => {
   const response = await apiClient.post<SyncPluginResponse>(ENDPOINTS.ADMIN.PLUGINS.SYNC(pluginId));
+  return response.data;
+};
+
+/**
+ * Get admin's own profile
+ */
+export const getAdminProfile = async (): Promise<AdminProfile> => {
+  const response = await apiClient.get<AdminProfile>(ENDPOINTS.ADMIN.PROFILE.GET);
+  return response.data;
+};
+
+/**
+ * Update admin's own profile
+ */
+export const updateAdminProfile = async (data: UpdateAdminProfileRequest): Promise<AdminProfile> => {
+  const response = await apiClient.put<AdminProfile>(ENDPOINTS.ADMIN.PROFILE.UPDATE, data);
   return response.data;
 };
 

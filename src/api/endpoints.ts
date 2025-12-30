@@ -42,6 +42,10 @@ export const ENDPOINTS = {
       UPDATE: (pluginId: string) => `${API_BASE}${API_PREFIX}/admin/plugins/${pluginId}`,
       SYNC: (pluginId: string) => `${API_BASE}${API_PREFIX}/admin/plugins/${pluginId}/sync`,
     },
+    PROFILE: {
+      GET: `${API_BASE}${API_PREFIX}/admin/profile`,
+      UPDATE: `${API_BASE}${API_PREFIX}/admin/profile`,
+    },
   },
 
   // Project Manager
