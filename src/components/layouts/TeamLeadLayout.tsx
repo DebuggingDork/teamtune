@@ -1,5 +1,8 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useMyTeams } from "@/hooks/useEmployee";
+import { useTeamTasks } from "@/hooks/useTeamLead";
 import {
   Users,
   MessageSquare,
@@ -80,6 +83,15 @@ export const TeamLeadLayout = ({
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Fetch notifications (tasks needing review)
+  const { data: teamsData } = useMyTeams(undefined, !!user);
+  const teamCode = teamsData?.teams?.[0]?.team_code;
+
+  // Use a stable filter object
+  const taskFilters = { status: 'in_review' as const };
+  const { data: tasksData } = useTeamTasks(teamCode || "", taskFilters);
+  const notifications = tasksData?.tasks || [];
+
   const handleLogout = async () => {
     await logout();
     navigate("/");
@@ -98,12 +110,12 @@ export const TeamLeadLayout = ({
   // Extract user name from email for display
   const getUserNameFromEmail = (email: string) => {
     if (!email) return "User";
-    
+
     const namePart = email.split('@')[0];
-    const nameParts = namePart.split(/[._-]/).map(part => 
+    const nameParts = namePart.split(/[._-]/).map(part =>
       part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
     );
-    
+
     return nameParts.join(' ');
   };
 
@@ -166,8 +178,8 @@ export const TeamLeadLayout = ({
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div 
-                className="lg:hidden cursor-pointer" 
+              <div
+                className="lg:hidden cursor-pointer"
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <TeamTuneLogo showText={false} />
@@ -197,11 +209,54 @@ export const TeamLeadLayout = ({
               </Button>
 
               {/* Notifications */}
-              <button 
-                className="relative p-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Bell className="h-5 w-5" />
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors">
+                    <Bell className="h-5 w-5" />
+                    {notifications.length > 0 && (
+                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <div className="flex items-center justify-between p-4 border-b border-border">
+                    <p className="font-semibold">Notifications</p>
+                    {notifications.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {notifications.length} pending reviews
+                      </span>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        No new notifications
+                      </div>
+                    ) : (
+                      notifications.map((task: any) => (
+                        <DropdownMenuItem
+                          key={task.task_code}
+                          className="flex flex-col items-start p-4 gap-1 cursor-pointer"
+                          onClick={() => navigate("/dashboard/team-lead/tasks")}
+                        >
+                          <div className="flex items-center gap-2 w-full">
+                            <span className="font-medium truncate flex-1">{task.title}</span>
+                            <span className="text-xs text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">
+                              Review
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {task.description || "No description"}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Assigned to: {task.assigned_to_name || "Unknown"}
+                          </p>
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {/* Profile Menu */}
               <DropdownMenu>
@@ -222,7 +277,7 @@ export const TeamLeadLayout = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={() => navigate("/dashboard/team-lead/profile")}
                     className="flex items-center gap-2"
                   >
@@ -230,7 +285,7 @@ export const TeamLeadLayout = ({
                     Profile
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     onClick={handleLogout}
                     className="flex items-center gap-2 text-destructive focus:text-destructive"
                   >

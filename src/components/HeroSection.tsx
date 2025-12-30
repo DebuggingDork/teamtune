@@ -1,15 +1,16 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, Users, TrendingUp, Activity } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import TeamTuneLogo from "./TeamTuneLogo";
 
-const FloatingCard = ({ 
-  children, 
-  className, 
-  delay = 0 
-}: { 
-  children: React.ReactNode; 
-  className?: string; 
+const FloatingCard = ({
+  children,
+  className,
+  delay = 0
+}: {
+  children: React.ReactNode;
+  className?: string;
   delay?: number;
 }) => (
   <motion.div
@@ -117,7 +118,7 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
         >
-          Analyze team performance, identify actionable insights, and drive maximum 
+          Analyze team performance, identify actionable insights, and drive maximum
           productivity with intelligent metrics that matter.
         </motion.p>
 
@@ -152,10 +153,12 @@ const HeroSection = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          <Button size="lg" className="rounded-full px-8 gap-2 group">
-            Get Started for Free
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link to="/auth/signup">
+            <Button size="lg" className="rounded-full px-8 gap-2 group">
+              Get Started for Free
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
           <p className="text-sm text-muted-foreground">No credit card required</p>
         </motion.div>
       </div>

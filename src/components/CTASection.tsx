@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 
 const CTASection = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -66,25 +68,37 @@ const CTASection = () => {
               </p>
 
               {!isSubmitted ? (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto w-full relative">
-                  <div className="flex-1 relative group">
-                    <Input
-                      type="email"
-                      placeholder="Enter your work email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-14 rounded-full px-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#3ca2fa]/20 dark:focus-visible:ring-blue-500/30 focus-visible:border-[#3ca2fa] dark:focus-visible:border-blue-400 transition-all shadow-sm group-hover:shadow-md"
-                    />
+                <>
+                  <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto w-full relative">
+                    <div className="flex-1 relative group">
+                      <Input
+                        type="email"
+                        placeholder="Enter your work email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full h-14 rounded-full px-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus-visible:ring-2 focus-visible:ring-[#3ca2fa]/20 dark:focus-visible:ring-blue-500/30 focus-visible:border-[#3ca2fa] dark:focus-visible:border-blue-400 transition-all shadow-sm group-hover:shadow-md"
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="h-14 rounded-full px-10 gap-2 bg-[#0a0a0a] dark:bg-[#3ca2fa] text-white hover:bg-[#3ca2fa] dark:hover:bg-blue-500 shadow-xl hover:shadow-[#3ca2fa]/25 dark:hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 font-medium text-base"
+                    >
+                      Join Waitlist / Get Started
+                      <ArrowRight className="h-5 w-5" />
+                    </Button>
+                  </form>
+                  <div className="mt-4 text-center">
+                    <Button
+                      variant="link"
+                      className="text-muted-foreground"
+                      onClick={() => navigate("/login")}
+                      type="button"
+                    >
+                      Already have an account? Sign in
+                    </Button>
                   </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="h-14 rounded-full px-10 gap-2 bg-[#0a0a0a] dark:bg-[#3ca2fa] text-white hover:bg-[#3ca2fa] dark:hover:bg-blue-500 shadow-xl hover:shadow-[#3ca2fa]/25 dark:hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 font-medium text-base"
-                  >
-                    Join Waitlist
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </form>
+                </>
               ) : (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9, y: 10 }}

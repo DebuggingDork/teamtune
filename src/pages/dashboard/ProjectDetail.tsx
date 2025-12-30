@@ -86,26 +86,6 @@ const ProjectDetail = () => {
   const navigate = useNavigate();
   const { user, updateUserRole } = useAuth();
 
-  // Fetch project data
-  const { data: project, isLoading: isLoadingProject } = useProject(projectCode || "");
-  const { data: teamsData, isLoading: isLoadingTeams } = useProjectTeams(projectCode || "");
-  const { data: healthData, isLoading: isLoadingHealth } = useProjectHealth(projectCode || "");
-  const { data: projectMembersData, isLoading: isLoadingMembers } = useProjectMembers(projectCode || "");
-  const { data: employeesData } = useEmployees();
-  
-  // Get current team members for the selected team (to exclude from member selection)
-  const { data: selectedTeamMembersData } = useTeamMembers(selectedTeamCode || "");
-
-  // Store project ID in state (from fetched project)
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  // Update projectId when project is loaded
-  useEffect(() => {
-    if (project?.id) {
-      setProjectId(project.id);
-    }
-  }, [project]);
-
   // Dialog states
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
   const [isEditProjectOpen, setIsEditProjectOpen] = useState(false);
@@ -125,6 +105,28 @@ const ProjectDetail = () => {
     user_ids: [],
     allocation_percentage: 100,
   });
+
+  // Store project ID in state (from fetched project)
+  const [projectId, setProjectId] = useState<string | null>(null);
+
+  // Fetch project data
+  const { data: project, isLoading: isLoadingProject } = useProject(projectCode || "");
+  const { data: teamsData, isLoading: isLoadingTeams } = useProjectTeams(projectCode || "");
+  const { data: healthData, isLoading: isLoadingHealth } = useProjectHealth(projectCode || "");
+  const { data: projectMembersData, isLoading: isLoadingMembers } = useProjectMembers(projectCode || "");
+  const { data: employeesData } = useEmployees();
+
+  // Get current team members for the selected team (to exclude from member selection)
+  const { data: selectedTeamMembersData } = useTeamMembers(selectedTeamCode || "");
+
+  // Update projectId when project is loaded
+  useEffect(() => {
+    if (project?.id) {
+      setProjectId(project.id);
+    }
+  }, [project]);
+
+
 
   // Mutations
   const createTeamMutation = useCreateTeam();
@@ -180,17 +182,17 @@ const ProjectDetail = () => {
         code: teamCode,
         data: { lead_id: leadId },
       });
-      
+
       // If the assigned lead is the current user, update their role in the UI
-      const assignedEmployee = employees.find((emp: any) => 
+      const assignedEmployee = employees.find((emp: any) =>
         emp.user_code === leadId || emp.id === leadId
       );
-      
-      if (assignedEmployee && user && 
-          (assignedEmployee.user_code === user.user_code || assignedEmployee.id === user.id)) {
+
+      if (assignedEmployee && user &&
+        (assignedEmployee.user_code === user.user_code || assignedEmployee.id === user.id)) {
         updateUserRole('team_lead');
       }
-      
+
       toast({
         title: "Success",
         description: "Team lead assigned successfully",
@@ -510,8 +512,8 @@ const ProjectDetail = () => {
                           healthData.health.overall_status === "healthy"
                             ? "default"
                             : healthData.health.overall_status === "warning"
-                            ? "secondary"
-                            : "destructive"
+                              ? "secondary"
+                              : "destructive"
                         }
                       >
                         {healthData.health.overall_status}
@@ -776,8 +778,8 @@ const ProjectDetail = () => {
                                   team.health_status === "healthy"
                                     ? "default"
                                     : team.health_status === "warning"
-                                    ? "secondary"
-                                    : "destructive"
+                                      ? "secondary"
+                                      : "destructive"
                                 }
                                 className="text-xs"
                               >
@@ -938,8 +940,8 @@ const ProjectDetail = () => {
             <Button variant="outline" onClick={() => setIsEditProjectOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleUpdateProject} 
+            <Button
+              onClick={handleUpdateProject}
               disabled={updateProjectMutation.isPending || updateProjectStatusMutation.isPending}
             >
               {updateProjectMutation.isPending || updateProjectStatusMutation.isPending ? (
@@ -972,53 +974,53 @@ const ProjectDetail = () => {
                   // Get current team member IDs to exclude them
                   const currentMemberIds = selectedTeamMembersData?.members?.map((m: any) => m.user_id) || [];
                   const currentMemberCodes = selectedTeamMembersData?.members?.map((m: any) => m.user_code) || [];
-                  
+
                   return employees
                     .filter((emp: any) => {
                       // Filter by role
                       if (emp.role !== "employee") return false;
-                      
+
                       // Exclude team lead (check both id and user_code to be safe)
-                      if (selectedTeam?.lead_id && 
-                          (emp.id === selectedTeam.lead_id || emp.user_code === selectedTeam.lead_id)) {
+                      if (selectedTeam?.lead_id &&
+                        (emp.id === selectedTeam.lead_id || emp.user_code === selectedTeam.lead_id)) {
                         return false;
                       }
-                      
+
                       // Exclude already existing team members
                       if (currentMemberIds.includes(emp.id) || currentMemberIds.includes(emp.user_code) ||
-                          currentMemberCodes.includes(emp.id) || currentMemberCodes.includes(emp.user_code)) {
+                        currentMemberCodes.includes(emp.id) || currentMemberCodes.includes(emp.user_code)) {
                         return false;
                       }
-                      
+
                       return true;
                     })
                     .map((emp: any) => (
-                    <label
-                      key={emp.id}
-                      className="flex items-center gap-2 p-2 hover:bg-accent rounded cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={newMembers.user_ids.includes(emp.user_code)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setNewMembers({
-                              ...newMembers,
-                              user_ids: [...newMembers.user_ids, emp.user_code],
-                            });
-                          } else {
-                            setNewMembers({
-                              ...newMembers,
-                              user_ids: newMembers.user_ids.filter((id) => id !== emp.user_code),
-                            });
-                          }
-                        }}
-                      />
-                      <span className="text-sm">
-                        {emp.full_name} ({emp.user_code})
-                      </span>
-                    </label>
-                  ));
+                      <label
+                        key={emp.id}
+                        className="flex items-center gap-2 p-2 hover:bg-accent rounded cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={newMembers.user_ids.includes(emp.user_code)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewMembers({
+                                ...newMembers,
+                                user_ids: [...newMembers.user_ids, emp.user_code],
+                              });
+                            } else {
+                              setNewMembers({
+                                ...newMembers,
+                                user_ids: newMembers.user_ids.filter((id) => id !== emp.user_code),
+                              });
+                            }
+                          }}
+                        />
+                        <span className="text-sm">
+                          {emp.full_name} ({emp.user_code})
+                        </span>
+                      </label>
+                    ));
                 })()}
               </div>
             </div>

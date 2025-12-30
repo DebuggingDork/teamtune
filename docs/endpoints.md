@@ -2266,3 +2266,16 @@ All endpoints are protected by authentication and require the project_manager ro
 1. **Critical**: Block/unblock user, project status update
 2. **High**: Notifications system, search functionality
 3. **Medium**: Timeline/deadlines, Google Calendar integration
+
+## Missing / Required Endpoints Checklist
+
+| METHOD | ENDPOINT | ROLE | PURPOSE |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/admin/users/:id/unblock` | ADMIN | Unblock a user |
+| **GET** | `/api/employee/profile` | ALL ROLES | Fetch logged-in user profile |
+| **PATCH** | `/api/project-manager/projects/:id/archive` | PROJECT_MGR | Archive project |
+| **PATCH** | `/api/project-manager/projects/:id/unarchive` | PROJECT_MGR | Unarchive project |
+| **POST** | `/api/notifications/:id/approve` | PM, TEAM_LEAD | Approve request |
+| **GET** | `/api/notifications` | ALL ROLES | Fetch notifications |
+| **POST** | `/api/team-lead/teams/:teamCode/members/:userCode/observations` | TEAM_LEAD | Submit feedback |
+| **GET** | `/api/project-manager/projects/deadlines` | PROJECT_MGR | Fetch upcoming project deadlines |
