@@ -18,6 +18,7 @@ import type {
   ChangeRoleRequest,
   UpdatePluginRequest,
   UpdateAdminProfileRequest,
+  ProjectStatus,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
@@ -35,6 +36,13 @@ export const adminKeys = {
   },
   profile: {
     all: ['admin', 'profile'] as const,
+  },
+  projects: {
+    all: ['admin', 'projects'] as const,
+    list: (filters?: { page?: number; limit?: number; status?: ProjectStatus }) => 
+      ['admin', 'projects', 'list', filters] as const,
+    detail: (projectId: string) => ['admin', 'projects', 'detail', projectId] as const,
+    stats: ['admin', 'projects', 'stats'] as const,
   },
 };
 
@@ -402,6 +410,44 @@ export const useUpdateAdminProfile = () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.profile.all });
     },
     onError: handleError,
+  });
+};
+
+/**
+ * Get admin projects list
+ */
+export const useAdminProjects = (filters?: {
+  page?: number;
+  limit?: number;
+  status?: ProjectStatus;
+}) => {
+  return useQuery({
+    queryKey: adminKeys.projects.list(filters),
+    queryFn: () => adminService.getAdminProjects(filters),
+    staleTime: 30000, // 30 seconds
+  });
+};
+
+/**
+ * Get admin project details
+ */
+export const useAdminProjectDetails = (projectId: string) => {
+  return useQuery({
+    queryKey: adminKeys.projects.detail(projectId),
+    queryFn: () => adminService.getAdminProjectDetails(projectId),
+    enabled: !!projectId,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get admin project statistics
+ */
+export const useAdminProjectStats = () => {
+  return useQuery({
+    queryKey: adminKeys.projects.stats,
+    queryFn: adminService.getAdminProjectStats,
+    staleTime: 60000, // 1 minute
   });
 };
 

@@ -12,7 +12,7 @@ import {
   UserX,
   Clock,
   UserCog,
-  Building2,
+  FolderKanban,
   Plug,
   Sun,
   Moon,
@@ -105,9 +105,9 @@ export const AdminLayout = ({
       onClick: () => navigate("/dashboard/admin"),
     },
     {
-      path: "/dashboard/admin/departments",
-      label: "Departments",
-      icon: Building2,
+      path: "/dashboard/admin/projects",
+      label: "Projects",
+      icon: FolderKanban,
     },
     {
       path: "/dashboard/admin/settings",

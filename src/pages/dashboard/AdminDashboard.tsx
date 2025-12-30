@@ -16,7 +16,6 @@ import {
   XCircle,
   FolderKanban,
   UsersRound,
-  Building2,
   UserCog,
   Layers,
   Loader2,
@@ -71,7 +70,6 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminRoles from "@/components/admin/AdminRoles";
-import AdminDepartments from "@/components/admin/AdminDepartments";
 import AdminSettings from "@/components/admin/AdminSettings";
 import NotificationPanel from "@/components/admin/NotificationPanel";
 import type { UserRole } from "@/api/types";
@@ -302,11 +300,11 @@ const AdminDashboard = () => {
               Roles
             </button>
             <Link
-              to="/dashboard/admin/departments"
+              to="/dashboard/admin/projects"
               className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
             >
-              <Building2 className="h-4 w-4" />
-              Departments
+              <FolderKanban className="h-4 w-4" />
+              Projects
             </Link>
             <Link
               to="/dashboard/admin/settings"
@@ -767,10 +765,10 @@ const AdminDashboard = () => {
                       action: () => setActiveTab("roles")
                     },
                     { 
-                      title: "Department Management", 
-                      description: "Organize teams and departments", 
-                      icon: Layers,
-                      action: () => setActiveTab("departments")
+                      title: "Project Management", 
+                      description: "View and manage all projects", 
+                      icon: FolderKanban,
+                      action: () => navigate("/dashboard/admin/projects")
                     },
                   ].map((control) => (
                     <button
@@ -1058,12 +1056,12 @@ const AdminDashboard = () => {
                 Roles
               </button>
               <Link
-                to="/dashboard/admin/departments"
+                to="/dashboard/admin/projects"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
               >
-                <Building2 className="h-4 w-4" />
-                Departments
+                <FolderKanban className="h-4 w-4" />
+                Projects
               </Link>
               <Link
                 to="/dashboard/admin/settings"

@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -45,7 +45,8 @@ import MemberProfilePage from "./pages/dashboard/member/ProfilePage";
 // Admin pages
 import AdminSettingsPage from "./pages/dashboard/admin/SettingsPage";
 import PluginsPage from "./pages/dashboard/admin/PluginsPage";
-import DepartmentsPage from "./pages/dashboard/admin/DepartmentsPage";
+import AdminProjectsPage from "./pages/dashboard/admin/ProjectsPage";
+import AdminProjectDetailPage from "./pages/dashboard/admin/ProjectDetailPage";
 import AdminProfilePage from "./pages/dashboard/admin/ProfilePage";
 
 // Project Manager pages
@@ -240,10 +241,27 @@ const App = () => (
               }
             />
             <Route
+              path="/dashboard/admin/projects"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminProjectsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/projects/:projectId"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminProjectDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Redirect old departments route to projects */}
+            <Route
               path="/dashboard/admin/departments"
               element={
                 <ProtectedRoute requiredRole="admin">
-                  <DepartmentsPage />
+                  <Navigate to="/dashboard/admin/projects" replace />
                 </ProtectedRoute>
               }
             />

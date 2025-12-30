@@ -39,6 +39,10 @@ import type {
   SyncPluginResponse,
   AdminProfile,
   UpdateAdminProfileRequest,
+  AdminProjectsListResponse,
+  AdminProjectDetails,
+  AdminProjectStatsResponse,
+  ProjectStatus,
 } from '@/api/types';
 
 /**
@@ -263,6 +267,42 @@ export const getAdminProfile = async (): Promise<AdminProfile> => {
  */
 export const updateAdminProfile = async (data: UpdateAdminProfileRequest): Promise<AdminProfile> => {
   const response = await apiClient.put<AdminProfile>(ENDPOINTS.ADMIN.PROFILE.UPDATE, data);
+  return response.data;
+};
+
+/**
+ * Get all projects with pagination and filters
+ */
+export const getAdminProjects = async (filters?: {
+  page?: number;
+  limit?: number;
+  status?: ProjectStatus;
+}): Promise<AdminProjectsListResponse> => {
+  const params = new URLSearchParams();
+  if (filters?.page) params.append('page', filters.page.toString());
+  if (filters?.limit) params.append('limit', filters.limit.toString());
+  if (filters?.status) params.append('status', filters.status);
+
+  const queryString = params.toString();
+  const url = queryString ? `${ENDPOINTS.ADMIN.PROJECTS.LIST}?${queryString}` : ENDPOINTS.ADMIN.PROJECTS.LIST;
+  
+  const response = await apiClient.get<AdminProjectsListResponse>(url);
+  return response.data;
+};
+
+/**
+ * Get project details by ID
+ */
+export const getAdminProjectDetails = async (projectId: string): Promise<AdminProjectDetails> => {
+  const response = await apiClient.get<AdminProjectDetails>(ENDPOINTS.ADMIN.PROJECTS.GET(projectId));
+  return response.data;
+};
+
+/**
+ * Get project statistics
+ */
+export const getAdminProjectStats = async (): Promise<AdminProjectStatsResponse> => {
+  const response = await apiClient.get<AdminProjectStatsResponse>(ENDPOINTS.ADMIN.PROJECTS.STATS);
   return response.data;
 };
 

@@ -46,6 +46,11 @@ export const ENDPOINTS = {
       GET: `${API_BASE}${API_PREFIX}/admin/profile`,
       UPDATE: `${API_BASE}${API_PREFIX}/admin/profile`,
     },
+    PROJECTS: {
+      LIST: `${API_BASE}${API_PREFIX}/admin/projects`,
+      GET: (projectId: string) => `${API_BASE}${API_PREFIX}/admin/projects/${projectId}`,
+      STATS: `${API_BASE}${API_PREFIX}/admin/projects/stats`,
+    },
   },
 
   // Project Manager

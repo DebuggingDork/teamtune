@@ -849,6 +849,100 @@ export interface UpdateAdminProfileRequest {
   };
 }
 
+// Admin Project Types
+export interface AdminProjectManager {
+  id: string;
+  user_code: string;
+  full_name: string;
+  email: string;
+  avatar_url?: string | null;
+}
+
+export interface AdminProjectStats {
+  team_count: number;
+  total_tasks: number;
+  completed_tasks: number;
+  progress: number;
+}
+
+export interface AdminProjectListItem {
+  id: string;
+  project_code: string;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  start_date: string;
+  end_date: string;
+  manager: AdminProjectManager;
+  stats: AdminProjectStats;
+}
+
+export interface AdminProjectsListResponse {
+  projects: AdminProjectListItem[];
+  pagination: PaginationResponse;
+}
+
+export interface AdminProjectTeam {
+  id: string;
+  team_code: string;
+  name: string;
+  lead: {
+    id: string;
+    full_name: string;
+  };
+  member_count: number;
+  total_tasks: number;
+  completed_tasks: number;
+  progress: number;
+}
+
+export interface AdminProjectTaskStats {
+  todo: number;
+  in_progress: number;
+  done: number;
+  blocked: number;
+  total: number;
+}
+
+export interface AdminProjectDays {
+  total_days: number;
+  days_elapsed: number;
+  days_remaining: number;
+  is_overdue: boolean;
+  time_progress: number;
+}
+
+export interface AdminProjectRecentActivity {
+  task_code: string;
+  title: string;
+  status: TaskStatus;
+  assigned_to: string;
+}
+
+export interface AdminProjectDetails {
+  id: string;
+  project_code: string;
+  name: string;
+  status: ProjectStatus;
+  start_date: string;
+  end_date: string;
+  manager: AdminProjectManager;
+  teams: AdminProjectTeam[];
+  task_stats: AdminProjectTaskStats;
+  progress: number;
+  days: AdminProjectDays;
+  recent_activity?: AdminProjectRecentActivity[];
+}
+
+export interface AdminProjectStatsResponse {
+  planning: number;
+  active: number;
+  completed: number;
+  cancelled: number;
+  on_hold: number;
+  total: number;
+}
+
 export interface EmployeeProjectsResponse {
   projects: Array<{
     id: string;
