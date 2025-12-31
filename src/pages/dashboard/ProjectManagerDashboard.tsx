@@ -262,14 +262,15 @@ const ProjectManagerDashboard = () => {
         <p className="text-muted-foreground mb-8">Track project progress and manage team assignments.</p>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {[
             {
               label: "Active Projects",
               value: activeProjects.toString(),
               change: `${totalProjects} total`,
               icon: FolderKanban,
-              color: "bg-primary/10 text-primary",
+              color: "from-primary/20 to-primary/10",
+              iconColor: "text-primary",
               isLoading: isLoadingProjects
             },
             {
@@ -277,7 +278,8 @@ const ProjectManagerDashboard = () => {
               value: teamMembersCount.toString(),
               change: "Across projects",
               icon: Users,
-              color: "bg-blue-500/10 text-blue-500",
+              color: "from-blue-500/20 to-blue-600/10",
+              iconColor: "text-blue-500",
               isLoading: isLoadingEmployees
             },
             {
@@ -285,7 +287,8 @@ const ProjectManagerDashboard = () => {
               value: `${onTrackPercentage}%`,
               change: "Projects",
               icon: CheckCircle,
-              color: "bg-emerald-500/10 text-emerald-500",
+              color: "from-emerald-500/20 to-emerald-600/10",
+              iconColor: "text-emerald-500",
               isLoading: isLoadingProjects
             },
             {
@@ -293,7 +296,8 @@ const ProjectManagerDashboard = () => {
               value: upcomingDeadlines.toString(),
               change: "This week",
               icon: Clock,
-              color: "bg-warning/10 text-warning",
+              color: "from-amber-500/20 to-amber-600/10",
+              iconColor: "text-amber-500",
               isLoading: isLoadingProjects
             },
           ].map((stat, index) => (
@@ -302,22 +306,25 @@ const ProjectManagerDashboard = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-card border border-border rounded-xl p-6"
+              className="group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 overflow-hidden"
             >
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <div className={`p-2 rounded-lg ${stat.color}`}>
-                  {stat.isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <stat.icon className="h-4 w-4" />
-                  )}
+              <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(135deg, ${stat.color.split(' ')[1]}, ${stat.color.split(' ')[3]})` }} />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} backdrop-blur-sm shadow-lg`}>
+                    {stat.isLoading ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+                    )}
+                  </div>
                 </div>
+                <p className="text-3xl font-bold text-foreground tracking-tight">
+                  {stat.isLoading ? "..." : stat.value}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2 font-medium">{stat.change}</p>
               </div>
-              <p className="text-2xl font-bold text-foreground">
-                {stat.isLoading ? "..." : stat.value}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
             </motion.div>
           ))}
         </div>
@@ -327,7 +334,7 @@ const ProjectManagerDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-card border border-border rounded-xl p-6"
+          className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Projects</h2>
@@ -385,9 +392,10 @@ const ProjectManagerDashboard = () => {
                 </div>
               )}
               {projects.map((project: any) => (
-                <div
+                <motion.div
                   key={project.id || project.project_code || Math.random()}
-                  className="flex items-center justify-between p-4 bg-accent/50 rounded-lg hover:bg-accent transition-colors group"
+                  whileHover={{ scale: 1.01 }}
+                  className="flex items-center justify-between p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300 group"
                 >
                   <div className="flex items-center gap-3">
                     <Checkbox
@@ -481,7 +489,7 @@ const ProjectManagerDashboard = () => {
                       onClick={() => handleProjectClick(project.project_code)}
                     />
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -492,7 +500,7 @@ const ProjectManagerDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-card border border-border rounded-xl p-6 mt-6"
+          className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 mt-6 shadow-sm hover:shadow-md transition-shadow duration-300"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Employees</h2>
@@ -514,11 +522,12 @@ const ProjectManagerDashboard = () => {
               <p className="text-muted-foreground">No employees found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {employees.slice(0, 6).map((employee: any) => (
-                <div
+                <motion.div
                   key={employee.id || employee.user_code || Math.random()}
-                  className="flex items-center gap-3 p-3 bg-accent/50 rounded-lg"
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  className="flex items-center gap-3 p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
                 >
                   <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Users className="h-5 w-5 text-primary" />
@@ -534,7 +543,7 @@ const ProjectManagerDashboard = () => {
                   <Badge variant="outline" className="text-xs">
                     {employee.role || "employee"}
                   </Badge>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

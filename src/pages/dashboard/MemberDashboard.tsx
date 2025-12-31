@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
 import { 
   User, 
   TrendingUp,
@@ -8,7 +8,6 @@ import {
   Clock,
   MessageSquare,
   Info,
-  Search,
   Bell,
   LogOut,
   CheckCircle,
@@ -66,9 +65,22 @@ const chartConfig = {
 const MemberDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview");
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dateRanges = useMemo(() => getDateRanges(), []);
+  
+  // Determine active tab from URL
+  const getActiveTab = () => {
+    if (location.pathname === "/dashboard/member/progress") return "progress";
+    if (location.pathname === "/dashboard/member/feedback") return "feedback";
+    return "overview";
+  };
+  const [activeTab, setActiveTab] = useState(getActiveTab());
+  
+  // Update active tab when location changes
+  useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [location.pathname]);
 
   // Get profile data
   const { data: profile, isLoading: isLoadingProfile } = useMyProfile();
@@ -203,8 +215,8 @@ const MemberDashboard = () => {
         
         <nav className="mt-8 flex-1">
           <div className="space-y-1">
-            <button 
-              onClick={() => setActiveTab("overview")}
+            <Link
+              to="/dashboard/member"
               className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                 activeTab === "overview" 
                   ? "font-medium text-foreground bg-accent" 
@@ -213,9 +225,9 @@ const MemberDashboard = () => {
             >
               <User className="h-4 w-4" />
               My Overview
-            </button>
-            <button 
-              onClick={() => setActiveTab("progress")}
+            </Link>
+            <Link
+              to="/dashboard/member/progress"
               className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                 activeTab === "progress" 
                   ? "font-medium text-foreground bg-accent" 
@@ -224,9 +236,9 @@ const MemberDashboard = () => {
             >
               <TrendingUp className="h-4 w-4" />
               My Progress
-            </button>
-            <button 
-              onClick={() => setActiveTab("feedback")}
+            </Link>
+            <Link
+              to="/dashboard/member/feedback"
               className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                 activeTab === "feedback" 
                   ? "font-medium text-foreground bg-accent" 
@@ -235,7 +247,7 @@ const MemberDashboard = () => {
             >
               <MessageSquare className="h-4 w-4" />
               Feedback
-            </button>
+            </Link>
           </div>
         </nav>
 
@@ -254,7 +266,7 @@ const MemberDashboard = () => {
       {/* Main Content */}
       <main className="lg:ml-64">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div 
@@ -262,14 +274,6 @@ const MemberDashboard = () => {
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <TeamTuneLogo showText={false} />
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="pl-10 pr-4 py-2 bg-accent border-none rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -331,10 +335,12 @@ const MemberDashboard = () => {
               <p className="text-muted-foreground mb-8">Your personal workspace and progress overview.</p>
 
             {/* Personal Overview */}
-            <Card className="mb-6">
+            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
                   Personal Overview
                 </CardTitle>
               </CardHeader>
@@ -373,10 +379,12 @@ const MemberDashboard = () => {
 
             {/* Contribution Summary */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <Card>
+              <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                    </div>
                     Contribution Trends
                   </CardTitle>
                 </CardHeader>
@@ -414,10 +422,12 @@ const MemberDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
                     Active Days Pattern
                   </CardTitle>
                 </CardHeader>
@@ -445,10 +455,12 @@ const MemberDashboard = () => {
             </div>
 
             {/* Time & Effort Summary */}
-            <Card className="mb-6">
+            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
                   Time & Effort Patterns
                 </CardTitle>
               </CardHeader>
@@ -490,10 +502,12 @@ const MemberDashboard = () => {
             </Card>
 
             {/* Feedback View */}
-            <Card className="mb-6">
+            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-primary" />
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                  </div>
                   Feedback from Your Team Lead
                 </CardTitle>
               </CardHeader>
@@ -512,7 +526,7 @@ const MemberDashboard = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="p-4 bg-accent/50 rounded-lg border border-border"
+                      className="p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
                     >
                       <div className="flex items-start justify-between mb-2">
                         <div>
@@ -530,10 +544,12 @@ const MemberDashboard = () => {
             </Card>
 
             {/* Guidance Panel */}
-            <Card className="bg-primary/5 border-primary/20">
+            <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/5 border-primary/30 shadow-sm hover:shadow-md transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-primary">
-                  <Info className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
+                  <div className="p-2 bg-primary/20 rounded-lg">
+                    <Info className="h-5 w-5" />
+                  </div>
                   About Your Dashboard
                 </CardTitle>
               </CardHeader>
@@ -577,11 +593,9 @@ const MemberDashboard = () => {
           </SheetHeader>
           <nav className="flex-1 p-6">
             <div className="space-y-1">
-              <button 
-                onClick={() => {
-                  setActiveTab("overview");
-                  setIsMobileMenuOpen(false);
-                }}
+              <Link
+                to="/dashboard/member"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                   activeTab === "overview" 
                     ? "font-medium text-foreground bg-accent" 
@@ -590,12 +604,10 @@ const MemberDashboard = () => {
               >
                 <User className="h-4 w-4" />
                 My Overview
-              </button>
-              <button 
-                onClick={() => {
-                  setActiveTab("progress");
-                  setIsMobileMenuOpen(false);
-                }}
+              </Link>
+              <Link
+                to="/dashboard/member/progress"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                   activeTab === "progress" 
                     ? "font-medium text-foreground bg-accent" 
@@ -604,12 +616,10 @@ const MemberDashboard = () => {
               >
                 <TrendingUp className="h-4 w-4" />
                 My Progress
-              </button>
-              <button 
-                onClick={() => {
-                  setActiveTab("feedback");
-                  setIsMobileMenuOpen(false);
-                }}
+              </Link>
+              <Link
+                to="/dashboard/member/feedback"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                   activeTab === "feedback" 
                     ? "font-medium text-foreground bg-accent" 
@@ -618,7 +628,7 @@ const MemberDashboard = () => {
               >
                 <MessageSquare className="h-4 w-4" />
                 Feedback
-              </button>
+              </Link>
             </div>
           </nav>
           <div className="border-t border-border p-6">

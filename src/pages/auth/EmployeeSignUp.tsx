@@ -231,7 +231,7 @@ const EmployeeSignUp = () => {
 
             <p className="text-center text-sm text-muted-foreground mt-8">
               Already have an account?{" "}
-              <Link to="/auth" className="text-primary hover:underline">
+              <Link to="/auth/login" className="text-primary hover:underline">
                 Sign in
               </Link>
             </p>

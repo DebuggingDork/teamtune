@@ -14,11 +14,7 @@ import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 
 // Auth pages
-import RoleSelection from "./pages/auth/RoleSelection";
-import AdminLogin from "./pages/auth/AdminLogin";
-import ProjectManagerLogin from "./pages/auth/ProjectManagerLogin";
-import TeamLeadLogin from "./pages/auth/TeamLeadLogin";
-import MemberLogin from "./pages/auth/MemberLogin";
+import LoginPage from "./pages/auth/LoginPage";
 import EmployeeSignUp from "./pages/auth/EmployeeSignUp";
 import PendingApproval from "./pages/auth/PendingApproval";
 
@@ -48,6 +44,8 @@ import PluginsPage from "./pages/dashboard/admin/PluginsPage";
 import AdminProjectsPage from "./pages/dashboard/admin/ProjectsPage";
 import AdminProjectDetailPage from "./pages/dashboard/admin/ProjectDetailPage";
 import AdminProfilePage from "./pages/dashboard/admin/ProfilePage";
+import UsersPage from "./pages/dashboard/admin/UsersPage";
+import RolesPage from "./pages/dashboard/admin/RolesPage";
 
 // Project Manager pages
 import ProjectManagerProfilePage from "./pages/dashboard/project-manager/ProfilePage";
@@ -97,11 +95,7 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
 
             {/* Auth routes */}
-            <Route path="/auth" element={<RoleSelection />} />
-            <Route path="/auth/admin" element={<AdminLogin />} />
-            <Route path="/auth/project-manager" element={<ProjectManagerLogin />} />
-            <Route path="/auth/team-lead" element={<TeamLeadLogin />} />
-            <Route path="/auth/member" element={<MemberLogin />} />
+            <Route path="/auth/login" element={<LoginPage />} />
             <Route path="/auth/signup" element={<EmployeeSignUp />} />
             <Route path="/auth/pending-approval" element={<PendingApproval />} />
 
@@ -111,6 +105,22 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="admin">
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/users"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/admin/roles"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <RolesPage />
                 </ProtectedRoute>
               }
             />
@@ -154,15 +164,6 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/dashboard/member"
-              element={
-                <ProtectedRoute requiredRole="employee">
-                  <MemberDashboard />
-                </ProtectedRoute>
-              }
-            />
-
             {/* Team Lead Routes */}
             <Route
               path="/dashboard/team-lead/tasks"
@@ -198,6 +199,30 @@ const App = () => (
             />
 
             {/* Employee/Member Routes */}
+            <Route
+              path="/dashboard/member"
+              element={
+                <ProtectedRoute requiredRole="employee">
+                  <MemberDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/member/progress"
+              element={
+                <ProtectedRoute requiredRole="employee">
+                  <MemberDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/member/feedback"
+              element={
+                <ProtectedRoute requiredRole="employee">
+                  <MemberDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/dashboard/member/tasks"
               element={

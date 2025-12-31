@@ -12,10 +12,10 @@ import { handleError } from "@/utils/errorHandler";
 import loginHero from "@/assets/login-hero.jpg";
 
 interface LoginFormProps {
-  role: string;
-  roleTitle: string;
-  roleIcon: React.ReactNode;
-  dashboardPath: string;
+  role?: string;
+  roleTitle?: string;
+  roleIcon?: React.ReactNode;
+  dashboardPath?: string;
 }
 
 const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps) => {
@@ -25,7 +25,18 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login: loginAuth, user } = useAuth();
+  
+  // Map user roles to dashboard paths
+  const getDashboardPath = (userRole: string): string => {
+    const roleDashboardMap: Record<string, string> = {
+      admin: '/dashboard/admin',
+      project_manager: '/dashboard/project-manager',
+      team_lead: '/dashboard/team-lead',
+      employee: '/dashboard/member',
+    };
+    return roleDashboardMap[userRole] || '/dashboard/member';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,18 +57,22 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
     setIsLoading(true);
 
     try {
-      await login(trimmedEmail, trimmedPassword);
+      // Login and get user directly from response
+      const loggedInUser = await loginAuth(trimmedEmail, trimmedPassword);
+      
+      // Use provided dashboardPath or determine from user role
+      const targetPath = dashboardPath || (loggedInUser ? getDashboardPath(loggedInUser.role) : '/dashboard/member');
+      
+      toast({
+        title: "Welcome back!",
+        description: `Signed in successfully`,
+      });
       
       // Small delay to ensure state is updated before navigation
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      toast({
-        title: "Welcome back!",
-        description: `Signed in as ${roleTitle}`,
-      });
-      
       // Navigate to dashboard (replace to avoid adding to history and prevent hash)
-      navigate(dashboardPath, { replace: true });
+      navigate(targetPath, { replace: true });
     } catch (error: any) {
       // Extract error message from various possible structures
       // API format: { error: { message: "Account disabled", code: "UNAUTHORIZED" } }
@@ -132,11 +147,11 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
             <TeamTuneLogo />
           </Link>
           <Link
-            to="/auth"
+            to="/"
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Change role
+            Back to home
           </Link>
         </div>
 
@@ -145,94 +160,103 @@ const LoginForm = ({ role, roleTitle, roleIcon, dashboardPath }: LoginFormProps)
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-md"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="w-full max-w-md relative"
           >
-            {/* Role Badge */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-accent rounded-xl">
-                {roleIcon}
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Logging in as</p>
-                <h2 className="text-xl font-semibold text-foreground">{roleTitle}</h2>
-              </div>
-            </div>
-
             {/* Welcome Text */}
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
               <p className="text-muted-foreground">Sign in to continue to your dashboard</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-12 bg-background"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Email Field with Stagger Animation */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="space-y-2"
+                >
+                  <Label htmlFor="email" className="text-sm font-medium">Email</Label>
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 bg-background pr-10"
-                    autoComplete="current-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck="false"
+                    id="email"
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-12 bg-background"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
+                </motion.div>
 
-              <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign in"
-                )}
-              </Button>
-            </form>
+                {/* Password Field with Stagger Animation */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                    <Link
+                      to="/auth/forgot-password"
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors duration-200 hover:underline"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 bg-background pr-10"
+                      autoComplete="current-password"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck="false"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200 p-1 rounded-md hover:bg-accent"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </motion.div>
 
-            <p className="text-center text-sm text-muted-foreground mt-8">
-              Need help?{" "}
-              <a href="mailto:support@teamtune.io" className="text-primary hover:underline">
-                Contact support
-              </a>
-            </p>
+                <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
+                </Button>
+              </form>
+
+            <div className="text-center space-y-3 mt-8">
+              <p className="text-sm text-muted-foreground">
+                New user?{" "}
+                <Link to="/auth/signup" className="text-primary hover:underline font-medium">
+                  Register here
+                </Link>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Need help?{" "}
+                <a href="mailto:support@teamtune.io" className="text-primary hover:underline">
+                  Contact support
+                </a>
+              </p>
+            </div>
           </motion.div>
         </div>
       </div>

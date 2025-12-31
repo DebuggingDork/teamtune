@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   hasRole: (role: string) => boolean;
   updateUserRole: (newRole: string) => void;
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<User> => {
     try {
       const response = await authService.login({ email, password });
       
@@ -77,6 +77,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.log('Stored user after login:', storedUser);
         }, 100);
       }
+      
+      // Return the user so it can be used immediately
+      return response.user;
     } catch (error) {
       // Don't show generic error here - let the LoginForm component handle it
       // so it can show specific messages for blocked accounts, etc.

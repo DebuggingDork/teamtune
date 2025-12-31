@@ -41,7 +41,7 @@ apiClient.interceptors.response.use(
       
       // Only redirect if not already on auth page
       if (!window.location.pathname.startsWith('/auth')) {
-        window.location.href = '/auth';
+        window.location.href = '/auth/login';
       }
     }
 

@@ -6,7 +6,6 @@ import {
   Calendar,
   BarChart3,
   Bell,
-  Search,
   LogOut,
   Sun,
   Moon,
@@ -168,7 +167,7 @@ export const ProjectManagerLayout = ({
       {/* Main Content */}
       <main className="lg:ml-64">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div 
@@ -176,14 +175,6 @@ export const ProjectManagerLayout = ({
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <TeamTuneLogo showText={false} />
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search projects..."
-                  className="pl-10 pr-4 py-2 bg-accent border-none rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
               </div>
             </div>
             <div className="flex items-center gap-4">

@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { 
   Shield, 
   Users, 
   Settings, 
   BarChart3, 
   Bell, 
-  Search,
   LogOut,
   UserCheck,
   UserX,
@@ -78,6 +77,7 @@ const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { data: pendingUsers = [], isLoading: isLoadingPending } = usePendingUsers();
   const { data: usersData, isLoading: isLoadingAll } = useAllUsers();
@@ -87,7 +87,19 @@ const AdminDashboard = () => {
   const unblockUserMutation = useUnblockUser();
   const bulkApproveMutation = useBulkApproveUsers();
   const bulkRejectMutation = useBulkRejectUsers();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  
+  // Determine active tab from URL
+  const getActiveTab = () => {
+    if (location.pathname === "/dashboard/admin/users") return "users";
+    if (location.pathname === "/dashboard/admin/roles") return "roles";
+    return "dashboard";
+  };
+  const [activeTab, setActiveTab] = useState(getActiveTab());
+  
+  // Update active tab when location changes
+  useEffect(() => {
+    setActiveTab(getActiveTab());
+  }, [location.pathname]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isBulkMode, setIsBulkMode] = useState(false);
@@ -266,8 +278,8 @@ const AdminDashboard = () => {
         
         <nav className="mt-8 flex-1">
           <div className="space-y-1">
-            <button 
-              onClick={() => setActiveTab("dashboard")}
+            <Link
+              to="/dashboard/admin"
               className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg w-full text-left transition-colors ${
                 activeTab === "dashboard" 
                   ? "text-foreground bg-accent" 
@@ -276,9 +288,9 @@ const AdminDashboard = () => {
             >
               <BarChart3 className="h-4 w-4" />
               Dashboard
-            </button>
-            <button 
-              onClick={() => setActiveTab("users")}
+            </Link>
+            <Link
+              to="/dashboard/admin/users"
               className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                 activeTab === "users" 
                   ? "font-medium text-foreground bg-accent" 
@@ -287,9 +299,9 @@ const AdminDashboard = () => {
             >
               <Users className="h-4 w-4" />
               Users
-            </button>
-            <button 
-              onClick={() => setActiveTab("roles")}
+            </Link>
+            <Link
+              to="/dashboard/admin/roles"
               className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                 activeTab === "roles" 
                   ? "font-medium text-foreground bg-accent" 
@@ -298,7 +310,7 @@ const AdminDashboard = () => {
             >
               <UserCog className="h-4 w-4" />
               Roles
-            </button>
+            </Link>
             <Link
               to="/dashboard/admin/projects"
               className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -338,7 +350,7 @@ const AdminDashboard = () => {
       {/* Main Content */}
       <main className="lg:ml-64">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
+        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div 
@@ -346,14 +358,6 @@ const AdminDashboard = () => {
                 onClick={() => setIsMobileMenuOpen(true)}
               >
                 <TeamTuneLogo showText={false} />
-              </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search users, projects..."
-                  className="pl-10 pr-4 py-2 bg-accent border-none rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -431,33 +435,36 @@ const AdminDashboard = () => {
               <p className="text-muted-foreground mb-8">Monitor and manage your organization's health and access.</p>
 
               {/* System Overview Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {[
-                  { label: "Total Users", value: totalUsers.toString(), icon: Users, color: "bg-primary/10 text-primary", isLoading: isLoadingAll },
-                  { label: "Pending", value: pendingCount.toString(), icon: Clock, color: "bg-warning/10 text-warning", isLoading: isLoadingPending },
-                  { label: "Active", value: activeUsers.toString(), icon: UserCheck, color: "bg-emerald-500/10 text-emerald-500", isLoading: isLoadingAll },
-                  { label: "Blocked", value: blockedUsers.toString(), icon: UserX, color: "bg-destructive/10 text-destructive", isLoading: isLoadingAll },
+                  { label: "Total Users", value: totalUsers.toString(), icon: Users, color: "from-blue-500/20 to-blue-600/10", iconColor: "text-blue-500", isLoading: isLoadingAll },
+                  { label: "Pending", value: pendingCount.toString(), icon: Clock, color: "from-amber-500/20 to-amber-600/10", iconColor: "text-amber-500", isLoading: isLoadingPending },
+                  { label: "Active", value: activeUsers.toString(), icon: UserCheck, color: "from-emerald-500/20 to-emerald-600/10", iconColor: "text-emerald-500", isLoading: isLoadingAll },
+                  { label: "Blocked", value: blockedUsers.toString(), icon: UserX, color: "from-red-500/20 to-red-600/10", iconColor: "text-red-500", isLoading: isLoadingAll },
                 ].map((stat, index) => (
                   <motion.div
                     key={stat.label}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="bg-card border border-border rounded-xl p-6"
+                    className="group relative bg-gradient-to-br from-card to-card/50 border border-border/50 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:border-border transition-all duration-300 overflow-hidden"
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                      <div className={`p-2 rounded-lg ${stat.color}`}>
-                        {stat.isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <stat.icon className="h-4 w-4" />
-                        )}
+                    <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(135deg, ${stat.color.split(' ')[1]}, ${stat.color.split(' ')[3]})` }} />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                        <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} backdrop-blur-sm shadow-lg`}>
+                          {stat.isLoading ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+                          )}
+                        </div>
                       </div>
+                      <p className="text-3xl font-bold text-foreground tracking-tight">
+                        {stat.isLoading ? "..." : stat.value}
+                      </p>
                     </div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {stat.isLoading ? "..." : stat.value}
-                    </p>
                   </motion.div>
                 ))}
               </div>
@@ -467,25 +474,32 @@ const AdminDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-card border border-border rounded-xl p-6 mb-8"
+                className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 mb-8 shadow-sm hover:shadow-md transition-shadow duration-300"
               >
-                <h2 className="text-lg font-semibold text-foreground mb-4">Role Distribution</h2>
+                <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full bg-primary animate-pulse" />
+                  Role Distribution
+                </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
-                    { role: "Admins", count: roleDistribution.admin, icon: Shield },
-                    { role: "Project Managers", count: roleDistribution.project_manager, icon: FolderKanban },
-                    { role: "Team Leads", count: roleDistribution.team_lead, icon: UsersRound },
-                    { role: "Members", count: roleDistribution.employee, icon: Users },
+                    { role: "Admins", count: roleDistribution.admin, icon: Shield, gradient: "from-orange-500/20 to-orange-600/10", iconColor: "text-orange-500" },
+                    { role: "Project Managers", count: roleDistribution.project_manager, icon: FolderKanban, gradient: "from-purple-500/20 to-purple-600/10", iconColor: "text-purple-500" },
+                    { role: "Team Leads", count: roleDistribution.team_lead, icon: UsersRound, gradient: "from-blue-500/20 to-blue-600/10", iconColor: "text-blue-500" },
+                    { role: "Members", count: roleDistribution.employee, icon: Users, gradient: "from-emerald-500/20 to-emerald-600/10", iconColor: "text-emerald-500" },
                   ].map((item) => (
-                    <div key={item.role} className="flex items-center gap-3 p-4 bg-accent/50 rounded-lg">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <item.icon className="h-4 w-4 text-primary" />
+                    <motion.div 
+                      key={item.role} 
+                      whileHover={{ scale: 1.05 }}
+                      className="group flex items-center gap-3 p-4 bg-gradient-to-br from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 transition-all duration-300"
+                    >
+                      <div className={`p-3 bg-gradient-to-br ${item.gradient} rounded-xl shadow-sm`}>
+                        <item.icon className={`h-5 w-5 ${item.iconColor}`} />
                       </div>
                       <div>
-                        <p className="text-xl font-bold text-foreground">{item.count}</p>
-                        <p className="text-xs text-muted-foreground">{item.role}</p>
+                        <p className="text-2xl font-bold text-foreground">{item.count}</p>
+                        <p className="text-xs font-medium text-muted-foreground mt-0.5">{item.role}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </motion.div>
@@ -495,8 +509,10 @@ const AdminDashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className={`bg-card border-2 border-warning/50 rounded-xl p-6 mb-8 transition-all ${isBulkMode ? 'ring-2 ring-primary' : ''}`}
+                className={`relative bg-gradient-to-br from-card via-card to-amber-500/5 border-2 border-amber-500/30 rounded-2xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${isBulkMode ? 'ring-2 ring-primary ring-offset-2' : ''}`}
               >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -translate-y-16 translate-x-16" />
+                <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-warning/10 rounded-lg">
@@ -677,6 +693,7 @@ const AdminDashboard = () => {
                     })
                   )}
                 </div>
+                </div>
               </motion.div>
 
               {/* Blocked Users Section */}
@@ -685,8 +702,10 @@ const AdminDashboard = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 }}
-                  className="bg-card border-2 border-destructive/50 rounded-xl p-6 mb-8"
+                  className="relative bg-gradient-to-br from-card via-card to-red-500/5 border-2 border-red-500/30 rounded-2xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
                 >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-3xl -translate-y-16 translate-x-16" />
+                  <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-destructive/10 rounded-lg">
@@ -740,6 +759,7 @@ const AdminDashboard = () => {
                       </div>
                     ))}
                   </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -749,39 +769,52 @@ const AdminDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.7 }}
               >
-                <h2 className="text-lg font-semibold text-foreground mb-4">Administrative Controls</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                  <div className="h-1 w-1 rounded-full bg-primary animate-pulse" />
+                  Administrative Controls
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   {[
                     { 
                       title: "User Management", 
                       description: "View, edit, and manage all user accounts", 
                       icon: Users,
-                      action: () => setActiveTab("users")
+                      action: () => navigate("/dashboard/admin/users"),
+                      gradient: "from-blue-500/20 to-blue-600/10",
+                      iconColor: "text-blue-500"
                     },
                     { 
                       title: "Role Management", 
                       description: "Configure roles and permissions", 
                       icon: UserCog,
-                      action: () => setActiveTab("roles")
+                      action: () => navigate("/dashboard/admin/roles"),
+                      gradient: "from-purple-500/20 to-purple-600/10",
+                      iconColor: "text-purple-500"
                     },
                     { 
                       title: "Project Management", 
                       description: "View and manage all projects", 
                       icon: FolderKanban,
-                      action: () => navigate("/dashboard/admin/projects")
+                      action: () => navigate("/dashboard/admin/projects"),
+                      gradient: "from-emerald-500/20 to-emerald-600/10",
+                      iconColor: "text-emerald-500"
                     },
                   ].map((control) => (
-                    <button
+                    <motion.button
                       key={control.title}
                       onClick={control.action}
-                      className="group bg-card border border-border rounded-xl p-6 hover:border-primary/50 transition-colors text-left"
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      className="group relative bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 hover:border-primary/50 hover:shadow-lg transition-all duration-300 text-left overflow-hidden"
                     >
-                      <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4 group-hover:bg-primary/20 transition-colors">
-                        <control.icon className="h-6 w-6 text-primary" />
+                      <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: `linear-gradient(135deg, ${control.gradient.split(' ')[1]}, ${control.gradient.split(' ')[3]})` }} />
+                      <div className="relative z-10">
+                        <div className={`p-3 bg-gradient-to-br ${control.gradient} rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+                          <control.icon className={`h-6 w-6 ${control.iconColor}`} />
+                        </div>
+                        <h3 className="font-bold text-foreground mb-2 text-lg">{control.title}</h3>
+                        <p className="text-sm text-muted-foreground">{control.description}</p>
                       </div>
-                      <h3 className="font-semibold text-foreground mb-1">{control.title}</h3>
-                      <p className="text-sm text-muted-foreground">{control.description}</p>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </motion.div>
@@ -1013,11 +1046,9 @@ const AdminDashboard = () => {
           </SheetHeader>
           <nav className="flex-1 p-6">
             <div className="space-y-1">
-              <button 
-                onClick={() => {
-                  setActiveTab("dashboard");
-                  setIsMobileMenuOpen(false);
-                }}
+              <Link
+                to="/dashboard/admin"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg w-full text-left transition-colors ${
                   activeTab === "dashboard" 
                     ? "text-foreground bg-accent" 
@@ -1026,12 +1057,10 @@ const AdminDashboard = () => {
               >
                 <BarChart3 className="h-4 w-4" />
                 Dashboard
-              </button>
-              <button 
-                onClick={() => {
-                  setActiveTab("users");
-                  setIsMobileMenuOpen(false);
-                }}
+              </Link>
+              <Link
+                to="/dashboard/admin/users"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                   activeTab === "users" 
                     ? "font-medium text-foreground bg-accent" 
@@ -1040,12 +1069,10 @@ const AdminDashboard = () => {
               >
                 <Users className="h-4 w-4" />
                 Users
-              </button>
-              <button 
-                onClick={() => {
-                  setActiveTab("roles");
-                  setIsMobileMenuOpen(false);
-                }}
+              </Link>
+              <Link
+                to="/dashboard/admin/roles"
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
                   activeTab === "roles" 
                     ? "font-medium text-foreground bg-accent" 
@@ -1054,7 +1081,7 @@ const AdminDashboard = () => {
               >
                 <UserCog className="h-4 w-4" />
                 Roles
-              </button>
+              </Link>
               <Link
                 to="/dashboard/admin/projects"
                 onClick={() => setIsMobileMenuOpen(false)}

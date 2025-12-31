@@ -419,10 +419,12 @@ const TeamLeadDashboard = () => {
         <p className="text-muted-foreground mb-8">Monitor your team's execution and support their growth.</p>
 
         {/* Team Overview */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-xl font-bold">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
               Team Overview
             </CardTitle>
           </CardHeader>
@@ -461,10 +463,12 @@ const TeamLeadDashboard = () => {
         </Card>
 
         {/* Member Activity Snapshot */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-xl font-bold">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Activity className="h-5 w-5 text-primary" />
+              </div>
               Member Activity Snapshot
             </CardTitle>
           </CardHeader>
@@ -483,7 +487,7 @@ const TeamLeadDashboard = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between p-4 bg-accent/50 rounded-lg"
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center">
@@ -516,10 +520,12 @@ const TeamLeadDashboard = () => {
 
         {/* Execution Trends */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" data-section="trends">
-          <Card>
+          <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                </div>
                 Contribution Trends
               </CardTitle>
             </CardHeader>
@@ -557,10 +563,12 @@ const TeamLeadDashboard = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Activity className="h-5 w-5 text-primary" />
+                </div>
                 Active vs Inactive Periods
               </CardTitle>
             </CardHeader>
@@ -593,10 +601,12 @@ const TeamLeadDashboard = () => {
         </div>
 
         {/* Risk Signals */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-chart-4" />
+            <CardTitle className="flex items-center gap-2 text-xl font-bold">
+              <div className="p-2 bg-chart-4/10 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-chart-4" />
+              </div>
               Risk Signals
             </CardTitle>
           </CardHeader>
@@ -613,9 +623,9 @@ const TeamLeadDashboard = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: index * 0.1 }}
-                    className={`p-4 rounded-lg border ${signal.severity === "medium"
-                      ? "bg-chart-4/10 border-chart-4/30"
-                      : "bg-chart-3/10 border-chart-3/30"
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 ${signal.severity === "medium"
+                      ? "bg-gradient-to-r from-chart-4/10 to-chart-4/5 border-chart-4/40 hover:border-chart-4/60 hover:shadow-sm"
+                      : "bg-gradient-to-r from-chart-3/10 to-chart-3/5 border-chart-3/40 hover:border-chart-3/60 hover:shadow-sm"
                       }`}
                   >
                     <div className="flex items-start justify-between">
@@ -635,16 +645,18 @@ const TeamLeadDashboard = () => {
         </Card>
 
         {/* Feedback & Notes */}
-        <Card data-section="feedback">
+        <Card data-section="feedback" className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-xl font-bold">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <MessageSquare className="h-5 w-5 text-primary" />
+              </div>
               Feedback & Notes
             </CardTitle>
           </CardHeader>
           <CardContent>
             {/* Add New Feedback Form */}
-            <div className="mb-6 p-4 bg-accent/30 rounded-lg border border-border">
+            <div className="mb-6 p-5 bg-gradient-to-br from-accent/20 to-accent/10 rounded-xl border border-border/50 shadow-sm">
               <label className="text-sm font-medium text-foreground mb-3 block">Add New Feedback</label>
               {hasTeamCode && memberActivityData.length > 0 && (
                 <div className="space-y-3">
@@ -792,7 +804,7 @@ const TeamLeadDashboard = () => {
                       key={observation.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-4 bg-accent/30 rounded-lg border border-border hover:bg-accent/50 transition-colors"
+                      className="p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">

@@ -57,7 +57,7 @@ const Navbar = () => {
             <Moon className="h-5 w-5" />
           )}
         </Button>
-        <Link to="/auth" className="">
+        <Link to="/auth/login" className="">
           <NavbarButton variant="secondary">
             Log in
           </NavbarButton>
@@ -100,7 +100,7 @@ const Navbar = () => {
               </>
             )}
           </Button>
-          <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
+          <Link to="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
             <NavbarButton variant="secondary" className="w-full">
               Log in
             </NavbarButton>
