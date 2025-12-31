@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
-import { 
-  Users, 
-  Search, 
+import {
+  Users,
+  Search,
   Filter,
   UserCheck,
   UserX,
@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { UserRole, UserStatus } from "@/api/types";
 import {
   Select,
   SelectContent,
@@ -61,10 +62,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAllUsers, useBlockUser, useUnblockUser, useBulkApproveUsers, useBulkRejectUsers, useDeleteUser, useBulkDeleteUsers, useManagedProjects, useLedTeams, useDemoteProjectManager, useDemoteTeamLead } from "@/hooks/useAdmin";
+import {
+  useAllUsers,
+  useBlockUser,
+  useUnblockUser,
+  useBulkApproveUsers,
+  useBulkRejectUsers,
+  useDeleteUser,
+  useBulkDeleteUsers,
+  useManagedProjects,
+  useLedTeams,
+  useDemoteProjectManager,
+  useDemoteTeamLead
+} from "@/hooks/useAdmin";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import type { UserRole } from "@/api/types";
 
 // Component to show user details (projects/teams)
 const UserDetailsSection = ({ userId, role }: { userId: string; role: UserRole }) => {
@@ -158,19 +170,19 @@ const AdminUsers = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  
+  const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<UserStatus | "all">("all");
+
   const { data: usersData, isLoading } = useAllUsers({
     page,
     limit,
     status: statusFilter !== "all" ? statusFilter : undefined,
     role: roleFilter !== "all" ? roleFilter : undefined,
   });
-  
+
   const allUsers = usersData?.users || [];
   const pagination = usersData?.pagination;
-  
+
   const blockUserMutation = useBlockUser();
   const unblockUserMutation = useUnblockUser();
   const bulkApproveMutation = useBulkApproveUsers();
@@ -253,12 +265,12 @@ const AdminUsers = () => {
       setSelectedUser(null);
     } catch (error: any) {
       // Extract error message from API response
-      const errorMessage = 
-        error?.response?.data?.error?.message || 
-        error?.response?.data?.message || 
-        error?.message || 
+      const errorMessage =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         "Failed to delete user";
-      
+
       toast({
         title: "Cannot Delete User",
         description: errorMessage,
@@ -278,28 +290,28 @@ const AdminUsers = () => {
     }
 
     try {
-      const result = await bulkDeleteMutation.mutateAsync({
+      const result = await (bulkDeleteMutation.mutateAsync as any)({
         user_ids: Array.from(selectedUserIds),
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkDeleteDialogOpen(false);
       setIsResultDialogOpen(true);
       setSelectedUserIds(new Set());
       setIsBulkMode(false);
-      
+
       toast({
         title: "Bulk Deletion Complete",
         description: `Deleted ${result.total_deleted} of ${result.total_requested} users`,
       });
     } catch (error: any) {
       // Extract error message from API response - check nested error structure
-      const errorMessage = 
-        error?.response?.data?.error?.message || 
-        error?.response?.data?.message || 
-        error?.message || 
+      const errorMessage =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         "Failed to delete users";
-      
+
       toast({
         title: "Cannot Delete Users",
         description: errorMessage,
@@ -356,11 +368,11 @@ const AdminUsers = () => {
     }
 
     try {
-      const result = await demotePMMutation.mutateAsync({
+      const result = await (demotePMMutation.mutateAsync as any)({
         id: selectedUserForDemote.id,
         data: { replacement_manager_id: replacementManagerId },
       });
-      
+
       toast({
         title: "Success",
         description: `${selectedUserForDemote.full_name} has been demoted. ${result.projects_reassigned} project(s) reassigned.`,
@@ -388,11 +400,11 @@ const AdminUsers = () => {
     }
 
     try {
-      const result = await demoteTLMutation.mutateAsync({
+      const result = await (demoteTLMutation.mutateAsync as any)({
         id: selectedUserForDemote.id,
         data: { replacement_lead_id: replacementLeadId },
       });
-      
+
       toast({
         title: "Success",
         description: `${selectedUserForDemote.full_name} has been demoted. ${result.teams_reassigned} team(s) reassigned.`,
@@ -417,7 +429,7 @@ const AdminUsers = () => {
   // Filter users based on search (client-side search, server-side handles role/status)
   const filteredUsers = allUsers.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -463,7 +475,7 @@ const AdminUsers = () => {
     if (!isBulkMode) return; // Only allow selection in bulk mode
     // Don't allow selecting admin users
     if (userRole === "admin") return;
-    
+
     const newSelected = new Set(selectedUserIds);
     if (newSelected.has(userId)) {
       newSelected.delete(userId);
@@ -485,12 +497,12 @@ const AdminUsers = () => {
     }
 
     try {
-      const result = await bulkApproveMutation.mutateAsync({
+      const result = await (bulkApproveMutation.mutateAsync as any)({
         user_ids: Array.from(selectedUserIds),
         role: bulkApproveRole,
         department_id: bulkApproveDepartmentId || undefined,
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkApproveDialogOpen(false);
       setIsResultDialogOpen(true);
@@ -498,7 +510,7 @@ const AdminUsers = () => {
       setBulkApproveRole("employee");
       setBulkApproveDepartmentId("");
       setIsBulkMode(false); // Exit bulk mode after operation
-      
+
       toast({
         title: "Bulk Approval Complete",
         description: `Approved ${result.total_approved} of ${result.total_requested} users`,
@@ -524,18 +536,18 @@ const AdminUsers = () => {
     }
 
     try {
-      const result = await bulkRejectMutation.mutateAsync({
+      const result = await (bulkRejectMutation.mutateAsync as any)({
         user_ids: Array.from(selectedUserIds),
         reason: bulkRejectReason || undefined,
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkRejectDialogOpen(false);
       setIsResultDialogOpen(true);
       setSelectedUserIds(new Set());
       setBulkRejectReason("");
       setIsBulkMode(false); // Exit bulk mode after operation
-      
+
       toast({
         title: "Bulk Rejection Complete",
         description: `Rejected ${result.total_rejected} of ${result.total_requested} users`,
@@ -560,7 +572,7 @@ const AdminUsers = () => {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case "admin": 
+      case "admin":
         return (
           <div className="relative inline-flex items-center justify-center">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-500/40 via-red-500/40 to-yellow-500/40 rounded-full blur-[3px]"></div>
@@ -596,437 +608,407 @@ const AdminUsers = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search users by name or email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      <div className="flex flex-col lg:flex-row gap-4">
+        <div className="relative flex-1 group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input
+              placeholder="Search by identity, email, or role..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-14 bg-card/50 backdrop-blur-xl border-border/50 rounded-xl text-base shadow-inner focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+          </div>
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by role" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="project_manager">Project Manager</SelectItem>
-            <SelectItem value="team_lead">Team Lead</SelectItem>
-            <SelectItem value="employee">Employee</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="blocked">Blocked</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-3">
+          <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as UserRole | "all")}>
+            <SelectTrigger className="w-full sm:w-48 h-14 bg-card/50 backdrop-blur-xl border-border/50 rounded-xl">
+              <SelectValue placeholder="Filter Role" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="admin">Administrators</SelectItem>
+              <SelectItem value="project_manager">Project Managers</SelectItem>
+              <SelectItem value="team_lead">Team Leaders</SelectItem>
+              <SelectItem value="employee">Members</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as UserStatus | "all")}>
+            <SelectTrigger className="w-full sm:w-48 h-14 bg-card/50 backdrop-blur-xl border-border/50 rounded-xl">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active Accounts</SelectItem>
+              <SelectItem value="pending">Awaiting Approval</SelectItem>
+              <SelectItem value="blocked">Restrictions Applied</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      {/* Stats - Refined */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Users", value: allUsers.length, color: "bg-primary/10 text-primary" },
-          { label: "Active", value: allUsers.filter(u => u.status === "active").length, color: "bg-emerald-500/10 text-emerald-500" },
-          { label: "Pending", value: allUsers.filter(u => u.status === "pending").length, color: "bg-warning/10 text-warning" },
-          { label: "Blocked", value: allUsers.filter(u => u.status === "blocked").length, color: "bg-destructive/10 text-destructive" },
+          { label: "Total Population", value: allUsers.length, icon: Users, color: "primary", glow: "blue" },
+          { label: "Active Access", value: allUsers.filter(u => u.status === "active").length, icon: UserCheck, color: "emerald", glow: "emerald" },
+          { label: "Requests", value: allUsers.filter(u => u.status === "pending").length, icon: Clock, color: "warning", glow: "amber" },
+          { label: "Restricted", value: allUsers.filter(u => u.status === "blocked").length, icon: Ban, color: "destructive", glow: "red" },
         ].map((stat) => (
-          <div key={stat.label} className="bg-card border border-border rounded-lg p-4">
+          <motion.div
+            key={stat.label}
+            whileHover={{ y: -2 }}
+            className="group relative bg-card/40 backdrop-blur-md border border-border/50 rounded-2xl p-6 transition-all duration-300 hover:border-primary/30"
+          >
             <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-              <div className={`p-2 rounded-lg ${stat.color}`}>
-                <Users className="h-4 w-4" />
+              <div className={`p-2.5 rounded-lg bg-${stat.color}-500/10 text-${stat.color}-500 group-hover:bg-${stat.color}-500/20 transition-colors`}>
+                <stat.icon className="h-5 w-5" />
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold text-foreground tabular-nums">{stat.value}</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-black">{stat.label}</p>
               </div>
             </div>
-            <p className="text-2xl font-bold text-foreground mt-2">{stat.value}</p>
-          </div>
+            <div className={`absolute bottom-0 left-6 right-6 h-0.5 bg-gradient-to-r from-transparent via-${stat.color}-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+          </motion.div>
         ))}
       </div>
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions - Premium Bar */}
       {(pendingUsers.length > 0 || deletableUsers.length > 0) && (
-        <div className={`bg-card border border-border rounded-xl p-4 transition-all ${isBulkMode ? 'ring-2 ring-primary' : ''}`}>
-          {!isBulkMode ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {pendingUsers.length > 0 && (
-                  <Badge variant="secondary" className="text-sm">
-                    {pendingUsers.length} pending {pendingUsers.length === 1 ? 'user' : 'users'}
-                  </Badge>
-                )}
-              </div>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleToggleBulkMode}
-                className="flex items-center gap-2"
-              >
-                <CheckSquare className="h-4 w-4" />
-                Select Users
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-4">
+        <motion.div
+          layout
+          className={`relative overflow-hidden bg-card/60 backdrop-blur-2xl border border-border/50 rounded-2xl p-5 shadow-2xl transition-all duration-500 ${isBulkMode ? 'ring-2 ring-primary/40 scale-[1.01]' : ''}`}
+        >
+          <div className="relative z-10">
+            {!isBulkMode ? (
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  {pendingUsers.length > 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSelectAll}
-                      className="flex items-center gap-2"
-                    >
-                      {selectedUserIds.size === pendingUsers.length ? (
-                        <CheckSquare className="h-4 w-4" />
-                      ) : (
-                        <Square className="h-4 w-4" />
-                      )}
-                      {selectedUserIds.size === pendingUsers.length ? "Deselect All Pending" : "Select All Pending"}
-                    </Button>
-                  )}
-                  {deletableUsers.length > 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSelectAllDeletable}
-                      className="flex items-center gap-2"
-                    >
-                      {selectedUserIds.size === deletableUsers.length ? (
-                        <CheckSquare className="h-4 w-4" />
-                      ) : (
-                        <Square className="h-4 w-4" />
-                      )}
-                      {selectedUserIds.size === deletableUsers.length ? "Deselect All" : "Select All (Non-Admin)"}
-                    </Button>
-                  )}
-                  {selectedUserIds.size > 0 && (
-                    <Badge variant="default" className="text-sm">
-                      {selectedUserIds.size} {selectedUserIds.size === 1 ? 'user' : 'users'} selected
-                    </Badge>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleToggleBulkMode}
-                    className="flex items-center gap-2 text-muted-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                    Cancel
-                  </Button>
+                  <div className="p-2 bg-primary/10 rounded-full">
+                    <Shield className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Secure Multi-Operation Mode</p>
+                    <p className="text-xs text-muted-foreground">Select multiple accounts for batch processing</p>
+                  </div>
                 </div>
-                {selectedUserIds.size > 0 && (
-                  <div className="flex items-center gap-2">
-                    {Array.from(selectedUserIds).some(id => {
-                      const user = filteredUsers.find(u => u.id === id);
-                      return user?.status === "pending";
-                    }) && (
-                      <>
+                <Button
+                  onClick={handleToggleBulkMode}
+                  className="bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl px-6 py-5 font-bold"
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  Activate Batch Mode
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-1 bg-muted/50 rounded-xl flex gap-1">
+                      {pendingUsers.length > 0 && (
                         <Button
-                          variant="default"
+                          variant="ghost"
                           size="sm"
-                          onClick={() => setIsBulkApproveDialogOpen(true)}
-                          className="flex items-center gap-2"
-                          disabled={bulkApproveMutation.isPending}
+                          onClick={handleSelectAll}
+                          className={`rounded-lg h-9 px-4 font-bold text-xs ${selectedUserIds.size === pendingUsers.length ? 'bg-background shadow-sm' : ''}`}
                         >
-                          <UserCheck className="h-4 w-4" />
-                          Approve ({selectedUserIds.size})
+                          Select Pending
                         </Button>
+                      )}
+                      {deletableUsers.length > 0 && (
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          onClick={() => setIsBulkRejectDialogOpen(true)}
-                          className="flex items-center gap-2"
-                          disabled={bulkRejectMutation.isPending}
+                          onClick={handleSelectAllDeletable}
+                          className={`rounded-lg h-9 px-4 font-bold text-xs ${selectedUserIds.size === deletableUsers.length ? 'bg-background shadow-sm' : ''}`}
                         >
-                          <UserX className="h-4 w-4" />
-                          Reject ({selectedUserIds.size})
+                          Select All
                         </Button>
-                      </>
+                      )}
+                    </div>
+                    {selectedUserIds.size > 0 && (
+                      <Badge variant="default" className="rounded-lg px-4 py-1.5 font-black animate-in zoom-in">
+                        {selectedUserIds.size} Selected
+                      </Badge>
                     )}
                     <Button
-                      variant="destructive"
+                      variant="ghost"
                       size="sm"
-                      onClick={() => setIsBulkDeleteDialogOpen(true)}
-                      className="flex items-center gap-2"
-                      disabled={bulkDeleteMutation.isPending}
+                      onClick={handleToggleBulkMode}
+                      className="text-muted-foreground hover:text-foreground font-bold"
                     >
-                      <Trash2 className="h-4 w-4" />
-                      Delete ({selectedUserIds.size})
+                      <X className="h-4 w-4 mr-1" />
+                      Exit Batch
                     </Button>
                   </div>
-                )}
-              </div>
-              {selectedUserIds.size === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Select users from the list below to perform bulk actions
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
-      {/* Users List */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-foreground">Users</h3>
-          <div className="flex items-center gap-2">
-            {pagination && (
-              <Badge variant="secondary">
-                Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
-              </Badge>
+                  {selectedUserIds.size > 0 && (
+                    <div className="flex items-center gap-2">
+                      {Array.from(selectedUserIds).some(id => filteredUsers.find(u => u.id === id)?.status === "pending") && (
+                        <div className="flex gap-2">
+                          <Button
+                            variant="default"
+                            onClick={() => setIsBulkApproveDialogOpen(true)}
+                            className="bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 font-bold rounded-xl"
+                          >
+                            <UserCheck className="h-4 w-4 mr-2" />
+                            Batch Approve
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsBulkRejectDialogOpen(true)}
+                            className="border-warning/30 hover:bg-warning/5 text-warning font-bold rounded-xl"
+                          >
+                            <UserX className="h-4 w-4 mr-2" />
+                            Batch Reject
+                          </Button>
+                        </div>
+                      )}
+                      <Button
+                        variant="destructive"
+                        onClick={() => setIsBulkDeleteDialogOpen(true)}
+                        className="shadow-lg shadow-destructive/20 font-bold rounded-xl"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Teardown Accounts
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
+        </motion.div>
+      )}
+
+      {/* Users List - Elevated Cards */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <Users className="h-5 w-5 text-primary" />
+            <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-muted-foreground">
+              Directory
+            </h3>
+          </div>
+          {pagination && (
+            <Badge variant="secondary" className="bg-muted/50 text-[10px] font-black uppercase tracking-widest px-3">
+              Vol. {pagination.total}
+            </Badge>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center p-24 space-y-4 bg-card/20 rounded-3xl border border-dashed border-border">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-xl animate-pulse rounded-full"></div>
+              <Loader2 className="h-10 w-10 animate-spin text-primary relative z-10" />
+            </div>
+            <p className="text-sm font-bold text-muted-foreground animate-pulse">Syncing Registry...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="text-center py-8">
-            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No users found</p>
+          <div className="text-center py-24 bg-card/20 rounded-3xl border border-dashed border-border">
+            <div className="p-6 bg-muted/50 rounded-full w-fit mx-auto mb-6">
+              <Search className="h-12 w-12 text-muted-foreground/30" />
+            </div>
+            <h4 className="text-lg font-bold text-foreground">Zero Results</h4>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-2">No users found matching your current filter criteria. Try adjusting your search term.</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredUsers.map((user) => {
-              const isSelected = isBulkMode && user.status === "pending" && selectedUserIds.has(user.id);
-              const isExpanded = expandedUsers.has(user.id);
-              const isPM = user.role === "project_manager";
-              const isTL = user.role === "team_lead";
-              
-              return (
-              <div
-                key={user.id}
-                className={`rounded-lg transition-all ${
-                  isSelected 
-                    ? "bg-primary/10 border-2 border-primary" 
-                    : "bg-accent/50 hover:bg-accent border border-transparent"
-                }`}
-              >
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    {isBulkMode && user.role !== "admin" && (
-                      <Checkbox
-                        checked={selectedUserIds.has(user.id)}
-                        onCheckedChange={() => handleToggleUser(user.id, user.role)}
-                      />
-                    )}
-                    {(isPM || isTL) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => toggleUserExpansion(user.id)}
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary">
-                        {user.full_name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-foreground">{user.full_name}</p>
-                        {getStatusIcon(user.status)}
+          <div className="grid grid-cols-1 gap-4">
+            <AnimatePresence mode="popLayout">
+              {filteredUsers.map((user, idx) => {
+                const isExpanded = expandedUsers.has(user.id);
+                const isSelected = isBulkMode && selectedUserIds.has(user.id);
+                const isDeletable = user.role !== "admin";
+
+                return (
+                  <motion.div
+                    key={user.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, delay: idx * 0.03 }}
+                    className={`group relative overflow-hidden bg-card/40 backdrop-blur-xl border border-border/50 rounded-2xl transition-all duration-300 ${isSelected
+                      ? "ring-2 ring-primary bg-primary/[0.03] shadow-2xl"
+                      : "hover:bg-card hover:border-primary/20 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
+                      }`}
+                  >
+                    <div className="p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-5 flex-1 min-w-0">
+                          {isBulkMode && (
+                            <Checkbox
+                              checked={isSelected}
+                              onCheckedChange={() => handleToggleUser(user.id, user.role)}
+                              disabled={user.role === "admin"}
+                              className="w-5 h-5 rounded-md border-2"
+                            />
+                          )}
+
+                          <div className="relative flex-shrink-0">
+                            <div className="h-14 w-14 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl flex items-center justify-center border border-primary/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                              <span className="text-lg font-black text-primary">
+                                {user.full_name.split(' ').map((n: string) => n[0]).join('')}
+                              </span>
+                            </div>
+                            <div className={`absolute -bottom-1 -right-1 p-1 rounded-lg border-2 border-background shadow-lg ${user.status === 'active' ? 'bg-emerald-500' :
+                              user.status === 'blocked' ? 'bg-destructive' : 'bg-warning'
+                              }`}>
+                              {getStatusIcon(user.status)}
+                            </div>
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                              <h4 className="text-base font-black text-foreground group-hover:text-primary transition-colors truncate">
+                                {user.full_name}
+                              </h4>
+                              <div className="flex gap-2">
+                                <Badge variant="outline" className={`rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest px-2 shadow-sm`}>
+                                  {user.role === 'project_manager' ? 'PM' :
+                                    user.role === 'team_lead' ? 'Leads' : user.role}
+                                </Badge>
+                                <Badge className={`rounded-lg text-[10px] font-black uppercase tracking-widest px-2 shadow-sm transition-all duration-300 group-hover:scale-105 ${user.status === 'active' ? 'bg-emerald-500/10 text-emerald-500 shadow-emerald-500/10' :
+                                  user.status === 'blocked' ? 'bg-destructive/10 text-destructive shadow-destructive/50' :
+                                    'bg-warning/10 text-warning shadow-warning/10'
+                                  }`}>
+                                  {user.status}
+                                </Badge>
+                              </div>
+                            </div>
+                            <p className="text-sm text-muted-foreground/80 font-medium truncate">{user.email}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                          <div className="hidden sm:flex flex-col items-end text-right">
+                            <p className="text-[10px] uppercase font-black tracking-tighter text-muted-foreground/50">Engagement Date</p>
+                            <p className="text-xs font-bold text-foreground/80 mt-0.5 whitespace-nowrap">
+                              {user.created_at ? format(new Date(user.created_at), "MMM d, yyyy") : "Archive Entry"}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-1">
+                            {(user.role === "project_manager" || user.role === "team_lead") && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => toggleUserExpansion(user.id)}
+                                className={`h-10 w-10 p-0 rounded-xl transition-all duration-500 ${isExpanded ? 'bg-primary/20 text-primary rotate-180' : 'hover:bg-primary/10'}`}
+                              >
+                                <ChevronDown className="h-5 w-5" />
+                              </Button>
+                            )}
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0 rounded-xl hover:bg-muted">
+                                  <MoreHorizontal className="h-5 w-5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56 p-1 rounded-xl shadow-2xl border-border/50">
+                                <DropdownMenuItem className="rounded-lg gap-2 font-medium">
+                                  <Eye className="h-4 w-4 text-primary" /> View Intelligence
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                {user.role === "project_manager" && (
+                                  <DropdownMenuItem onClick={() => openDemotePMDialog(user)} className="rounded-lg gap-2 font-medium text-warning">
+                                    <ArrowDown className="h-4 w-4" /> Reassign Projects
+                                  </DropdownMenuItem>
+                                )}
+                                {user.role === "team_lead" && (
+                                  <DropdownMenuItem onClick={() => openDemoteTLDialog(user)} className="rounded-lg gap-2 font-medium text-warning">
+                                    <ArrowDown className="h-4 w-4" /> Reassign Teams
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuSeparator />
+                                {user.status === "active" ? (
+                                  <DropdownMenuItem onClick={() => openBlockDialog(user)} className="rounded-lg gap-2 font-medium text-destructive">
+                                    <Ban className="h-4 w-4" /> Apply Restriction
+                                  </DropdownMenuItem>
+                                ) : user.status === "blocked" ? (
+                                  <DropdownMenuItem onClick={() => openUnblockDialog(user)} className="rounded-lg gap-2 font-medium text-emerald-500">
+                                    <CheckCircle className="h-4 w-4" /> Lift Restriction
+                                  </DropdownMenuItem>
+                                ) : null}
+                                {isDeletable && (
+                                  <DropdownMenuItem onClick={() => openDeleteDialog(user)} className="rounded-lg gap-2 font-medium text-destructive">
+                                    <Trash2 className="h-4 w-4" /> Teardown Account
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                      {user.department && (
-                        <p className="text-xs text-muted-foreground">Department: {user.department}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(user.role)}
-                      {user.role === "admin" ? (
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-yellow-500/10 text-transparent bg-clip-text"
-                        >
-                          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
-                            {user.role.replace('_', ' ')}
-                          </span>
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">
-                          {user.role.replace('_', ' ')}
-                        </Badge>
-                      )}
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(user.status)}>
-                      {user.status}
-                    </Badge>
-                    {user.created_at && (
-                      <span className="text-xs text-muted-foreground hidden sm:block">
-                        Joined {format(new Date(user.created_at), "MMM d, yyyy")}
-                      </span>
-                    )}
-                    
-                    {/* Actions Menu */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {user.status === "blocked" ? (
-                          <DropdownMenuItem 
-                            onClick={() => openUnblockDialog(user)}
-                            className="text-emerald-600 focus:text-emerald-600"
+
+                      {/* Expanded Section with glass effect */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "circOut" }}
+                            className="overflow-hidden"
                           >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Unblock User
-                          </DropdownMenuItem>
-                        ) : user.status === "active" ? (
-                          <DropdownMenuItem 
-                            onClick={() => openBlockDialog(user)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Ban className="h-4 w-4 mr-2" />
-                            Block User
-                          </DropdownMenuItem>
-                        ) : null}
-                        {isPM && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => toggleUserExpansion(user.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              {isExpanded ? "Hide" : "View"} Projects
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDemotePMDialog(user)}
-                              className="text-orange-600 focus:text-orange-600"
-                            >
-                              <ArrowDown className="h-4 w-4 mr-2" />
-                              Demote to Employee
-                            </DropdownMenuItem>
-                          </>
+                            <div className="pt-6 mt-5 border-t border-border/50">
+                              <UserDetailsSection userId={user.id} role={user.role} />
+                            </div>
+                          </motion.div>
                         )}
-                        {isTL && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => toggleUserExpansion(user.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              {isExpanded ? "Hide" : "View"} Teams
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDemoteTLDialog(user)}
-                              className="text-orange-600 focus:text-orange-600"
-                            >
-                              <ArrowDown className="h-4 w-4 mr-2" />
-                              Demote to Employee
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {user.role !== "admin" && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => openDeleteDialog(user)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-                
-                {/* Expanded Content - Projects/Teams */}
-                {isExpanded && (isPM || isTL) && (
-                  <UserDetailsSection userId={user.id} role={user.role} />
-                )}
-              </div>
-            );
-            })}
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
-        
-        {/* Pagination Controls */}
+
+        {/* Pagination - Premium */}
         {pagination && pagination.total_pages > 1 && (
-          <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-muted-foreground">
-                Page {pagination.page} of {pagination.total_pages}
-              </p>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 mt-8 border-t border-border/50">
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/60">Registry Limit</span>
               <Select value={limit.toString()} onValueChange={(value) => { setLimit(Number(value)); setPage(1); }}>
-                <SelectTrigger className="w-20 h-8">
+                <SelectTrigger className="w-24 h-10 bg-card/40 border-border/50 rounded-xl font-bold">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="10">10 / Page</SelectItem>
+                  <SelectItem value="25">25 / Page</SelectItem>
+                  <SelectItem value="50">50 / Page</SelectItem>
                 </SelectContent>
               </Select>
-              <span className="text-sm text-muted-foreground">per page</span>
             </div>
+
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={!pagination.has_prev || isLoading}
+                className="h-10 px-4 rounded-xl font-bold hover:bg-primary/10 transition-colors"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Previous
               </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, pagination.total_pages) }, (_, i) => {
-                  let pageNum;
-                  if (pagination.total_pages <= 5) {
-                    pageNum = i + 1;
-                  } else if (pagination.page <= 3) {
-                    pageNum = i + 1;
-                  } else if (pagination.page >= pagination.total_pages - 2) {
-                    pageNum = pagination.total_pages - 4 + i;
-                  } else {
-                    pageNum = pagination.page - 2 + i;
-                  }
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={pagination.page === pageNum ? "default" : "outline"}
-                      size="sm"
-                      className="w-8 h-8 p-0"
-                      onClick={() => setPage(pageNum)}
-                      disabled={isLoading}
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
+
+              <div className="flex items-center gap-1.5 px-4 h-10 rounded-xl bg-accent/30 border border-border/50">
+                <span className="text-xs font-black text-foreground">{pagination.page}</span>
+                <span className="text-[10px] font-bold text-muted-foreground/40 uppercase">of</span>
+                <span className="text-xs font-black text-muted-foreground">{pagination.total_pages}</span>
               </div>
+
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setPage(p => Math.min(pagination.total_pages, p + 1))}
                 disabled={!pagination.has_next || isLoading}
+                className="h-10 px-4 rounded-xl font-bold hover:bg-primary/10 transition-colors"
               >
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
@@ -1290,18 +1272,18 @@ const AdminUsers = () => {
                 </div>
                 <div className="bg-emerald-500/10 p-3 rounded-lg">
                   <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                    {bulkOperationResult.total_approved !== undefined ? "Approved" : 
-                     bulkOperationResult.total_rejected !== undefined ? "Rejected" : 
-                     bulkOperationResult.total_deleted !== undefined ? "Deleted" : "Processed"}
+                    {bulkOperationResult.total_approved !== undefined ? "Approved" :
+                      bulkOperationResult.total_rejected !== undefined ? "Rejected" :
+                        bulkOperationResult.total_deleted !== undefined ? "Deleted" : "Processed"}
                   </p>
                   <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {bulkOperationResult.total_approved ?? 
-                     bulkOperationResult.total_rejected ?? 
-                     bulkOperationResult.total_deleted ?? 0}
+                    {bulkOperationResult.total_approved ??
+                      bulkOperationResult.total_rejected ??
+                      bulkOperationResult.total_deleted ?? 0}
                   </p>
                 </div>
               </div>
-              
+
               {bulkOperationResult.failed && bulkOperationResult.failed.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-destructive">
@@ -1515,7 +1497,7 @@ const AdminUsers = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </motion.div >
   );
 };
 

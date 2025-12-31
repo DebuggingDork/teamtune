@@ -563,6 +563,11 @@ export interface GitMetrics {
     in_progress?: number;
     total?: number;
   };
+  time_tracking?: {
+    total_hours_logged: number;
+    total_estimated_hours?: number;
+    variance_percentage?: number;
+  };
 }
 
 // GitHub Integration Types
@@ -814,6 +819,18 @@ export interface EmployeeProfile {
   role: UserRole;
   status: UserStatus;
   department_id?: string;
+  teams?: Array<{
+    team_id: string;
+    team_code: string;
+    team_name: string;
+  }>;
+  projects?: Array<{
+    project_id: string;
+    project_code: string;
+    project_name: string;
+  }>;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface UpdateProfileRequest {

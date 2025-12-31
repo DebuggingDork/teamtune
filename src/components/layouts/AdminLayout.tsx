@@ -14,8 +14,6 @@ import {
   UserCog,
   FolderKanban,
   Plug,
-  Sun,
-  Moon,
   User,
   ChevronDown,
 } from "lucide-react";
@@ -35,9 +33,9 @@ import {
 } from "@/components/ui/sheet";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import NotificationPanel from "@/components/shared/NotificationPanel";
+import { ThemeSelector } from "@/components/ThemeSelector";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -61,7 +59,6 @@ export const AdminLayout = ({
   headerActions,
 }: AdminLayoutProps) => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
@@ -199,19 +196,7 @@ export const AdminLayout = ({
 
             </div>
             <div className="flex items-center gap-4">
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
+              <ThemeSelector />
 
               {/* Notifications */}
               <button

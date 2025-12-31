@@ -1,56 +1,58 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type Theme = 'light' | 'dark';
+import { themes, Theme } from '@/themes';
 
 interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
+  theme: string;
+  setTheme: (themeId: string) => void;
+  availableThemes: Theme[];
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Check localStorage first, then system preference
-    const stored = localStorage.getItem('theme') as Theme;
-    if (stored && (stored === 'light' || stored === 'dark')) {
+  const [themeId, setThemeId] = useState<string>(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored && themes.some(t => t.id === stored)) {
       return stored;
     }
-    
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    
+
     return 'light';
   });
 
   useEffect(() => {
-    // Apply theme to document
+    const theme = themes.find(t => t.id === themeId) || themes[0];
     const root = document.documentElement;
-    if (theme === 'dark') {
+
+    // Apply CSS variables
+    Object.entries(theme.colors).forEach(([key, value]) => {
+      root.style.setProperty(`--${key}`, value);
+    });
+
+    // For Tailwind's dark selector compatibility
+    if (theme.isDark) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    
-    // Store in localStorage
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
-  const toggleTheme = () => {
-    setThemeState(prev => prev === 'light' ? 'dark' : 'light');
-  };
+    // Remove all previous theme classes
+    themes.forEach(t => root.classList.remove(t.id));
+    // Add current theme class
+    root.classList.add(themeId);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+    localStorage.setItem('theme', themeId);
+  }, [themeId]);
+
+  const setTheme = (id: string) => {
+    if (themes.some(t => t.id === id)) {
+      setThemeId(id);
+    }
   };
 
   const value: ThemeContextType = {
-    theme,
-    toggleTheme,
+    theme: themeId,
     setTheme,
+    availableThemes: themes,
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

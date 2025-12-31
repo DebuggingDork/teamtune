@@ -6,10 +6,14 @@ import type {
   UserFilters,
   UsersResponse,
   ApproveUserRequest,
+  ApproveUserResponse,
   RejectUserRequest,
+  RejectUserResponse,
   PromoteToAdminRequest,
   BulkApproveUserRequest,
+  BulkApproveUserResponse,
   BulkRejectUserRequest,
+  BulkRejectUserResponse,
   BulkDeleteUserRequest,
   DemotePMRequest,
   DemoteTLRequest,
@@ -39,7 +43,7 @@ export const adminKeys = {
   },
   projects: {
     all: ['admin', 'projects'] as const,
-    list: (filters?: { page?: number; limit?: number; status?: ProjectStatus }) => 
+    list: (filters?: { page?: number; limit?: number; status?: ProjectStatus }) =>
       ['admin', 'projects', 'list', filters] as const,
     detail: (projectId: string) => ['admin', 'projects', 'detail', projectId] as const,
     stats: ['admin', 'projects', 'stats'] as const,
@@ -74,13 +78,13 @@ export const useAllUsers = (filters?: UserFilters) => {
 export const useApproveUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ApproveUserRequest }) =>
+  return useMutation<ApproveUserResponse, Error, { id: string; data: ApproveUserRequest }>({
+    mutationFn: ({ id, data }) =>
       adminService.approveUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -90,13 +94,13 @@ export const useApproveUser = () => {
 export const useRejectUser = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: RejectUserRequest }) =>
+  return useMutation<RejectUserResponse, Error, { id: string; data: RejectUserRequest }>({
+    mutationFn: ({ id, data }) =>
       adminService.rejectUser(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -111,7 +115,7 @@ export const usePromoteToAdmin = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -126,7 +130,7 @@ export const useBlockUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -141,7 +145,7 @@ export const useUnblockUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -151,12 +155,12 @@ export const useUnblockUser = () => {
 export const useBulkApproveUsers = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: BulkApproveUserRequest) => adminService.bulkApproveUsers(data),
+  return useMutation<BulkApproveUserResponse, Error, BulkApproveUserRequest>({
+    mutationFn: (data) => adminService.bulkApproveUsers(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -166,12 +170,12 @@ export const useBulkApproveUsers = () => {
 export const useBulkRejectUsers = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (data: BulkRejectUserRequest) => adminService.bulkRejectUsers(data),
+  return useMutation<BulkRejectUserResponse, Error, BulkRejectUserRequest>({
+    mutationFn: (data) => adminService.bulkRejectUsers(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -186,7 +190,7 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -201,7 +205,7 @@ export const useBulkDeleteUsers = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -241,7 +245,7 @@ export const useDemoteProjectManager = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -257,7 +261,7 @@ export const useDemoteTeamLead = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -297,7 +301,7 @@ export const usePromoteToProjectManager = () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
       queryClient.invalidateQueries({ queryKey: ['admin', 'roles'] });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -314,7 +318,7 @@ export const usePromoteToTeamLead = () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
       queryClient.invalidateQueries({ queryKey: ['admin', 'roles'] });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -331,7 +335,7 @@ export const useChangeUserRole = () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.users.all });
       queryClient.invalidateQueries({ queryKey: ['admin', 'roles'] });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -357,7 +361,7 @@ export const useConnectGitHubPlugin = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.plugins.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -373,7 +377,7 @@ export const useUpdatePlugin = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.plugins.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -383,7 +387,7 @@ export const useUpdatePlugin = () => {
 export const useSyncPlugin = () => {
   return useMutation({
     mutationFn: adminService.syncPlugin,
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 
@@ -409,7 +413,7 @@ export const useUpdateAdminProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.profile.all });
     },
-    onError: handleError,
+    onError: (err) => handleError(err),
   });
 };
 

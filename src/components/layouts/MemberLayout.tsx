@@ -9,8 +9,6 @@ import {
   Bell,
 
   LogOut,
-  Sun,
-  Moon,
   ChevronDown,
   BarChart3,
 } from "lucide-react";
@@ -30,8 +28,8 @@ import {
 } from "@/components/ui/sheet";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/contexts/ThemeContext";
 import NotificationPanel from "@/components/shared/NotificationPanel";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { cn } from "@/lib/utils";
 
 
@@ -84,7 +82,6 @@ export const MemberLayout = ({
   headerActions,
 }: MemberLayoutProps) => {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
@@ -184,19 +181,7 @@ export const MemberLayout = ({
               </div>
             </div>
             <div className="flex items-center gap-4">
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleTheme}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
+              <ThemeSelector />
 
               {/* Notifications */}
               <button

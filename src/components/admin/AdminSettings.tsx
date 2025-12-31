@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { 
-  Settings, 
-  Building, 
-  Mail, 
-  Shield, 
-  Github, 
-  Slack, 
+import {
+  Settings,
+  Building,
+  Mail,
+  Shield,
+  Github,
+  Slack,
   Zap,
   Save,
   AlertCircle,
@@ -175,245 +175,266 @@ const AdminSettings = () => {
         </p>
       </div>
 
-      {/* Organization Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Organization Settings
-          </CardTitle>
-          <CardDescription>
-            Basic organization information and configuration
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="org-name">Organization Name</Label>
-              <Input
-                id="org-name"
-                value={orgSettings.name}
-                onChange={(e) => setOrgSettings({...orgSettings, name: e.target.value})}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="timezone">Timezone</Label>
-              <Input
-                id="timezone"
-                value={orgSettings.timezone}
-                onChange={(e) => setOrgSettings({...orgSettings, timezone: e.target.value})}
-                readOnly
-                className="bg-muted"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="org-description">Description</Label>
-            <Textarea
-              id="org-description"
-              value={orgSettings.description}
-              onChange={(e) => setOrgSettings({...orgSettings, description: e.target.value})}
-              rows={3}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="allowed-domains">Allowed Email Domains</Label>
-              <Input
-                id="allowed-domains"
-                value={orgSettings.allowedDomains}
-                onChange={(e) => setOrgSettings({...orgSettings, allowedDomains: e.target.value})}
-                placeholder="company.com, example.org"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="max-users">Maximum Users</Label>
-              <Input
-                id="max-users"
-                value={orgSettings.maxUsers}
-                onChange={(e) => setOrgSettings({...orgSettings, maxUsers: e.target.value})}
-                readOnly
-                className="bg-muted"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={() => handleSaveSettings("organization", orgSettings)}
-              disabled={isLoading}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Organization Settings
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Authentication Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Authentication & Security
-          </CardTitle>
-          <CardDescription>
-            Security policies and authentication configuration
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Email Verification Required</Label>
-                  <p className="text-sm text-muted-foreground">Require users to verify their email</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Organization Settings */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <Card className="h-full border-border/50 bg-card/40 backdrop-blur-xl overflow-hidden rounded-3xl shadow-2xl group hover:border-primary/30 transition-all duration-500">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-purple-500/50 to-primary/50" />
+            <CardHeader className="pb-8">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="p-3 rounded-2xl bg-primary/10 text-primary shadow-inner">
+                  <Building className="h-6 w-6" />
                 </div>
-                <Switch
-                  checked={authSettings.requireEmailVerification}
-                  onCheckedChange={(checked) => 
-                    setAuthSettings({...authSettings, requireEmailVerification: checked})
-                  }
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
                 <div>
-                  <Label>Two-Factor Authentication</Label>
-                  <p className="text-sm text-muted-foreground">Enable 2FA for enhanced security</p>
+                  <CardTitle className="text-xl font-black tracking-tight">Organization Core</CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Registry & Identity</CardDescription>
                 </div>
-                <Switch
-                  checked={authSettings.twoFactorEnabled}
-                  onCheckedChange={(checked) => 
-                    setAuthSettings({...authSettings, twoFactorEnabled: checked})
-                  }
-                />
               </div>
-            </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="org-name" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Legal Entity Name</Label>
+                  <Input
+                    id="org-name"
+                    value={orgSettings.name}
+                    onChange={(e) => setOrgSettings({ ...orgSettings, name: e.target.value })}
+                    className="h-12 bg-background/50 border-border/50 rounded-xl focus-visible:ring-primary/20"
+                  />
+                </div>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="password-length">Minimum Password Length</Label>
-                <Input
-                  id="password-length"
-                  type="number"
-                  value={authSettings.passwordMinLength}
-                  onChange={(e) => 
-                    setAuthSettings({...authSettings, passwordMinLength: parseInt(e.target.value)})
-                  }
-                  min="6"
-                  max="32"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="org-description" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Operational Mandate</Label>
+                  <Textarea
+                    id="org-description"
+                    value={orgSettings.description}
+                    onChange={(e) => setOrgSettings({ ...orgSettings, description: e.target.value })}
+                    rows={3}
+                    className="bg-background/50 border-border/50 rounded-xl focus-visible:ring-primary/20 resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="allowed-domains" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Secure Domains</Label>
+                    <Input
+                      id="allowed-domains"
+                      value={orgSettings.allowedDomains}
+                      onChange={(e) => setOrgSettings({ ...orgSettings, allowedDomains: e.target.value })}
+                      placeholder="company.com"
+                      className="h-12 bg-background/50 border-border/50 rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="timezone" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Temporal Grid</Label>
+                    <Input
+                      id="timezone"
+                      value={orgSettings.timezone}
+                      readOnly
+                      className="h-12 bg-muted/30 border-border/30 rounded-xl text-muted-foreground/60"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="session-timeout">Session Timeout (hours)</Label>
-                <Input
-                  id="session-timeout"
-                  type="number"
-                  value={authSettings.sessionTimeout}
-                  onChange={(e) => 
-                    setAuthSettings({...authSettings, sessionTimeout: parseInt(e.target.value)})
-                  }
-                  min="1"
-                  max="168"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={() => handleSaveSettings("authentication", authSettings)}
-              disabled={isLoading}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Security Settings
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Integrations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
-            Integrations
-          </CardTitle>
-          <CardDescription>
-            Connect external services and tools
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {integrations.map((integration) => {
-              const Icon = integration.icon;
-              return (
-                <div
-                  key={integration.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg"
+              <div className="pt-6 border-t border-border/50">
+                <Button
+                  onClick={() => handleSaveSettings("organization", orgSettings)}
+                  className="w-full h-12 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                  disabled={isLoading}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-accent rounded-lg">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-foreground">{integration.name}</h4>
-                        {getIntegrationIcon(integration.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{integration.description}</p>
-                      {integration.config && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {integration.id === "github" && 
-                            `${integration.config.repositories} repositories in ${integration.config.organization}`
-                          }
-                        </p>
-                      )}
-                    </div>
+                  <Save className="h-4 w-4 mr-2" />
+                  Synchronize Identity
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Authentication Settings */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="h-full border-border/50 bg-card/40 backdrop-blur-xl overflow-hidden rounded-3xl shadow-2xl group hover:border-primary/30 transition-all duration-500">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500/50 via-primary/50 to-emerald-500/50" />
+            <CardHeader className="pb-8">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-500 shadow-inner">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-black tracking-tight">Security Protocol</CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Access & Encryption</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-background/30 border border-border/20 group/switch transition-all hover:bg-background/50">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-black text-foreground">Email Verification</Label>
+                    <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Mandatory validation for new entries</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {getIntegrationStatusBadge(integration.status)}
-                    <Button variant="outline" size="sm" className="gap-2">
-                      {integration.status === "connected" ? "Configure" : "Connect"}
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
+                  <Switch
+                    checked={authSettings.requireEmailVerification}
+                    onCheckedChange={(checked) =>
+                      setAuthSettings({ ...authSettings, requireEmailVerification: checked })
+                    }
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-background/30 border border-border/20 group/switch transition-all hover:bg-background/50">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-black text-foreground">Multi-Factor Intel</Label>
+                    <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Secondary vault authentication</p>
+                  </div>
+                  <Switch
+                    checked={authSettings.twoFactorEnabled}
+                    onCheckedChange={(checked) =>
+                      setAuthSettings({ ...authSettings, twoFactorEnabled: checked })
+                    }
+                    className="data-[state=checked]:bg-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password-length" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">Entropy Min</Label>
+                    <Input
+                      id="password-length"
+                      type="number"
+                      value={authSettings.passwordMinLength}
+                      onChange={(e) =>
+                        setAuthSettings({ ...authSettings, passwordMinLength: parseInt(e.target.value) })
+                      }
+                      className="h-12 bg-background/50 border-border/50 rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="session-timeout" className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 pl-1">TTL (Hours)</Label>
+                    <Input
+                      id="session-timeout"
+                      type="number"
+                      value={authSettings.sessionTimeout}
+                      onChange={(e) =>
+                        setAuthSettings({ ...authSettings, sessionTimeout: parseInt(e.target.value) })
+                      }
+                      className="h-12 bg-background/50 border-border/50 rounded-xl"
+                    />
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+              </div>
 
-      {/* System Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>System Information</CardTitle>
-          <CardDescription>
-            Read-only system configuration and status
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Version</Label>
-              <p className="text-sm font-medium">TeamTune v2.1.0</p>
+              <div className="pt-6 border-t border-border/50">
+                <Button
+                  onClick={() => handleSaveSettings("authentication", authSettings)}
+                  className="w-full h-12 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-500 hover:scale-[1.02] active:scale-95 transition-all text-white border-none"
+                  disabled={isLoading}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Harden Protocols
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Integrations - Wide Layout */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <Card className="border-border/50 bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2.5rem] shadow-2xl">
+          <CardHeader className="p-8 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-amber-500/10 text-amber-500 shadow-inner">
+                  <Zap className="h-6 w-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-black tracking-tight">External Uplinks</CardTitle>
+                  <CardDescription className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Cross-Platform Sync</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="rounded-xl px-4 py-1.5 font-black uppercase tracking-widest border-border/50">
+                {integrations.filter(i => i.status === 'connected').length} Active Links
+              </Badge>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Environment</Label>
-              <p className="text-sm font-medium">Production</p>
+          </CardHeader>
+          <CardContent className="p-8 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {integrations.map((integration, idx) => {
+                const Icon = integration.icon;
+                return (
+                  <motion.div
+                    key={integration.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + (idx * 0.1) }}
+                    className="flex flex-col p-6 rounded-3xl border border-border/50 bg-background/40 hover:bg-background/60 hover:border-primary/30 hover:shadow-xl transition-all duration-300 group"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="p-3 rounded-2xl bg-muted/50 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      {getIntegrationStatusBadge(integration.status)}
+                    </div>
+
+                    <h4 className="font-black text-lg mb-1">{integration.name}</h4>
+                    <p className="text-xs font-medium text-muted-foreground/70 mb-6 leading-relaxed">
+                      {integration.description}
+                    </p>
+
+                    <div className="mt-auto space-y-4">
+                      {integration.config && (
+                        <div className="p-3 rounded-xl bg-muted/30 border border-border/20">
+                          <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground/60 mb-1">Grid Target</p>
+                          <p className="text-[11px] font-bold text-foreground truncate">
+                            {integration.id === "github" ? integration.config.organization : "Default Cluster"}
+                          </p>
+                        </div>
+                      )}
+                      <Button variant="outline" className="w-full h-11 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 hover:text-primary border-border/50 transition-all">
+                        {integration.status === "connected" ? "Reconfigure" : "Establish Link"}
+                        <ExternalLink className="h-3 w-3 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Last Updated</Label>
-              <p className="text-sm font-medium">Dec 29, 2024</p>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* System Information - Minimal Footer */}
+      <div className="flex flex-wrap gap-4 items-center justify-between px-8 py-6 rounded-3xl bg-muted/20 border border-border/50">
+        <div className="flex gap-8">
+          <div className="space-y-1">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Core Version</p>
+            <p className="text-xs font-black text-foreground">v2.1.0-STABLE</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Circuit Status</p>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-xs font-black text-foreground uppercase tracking-tight">Production Grid Online</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">
+          Last Internal Sync: Dec 29, 2024
+        </p>
+      </div>
 
       {/* Confirmation Dialog */}
       <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Moon, Sun } from "lucide-react";
 import { Navbar as NavbarWrapper, NavBody, NavItems, MobileNav, MobileNavHeader, MobileNavToggle, MobileNavMenu, NavbarButton } from "@/components/ui/resizable-navbar";
-import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import TeamTuneLogo from "./TeamTuneLogo";
+import { ThemeSelector } from "./ThemeSelector";
 const navItems = [{
   name: "Product",
   link: "#product"
@@ -17,7 +16,6 @@ const navItems = [{
   link: "/pricing"
 }];
 const Navbar = () => {
-  const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const {
@@ -44,19 +42,7 @@ const Navbar = () => {
         stiffness: 300,
         damping: 30
       }}>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="h-9 w-9 text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-        </Button>
+        <ThemeSelector />
         <Link to="/auth/login" className="">
           <NavbarButton variant="secondary">
             Log in
@@ -82,24 +68,7 @@ const Navbar = () => {
           {item.name}
         </a>)}
         <div className="flex w-full flex-col gap-3 pt-4 border-t border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleTheme}
-            className="w-full justify-start text-muted-foreground hover:text-foreground"
-          >
-            {theme === 'dark' ? (
-              <>
-                <Sun className="h-4 w-4 mr-2" />
-                Light Mode
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4 mr-2" />
-                Dark Mode
-              </>
-            )}
-          </Button>
+          <ThemeSelector className="justify-start px-0 h-10 w-full hover:bg-transparent" />
           <Link to="/auth/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
             <NavbarButton variant="secondary" className="w-full">
               Log in

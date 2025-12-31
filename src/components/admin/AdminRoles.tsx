@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import { 
-  Shield, 
-  FolderKanban, 
-  UsersRound, 
+import {
+  Shield,
+  FolderKanban,
+  UsersRound,
   Users,
   ArrowUp,
   ArrowDown,
@@ -21,7 +21,8 @@ import {
   XCircle,
   AlertCircle,
   Search,
-  Filter
+  Filter,
+  Clock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,9 +50,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRoleStats, useUsersByRole, usePromoteToProjectManager, usePromoteToTeamLead, useChangeUserRole, useManagedProjects, useLedTeams, useAllUsers } from "@/hooks/useAdmin";
-import { useToast } from "@/hooks/use-toast";
+import {
+  useRoleStats,
+  useUsersByRole,
+  usePromoteToProjectManager,
+  usePromoteToTeamLead,
+  useChangeUserRole,
+  useManagedProjects,
+  useLedTeams,
+  useAllUsers
+} from "@/hooks/useAdmin";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/api/types";
 
 const AdminRoles = () => {
@@ -127,7 +137,7 @@ const AdminRoles = () => {
 
     try {
       if (promoteAction === "pm") {
-        await promotePMMutation.mutateAsync({
+        await (promotePMMutation.mutateAsync as any)({
           id: selectedUser.id,
           data: {},
         });
@@ -136,7 +146,7 @@ const AdminRoles = () => {
           description: `${selectedUser.full_name} has been promoted to Project Manager`,
         });
       } else if (promoteAction === "tl") {
-        await promoteTLMutation.mutateAsync({
+        await (promoteTLMutation.mutateAsync as any)({
           id: selectedUser.id,
           data: {},
         });
@@ -173,7 +183,7 @@ const AdminRoles = () => {
         replacementId = replacementUser.id;
       }
 
-      await changeRoleMutation.mutateAsync({
+      await (changeRoleMutation.mutateAsync as any)({
         id: selectedUser.id,
         data: {
           role: newRole,
@@ -190,10 +200,10 @@ const AdminRoles = () => {
       setReplacementEmail("");
       setErrorMessage("");
     } catch (error: any) {
-      const errorMsg = error?.response?.data?.error?.message || 
-                      error?.response?.data?.message || 
-                      error?.message || 
-                      "Failed to change role";
+      const errorMsg = error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to change role";
       setErrorMessage(errorMsg);
       toast({
         title: "Cannot Change Role",
@@ -258,8 +268,8 @@ const AdminRoles = () => {
         </p>
       </div>
 
-      {/* Role Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Role Statistics Cards - Premium Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {(["admin", "project_manager", "team_lead", "employee"] as UserRole[]).map((role, index) => {
           const config = roleConfig[role];
           const Icon = config.icon;
@@ -271,175 +281,238 @@ const AdminRoles = () => {
               key={role}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               onClick={() => setSelectedRole(role)}
-              className={`relative overflow-hidden rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                isSelected
-                  ? "border-primary shadow-xl ring-2 ring-primary/20 scale-[1.02]"
-                  : "border-border hover:border-primary/50 hover:shadow-lg"
-              } ${config.bgColor} p-6 group backdrop-blur-sm`}
+              className={`group relative overflow-hidden rounded-3xl border transition-all duration-500 cursor-pointer ${isSelected
+                ? `border-primary/50 shadow-[0_20px_50px_rgba(0,0,0,0.2)] bg-card ring-1 ring-primary/20 scale-[1.02]`
+                : `border-border/50 hover:border-primary/30 hover:shadow-xl bg-card/40 backdrop-blur-md`
+                }`}
             >
-              <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
-                   style={{ background: `linear-gradient(to bottom right, var(--${config.textColor.split('-')[1]}-500), transparent)` }} />
-              
-              <div className="relative z-10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${config.color} shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
-                    <Icon className="h-6 w-6 text-white drop-shadow-sm" />
+              {/* Animated Glow Background */}
+              <div className={`absolute -inset-24 bg-gradient-to-br ${config.color} opacity-[0.03] group-hover:opacity-[0.08] transition-opacity duration-700 blur-3xl`} />
+
+              <div className="relative z-10 p-7">
+                <div className="flex items-center justify-between mb-8">
+                  <div className={`p-4 rounded-2xl bg-gradient-to-br ${config.color} shadow-2xl shadow-primary/20 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
+                    <Icon className="h-6 w-6 text-white drop-shadow-md" />
                   </div>
                   {isSelected && (
-                    <motion.div
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                      className="w-3 h-3 rounded-full bg-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-lg"
-                    />
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-primary">Focused</span>
+                    </div>
                   )}
                 </div>
-                
-                <h3 className="text-lg font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">{config.name}</h3>
-                
+
+                <h3 className="text-xl font-black text-foreground mb-1 group-hover:text-primary transition-colors duration-300">
+                  {config.name}
+                </h3>
+                <p className="text-xs text-muted-foreground font-medium mb-6">Permission Tier {4 - index}</p>
+
                 {isLoadingStats ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  <div className="flex items-center gap-2 py-4">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-xs font-bold text-muted-foreground animate-pulse">Calculating...</span>
+                  </div>
                 ) : (
-                  <div className="space-y-2 mt-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-muted-foreground">Total</span>
-                      <span className="text-2xl font-bold text-foreground">{stats.total}</span>
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60 mb-1">Total Population</p>
+                        <p className="text-4xl font-black text-foreground tracking-tighter tabular-nums">{stats.total}</p>
+                      </div>
+                      <TrendingUp className={`h-8 w-8 opacity-10 group-hover:opacity-30 transition-opacity ${config.textColor}`} />
                     </div>
-                    <div className="grid grid-cols-3 gap-2.5">
-                      <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 hover:border-emerald-500/30 transition-all duration-200 group/stat">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50 group-hover/stat:animate-pulse" />
-                          <span className="text-sm font-bold text-emerald-500">{stats.active}</span>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Active</span>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-emerald-500/[0.03] border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors">
+                        <span className="text-sm font-black text-emerald-500">{stats.active}</span>
+                        <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-widest">Act</span>
                       </div>
-                      <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 hover:bg-destructive/15 hover:border-destructive/30 transition-all duration-200 group/stat">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-destructive shadow-sm shadow-destructive/50" />
-                          <span className="text-sm font-bold text-destructive">{stats.blocked}</span>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Blocked</span>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-destructive/[0.03] border border-destructive/10 hover:bg-destructive/10 transition-colors">
+                        <span className="text-sm font-black text-destructive">{stats.blocked}</span>
+                        <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-widest">Blk</span>
                       </div>
-                      <div className="flex flex-col items-center gap-1.5 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/15 hover:border-amber-500/30 transition-all duration-200 group/stat">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50 group-hover/stat:animate-pulse" />
-                          <span className="text-sm font-bold text-amber-500">{stats.pending}</span>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Pending</span>
+                      <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-amber-500/[0.03] border border-amber-500/10 hover:bg-amber-500/10 transition-colors">
+                        <span className="text-sm font-black text-amber-500">{stats.pending}</span>
+                        <span className="text-[8px] text-muted-foreground/60 uppercase font-black tracking-widest">Pnd</span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Bottom Accent */}
+              <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
             </motion.div>
           );
         })}
       </div>
 
-      {/* Users List by Role */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-xl font-bold text-foreground">
-              {roleConfig[selectedRole].name} Users
-            </h3>
+      {/* Users List by Role - Elevated Design */}
+      <div className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-border/50 rounded-[2rem] p-8 shadow-2xl">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+          <Shield className="h-64 w-64 -mr-20 -mt-20 rotate-12" />
+        </div>
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between mb-10 gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg bg-gradient-to-br ${roleConfig[selectedRole].color} shadow-lg shadow-primary/20`}>
+                <Users className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-2xl font-black text-foreground tracking-tight">
+                {roleConfig[selectedRole].name} Directory
+              </h3>
+            </div>
             {pagination && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Showing {((pagination.page - 1) * pagination.limit) + 1}-{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}
+              <p className="text-sm font-medium text-muted-foreground/70 pl-11">
+                Registry volume: <span className="text-foreground font-black">{pagination.total}</span> entries identified
               </p>
             )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
+
+          <div className="w-full md:w-auto flex items-center gap-3">
+            <div className="group relative flex-1 md:w-80">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-purple-500/30 rounded-2xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input
+                  placeholder="Scan identity or credentials..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-12 h-12 bg-background/50 border-border/50 rounded-2xl text-sm shadow-inner transition-all w-full"
+                />
+              </div>
             </div>
+            <Button variant="outline" className="h-12 w-12 rounded-2xl border-border/50 bg-background/50 p-0">
+              <Filter className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
         {isLoadingUsers ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center py-24 space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-xl animate-pulse rounded-full" />
+              <Loader2 className="h-12 w-12 animate-spin text-primary relative z-10" />
+            </div>
+            <p className="text-sm font-black text-muted-foreground tracking-widest uppercase animate-pulse">Querying Access Grid</p>
           </div>
         ) : filteredUsers.length === 0 ? (
-          <div className="text-center py-12">
-            <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No users found</p>
+          <div className="text-center py-24 bg-muted/20 rounded-[2rem] border-2 border-dashed border-border/50">
+            <div className="p-6 bg-muted/50 rounded-full w-fit mx-auto mb-6">
+              <Search className="h-12 w-12 text-muted-foreground/30" />
+            </div>
+            <h4 className="text-xl font-black text-foreground">Entry Not Found</h4>
+            <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-2 font-medium">No results matches your criteria. Please refine your search parameters.</p>
           </div>
         ) : (
           <>
-            <div className="space-y-3 mb-6">
-              {filteredUsers.map((user, index) => {
-                const config = roleConfig[user.role];
-                const Icon = config.icon;
-                
-                return (
-                  <motion.div
-                    key={user.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 bg-accent/30 hover:bg-accent/50 transition-all group"
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={`p-2 rounded-lg bg-gradient-to-br ${config.color} shadow-md`}>
-                        <Icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-semibold text-foreground">{user.full_name}</p>
-                          {getStatusBadge(user.status)}
+            <div className="grid grid-cols-1 gap-3 mb-10">
+              <AnimatePresence mode="popLayout">
+                {filteredUsers.map((user, index) => {
+                  const config = roleConfig[user.role];
+                  const Icon = config.icon;
+
+                  return (
+                    <motion.div
+                      key={user.id}
+                      layout
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.4, delay: index * 0.03, ease: "circOut" }}
+                      className="group relative flex items-center justify-between p-5 rounded-2xl border border-border/50 hover:border-primary/30 bg-card/30 hover:bg-card/80 hover:shadow-2xl transition-all duration-300"
+                    >
+                      <div className="flex items-center gap-6 flex-1 min-w-0">
+                        <div className="relative">
+                          <div className={`p-4 rounded-xl bg-gradient-to-br ${config.color} shadow-lg shadow-black/10 group-hover:scale-110 transition-transform duration-500`}>
+                            <Icon className="h-6 w-6 text-white drop-shadow-sm" />
+                          </div>
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-lg border-2 border-background shadow-lg ${user.status === 'active' ? 'bg-emerald-500' :
+                            user.status === 'blocked' ? 'bg-destructive' : 'bg-warning'
+                            }`} />
                         </div>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                        {user.created_at && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Joined {format(new Date(user.created_at), "MMM d, yyyy")}
-                          </p>
-                        )}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                            <p className="text-lg font-black text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+                              {user.full_name}
+                            </p>
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className={`rounded-lg border-primary/20 bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest px-2 shadow-sm`}>
+                                {user.role === 'project_manager' ? 'PM' :
+                                  user.role === 'team_lead' ? 'Lead' : user.role}
+                              </Badge>
+                              {getStatusBadge(user.status)}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <p className="text-sm font-medium text-muted-foreground/70 truncate">{user.email}</p>
+                            <div className="hidden sm:flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-muted/30 border border-border/50">
+                              <Clock className="h-3 w-3 text-muted-foreground/40" />
+                              <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-tighter">
+                                Engaged {user.created_at ? format(new Date(user.created_at), "MMM yyyy") : "Archive"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openViewDetailsDialog(user)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {user.role === "employee" && (
-                            <>
-                              <DropdownMenuItem onClick={() => openPromoteDialog(user, "pm")}>
-                                <ArrowUp className="h-4 w-4 mr-2 text-blue-500" />
-                                Promote to PM
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => openPromoteDialog(user, "tl")}>
-                                <ArrowUp className="h-4 w-4 mr-2 text-purple-500" />
-                                Promote to TL
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                          <DropdownMenuItem onClick={() => openChangeRoleDialog(user)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Change Role
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </motion.div>
-                );
-              })}
+
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openViewDetailsDialog(user)}
+                          className="hidden md:flex h-11 px-5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary/10 hover:text-primary transition-all"
+                        >
+                          Intelligence
+                        </Button>
+
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-11 w-11 rounded-xl border border-transparent hover:border-border/50 hover:bg-muted transition-all">
+                              <MoreHorizontal className="h-5 w-5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-2xl border-border/50 overflow-hidden">
+                            <DropdownMenuItem onClick={() => openViewDetailsDialog(user)} className="rounded-xl gap-3 py-3 font-bold">
+                              <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                                <Eye className="h-4 w-4" />
+                              </div>
+                              View Credentials
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="my-2" />
+                            {user.role === "employee" && (
+                              <>
+                                <DropdownMenuItem onClick={() => openPromoteDialog(user, "pm")} className="rounded-xl gap-3 py-3 font-bold text-blue-500 hover:text-blue-600">
+                                  <div className="p-1.5 rounded-lg bg-blue-500/10">
+                                    <ArrowUp className="h-4 w-4" />
+                                  </div>
+                                  Promote to Manager
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openPromoteDialog(user, "tl")} className="rounded-xl gap-3 py-3 font-bold text-purple-500 hover:text-purple-600">
+                                  <div className="p-1.5 rounded-lg bg-purple-500/10">
+                                    <ArrowUp className="h-4 w-4" />
+                                  </div>
+                                  Promote to Lead
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                            <DropdownMenuItem onClick={() => openChangeRoleDialog(user)} className="rounded-xl gap-3 py-3 font-bold">
+                              <div className="p-1.5 rounded-lg bg-foreground/5">
+                                <Edit className="h-4 w-4" />
+                              </div>
+                              Rewrite Permissions
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
 
             {/* Pagination */}
@@ -642,7 +715,7 @@ const AdminRoles = () => {
                   {getStatusBadge(selectedUser.status)}
                 </div>
               </div>
-              
+
               {selectedUser.role === "project_manager" && managedProjects && (
                 <div className="border-t border-border pt-4">
                   <p className="text-sm font-medium mb-2">Managed Projects ({managedProjects.total})</p>
