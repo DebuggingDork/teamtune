@@ -1,4 +1,4 @@
-import { User, CheckSquare, Clock, TrendingUp, MessageSquare, BarChart3 } from "lucide-react";
+import { User, TrendingUp, MessageSquare } from "lucide-react";
 import { CollapsibleSidebar, useCollapsibleSidebar, type NavItem } from "./CollapsibleSidebar";
 
 interface MemberSidebarProps {
@@ -9,18 +9,8 @@ interface MemberSidebarProps {
 const memberNavItems: NavItem[] = [
   {
     path: "/dashboard/member",
-    label: "Overview",
-    icon: BarChart3,
-  },
-  {
-    path: "/dashboard/member/tasks",
-    label: "Tasks",
-    icon: CheckSquare,
-  },
-  {
-    path: "/dashboard/member/time-tracking",
-    label: "Time Tracking",
-    icon: Clock,
+    label: "My Overview",
+    icon: User,
   },
   {
     path: "/dashboard/member/progress",

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
 import {
   User,
   TrendingUp,
@@ -8,28 +8,10 @@ import {
   Clock,
   MessageSquare,
   Info,
-  Bell,
-  LogOut,
   CheckCircle,
   Loader2,
-  ChevronDown,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import TeamTuneLogo from "@/components/TeamTuneLogo";
 import {
   ChartContainer,
   ChartTooltip,
@@ -44,6 +26,7 @@ import MyFeedback from "@/components/employee/MyFeedback";
 // Import shared hooks
 import { useDateRanges } from "@/hooks/useDateRanges";
 import { ChartWrapper } from "@/components/shared";
+import { MemberLayout } from "@/components/layouts/MemberLayout";
 
 const chartConfig = {
   contributions: { label: "Contributions", color: "hsl(var(--primary))" },
@@ -52,10 +35,8 @@ const chartConfig = {
 };
 
 const MemberDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const location = useLocation();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dateRanges = useDateRanges(42); // Last 6 weeks
   
   // Determine active tab from URL
@@ -92,10 +73,6 @@ const MemberDashboard = () => {
   // Get metrics
   const { data: metrics, isLoading: isLoadingMetrics } = useMyMetrics();
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   // Transform profile data
   const personalData = useMemo(() => {
@@ -194,125 +171,14 @@ const MemberDashboard = () => {
 
   const isLoading = isLoadingProfile || isLoadingPerformance || isLoadingObservations || isLoadingGitActivity || isLoadingMetrics;
 
+  // Determine header title based on active tab
+  const headerTitle = activeTab === "overview" ? "My Overview" 
+    : activeTab === "progress" ? "My Progress" 
+    : "Feedback";
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-card border-r border-border p-6 hidden lg:flex flex-col">
-        <Link to="/">
-          <TeamTuneLogo />
-        </Link>
-        
-        <nav className="mt-8 flex-1">
-          <div className="space-y-1">
-            <Link
-              to="/dashboard/member"
-              className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                activeTab === "overview" 
-                  ? "font-medium text-foreground bg-accent" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
-              }`}
-            >
-              <User className="h-4 w-4" />
-              My Overview
-            </Link>
-            <Link
-              to="/dashboard/member/progress"
-              className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                activeTab === "progress" 
-                  ? "font-medium text-foreground bg-accent" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
-              }`}
-            >
-              <TrendingUp className="h-4 w-4" />
-              My Progress
-            </Link>
-            <Link
-              to="/dashboard/member/feedback"
-              className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                activeTab === "feedback" 
-                  ? "font-medium text-foreground bg-accent" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
-              }`}
-            >
-              <MessageSquare className="h-4 w-4" />
-              Feedback
-            </Link>
-          </div>
-        </nav>
-
-        <div className="border-t border-border pt-4">
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start gap-2 text-muted-foreground"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            Sign out
-          </Button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="lg:ml-64">
-        {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div 
-                className="lg:hidden cursor-pointer"
-                onClick={() => setIsMobileMenuOpen(true)}
-              >
-                <TeamTuneLogo showText={false} />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors">
-                <Bell className="h-5 w-5" />
-              </button>
-              
-              {/* Profile Menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-3 p-2">
-                    <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                    <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium text-foreground">
-                        {personalData?.name || user?.full_name || "Member"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {personalData?.email || user?.email || "Member"}
-                      </p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem 
-                    onClick={() => navigate("/dashboard/member/profile")}
-                    className="flex items-center gap-2"
-                  >
-                    <User className="h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 text-destructive focus:text-destructive"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </header>
-
-        {/* Dashboard Content */}
-        <div className="p-6">
-          {activeTab === "overview" && (
+    <MemberLayout headerTitle={headerTitle}>
+      {activeTab === "overview" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -565,77 +431,9 @@ const MemberDashboard = () => {
             </motion.div>
           )}
 
-          {activeTab === "progress" && <MyProgress />}
-          {activeTab === "feedback" && <MyFeedback />}
-        </div>
-      </main>
-
-      {/* Mobile Sidebar */}
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="w-64 p-0">
-          <SheetHeader className="p-6 border-b border-border">
-            <SheetTitle className="text-left">
-              <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-                <TeamTuneLogo />
-              </Link>
-            </SheetTitle>
-          </SheetHeader>
-          <nav className="flex-1 p-6">
-            <div className="space-y-1">
-              <Link
-                to="/dashboard/member"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                  activeTab === "overview" 
-                    ? "font-medium text-foreground bg-accent" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
-              >
-                <User className="h-4 w-4" />
-                My Overview
-              </Link>
-              <Link
-                to="/dashboard/member/progress"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                  activeTab === "progress" 
-                    ? "font-medium text-foreground bg-accent" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
-              >
-                <TrendingUp className="h-4 w-4" />
-                My Progress
-              </Link>
-              <Link
-                to="/dashboard/member/feedback"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors ${
-                  activeTab === "feedback" 
-                    ? "font-medium text-foreground bg-accent" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                }`}
-              >
-                <MessageSquare className="h-4 w-4" />
-                Feedback
-              </Link>
-            </div>
-          </nav>
-          <div className="border-t border-border p-6">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start gap-2 text-muted-foreground"
-              onClick={async () => {
-                await handleLogout();
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+      {activeTab === "progress" && <MyProgress />}
+      {activeTab === "feedback" && <MyFeedback />}
+    </MemberLayout>
   );
 };
 

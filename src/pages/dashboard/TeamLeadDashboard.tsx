@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { TeamLeadLayout } from "@/components/layouts/TeamLeadLayout";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Users,
   TrendingUp,
