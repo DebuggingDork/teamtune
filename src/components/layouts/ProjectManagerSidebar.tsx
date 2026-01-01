@@ -34,6 +34,7 @@ export const ProjectManagerSidebar = ({ onLogout, children }: ProjectManagerSide
     <CollapsibleSidebar
       navItems={projectManagerNavItems}
       onLogout={onLogout}
+      userRole="project-manager"
       userAvatar={
         <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
           <Briefcase className="h-5 w-5 text-primary-foreground" />

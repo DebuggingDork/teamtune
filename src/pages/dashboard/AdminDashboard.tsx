@@ -19,8 +19,6 @@ import {
   Layers,
   Loader2,
   Plug,
-  ChevronDown,
-  User,
   CheckSquare,
   Square,
   X
@@ -35,12 +33,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -428,34 +420,6 @@ const AdminDashboardContent = (props: any) => {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
               </button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-3 p-2">
-                    <div className="relative h-8 w-8 rounded-full flex items-center justify-center">
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full opacity-70 blur-[3px]"></div>
-                      <div className="relative h-8 w-8 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full flex items-center justify-center p-[1.5px]">
-                        <div className="h-full w-full bg-background rounded-full flex items-center justify-center">
-                          <Shield className="h-4 w-4 text-orange-500 drop-shadow-[0_0_3px_rgba(251,146,60,0.6)]" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium text-foreground">{user?.full_name || "Admin User"}</p>
-                      <p className="text-xs text-muted-foreground">{user?.email || "System Administrator"}</p>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem
-                    onClick={() => navigate("/dashboard/admin/profile")}
-                    className="flex items-center gap-2"
-                  >
-                    <User className="h-4 w-4" />
-                    Profile
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </header>

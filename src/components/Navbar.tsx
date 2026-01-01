@@ -7,11 +7,11 @@ import { ThemeSelector } from "@/components/ThemeSelector";
 import { Button } from "@/components/ui/button";
 import TeamTuneLogo from "./TeamTuneLogo";
 const navItems = [{
+  name: "About",
+  link: "/about"
+}, {
   name: "Product",
   link: "#product"
-}, {
-  name: "Integrations",
-  link: "#integrations"
 }, {
   name: "Pricing",
   link: "/pricing"
