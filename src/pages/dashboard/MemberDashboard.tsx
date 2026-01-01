@@ -190,38 +190,38 @@ const MemberDashboard = () => {
               <p className="text-muted-foreground mb-8">Your personal workspace and progress overview.</p>
 
             {/* Personal Overview */}
-            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                  <div className="p-2 bg-primary/10 rounded-lg">
+            <Card className="mb-8 bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                  <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
                     <User className="h-5 w-5 text-primary" />
                   </div>
                   Personal Overview
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-2">
                 {isLoadingProfile ? (
-                  <div className="flex items-center justify-center p-8">
+                  <div className="flex items-center justify-center p-12">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
                 ) : !personalData ? (
-                  <p className="text-center text-muted-foreground py-4">No profile data available</p>
+                  <p className="text-center text-muted-foreground py-8">No profile data available</p>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Name</p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
+                      <p className="text-sm text-muted-foreground mb-2">Name</p>
                       <p className="text-lg font-semibold text-foreground">{personalData.name}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Team</p>
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
+                      <p className="text-sm text-muted-foreground mb-2">Team</p>
                       <p className="text-lg font-semibold text-foreground">{personalData.team}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Project</p>
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
+                      <p className="text-sm text-muted-foreground mb-2">Project</p>
                       <p className="text-lg font-semibold text-foreground">{personalData.project}</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Status</p>
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300">
+                      <p className="text-sm text-muted-foreground mb-2">Status</p>
                       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-chart-1/20 text-chart-1">
                         <CheckCircle className="h-3 w-3" />
                         {personalData.status}
@@ -233,32 +233,113 @@ const MemberDashboard = () => {
             </Card>
 
             {/* Contribution Summary */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <Card className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                    <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
                       <TrendingUp className="h-5 w-5 text-primary" />
                     </div>
                     Contribution Trends
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-2">
                   {isLoadingGitActivity ? (
-                    <div className="flex items-center justify-center h-[200px]">
+                    <div className="flex items-center justify-center h-[220px]">
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     </div>
                   ) : contributionTrendData.length === 0 ? (
-                    <div className="flex items-center justify-center h-[200px]">
+                    <div className="flex items-center justify-center h-[220px]">
                       <p className="text-muted-foreground">No contribution data available</p>
                     </div>
                   ) : (
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                      <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                        <AreaChart data={contributionTrendData}>
+                        <defs>
+                          <linearGradient id="memberContributionGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
+                        <YAxis axisLine={false} tickLine={false} className="text-xs" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area
+                          type="monotone"
+                          dataKey="contributions"
+                          stroke="hsl(var(--primary))"
+                          fill="url(#memberContributionGradient)"
+                          strokeWidth={2}
+                          />
+                        </AreaChart>
+                      </ChartContainer>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-lg font-bold">
+                    <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    Active Days Pattern
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  {isLoadingGitActivity ? (
+                    <div className="flex items-center justify-center h-[220px]">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : activeDaysData.length === 0 ? (
+                    <div className="flex items-center justify-center h-[220px]">
+                      <p className="text-muted-foreground">No active days data available</p>
+                    </div>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                      <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                        <BarChart data={activeDaysData}>
+                        <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
+                        <YAxis axisLine={false} tickLine={false} className="text-xs" domain={[0, 7]} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="days" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ChartContainer>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Time & Effort Summary */}
+            <Card className="mb-8 bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                  <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                    <Clock className="h-5 w-5 text-primary" />
+                  </div>
+                  Time & Effort Patterns
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoadingMetrics ? (
+                  <div className="flex items-center justify-center h-[220px]">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : timeLogData.length === 0 ? (
+                  <div className="flex items-center justify-center h-[220px]">
+                    <p className="text-muted-foreground">No time tracking data available</p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
                     <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                      <AreaChart data={contributionTrendData}>
+                      <AreaChart data={timeLogData}>
                       <defs>
-                        <linearGradient id="memberContributionGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        <linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
@@ -266,113 +347,38 @@ const MemberDashboard = () => {
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Area
                         type="monotone"
-                        dataKey="contributions"
-                        stroke="hsl(var(--primary))"
-                        fill="url(#memberContributionGradient)"
+                        dataKey="hours"
+                        stroke="hsl(var(--chart-3))"
+                        fill="url(#timeGradient)"
                         strokeWidth={2}
-                        />
-                      </AreaChart>
-                    </ChartContainer>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Calendar className="h-5 w-5 text-primary" />
+                          />
+                        </AreaChart>
+                      </ChartContainer>
                     </div>
-                    Active Days Pattern
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingGitActivity ? (
-                    <div className="flex items-center justify-center h-[200px]">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : activeDaysData.length === 0 ? (
-                    <div className="flex items-center justify-center h-[200px]">
-                      <p className="text-muted-foreground">No active days data available</p>
-                    </div>
-                  ) : (
-                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                      <BarChart data={activeDaysData}>
-                      <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
-                      <YAxis axisLine={false} tickLine={false} className="text-xs" domain={[0, 7]} />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="days" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ChartContainer>
                   )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Time & Effort Summary */}
-            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Clock className="h-5 w-5 text-primary" />
-                  </div>
-                  Time & Effort Patterns
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isLoadingMetrics ? (
-                  <div className="flex items-center justify-center h-[200px]">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : timeLogData.length === 0 ? (
-                  <div className="flex items-center justify-center h-[200px]">
-                    <p className="text-muted-foreground">No time tracking data available</p>
-                  </div>
-                ) : (
-                  <ChartContainer config={chartConfig} className="h-[200px] w-full">
-                    <AreaChart data={timeLogData}>
-                    <defs>
-                      <linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="week" axisLine={false} tickLine={false} className="text-xs" />
-                    <YAxis axisLine={false} tickLine={false} className="text-xs" />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area
-                      type="monotone"
-                      dataKey="hours"
-                      stroke="hsl(var(--chart-3))"
-                      fill="url(#timeGradient)"
-                      strokeWidth={2}
-                        />
-                      </AreaChart>
-                    </ChartContainer>
-                  )}
-                <p className="text-xs text-muted-foreground mt-3 text-center">
+                <p className="text-xs text-muted-foreground mt-4 text-center px-4">
                   This shows your logged hours pattern over time, not a productivity measure.
                 </p>
               </CardContent>
             </Card>
 
             {/* Feedback View */}
-            <Card className="mb-6 bg-gradient-to-br from-card via-card to-card/80 border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl font-bold">
-                  <div className="p-2 bg-primary/10 rounded-lg">
+            <Card className="mb-8 bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-xl font-bold">
+                  <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
                     <MessageSquare className="h-5 w-5 text-primary" />
                   </div>
                   Feedback from Your Team Lead
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-2">
                 {isLoadingObservations ? (
-                  <div className="flex items-center justify-center p-8">
+                  <div className="flex items-center justify-center p-12">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                   </div>
                 ) : feedbackHistory.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-4">No feedback available yet</p>
+                  <p className="text-center text-muted-foreground py-8">No feedback available yet</p>
                 ) : (
                   <div className="space-y-4">
                     {feedbackHistory.map((feedback, index) => (
@@ -381,9 +387,9 @@ const MemberDashboard = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
+                      className="p-5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300"
                     >
-                      <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-start justify-between mb-3">
                         <div>
                           <p className="font-medium text-foreground text-sm">{feedback.from}</p>
                           <p className="text-xs text-muted-foreground">{feedback.context}</p>
@@ -399,30 +405,36 @@ const MemberDashboard = () => {
             </Card>
 
             {/* Guidance Panel */}
-            <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-primary/5 border-primary/30 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-primary text-xl font-bold">
-                  <div className="p-2 bg-primary/20 rounded-lg">
+            <Card className="bg-primary/10 backdrop-blur-xl border border-primary/20 shadow-2xl hover:shadow-3xl hover:bg-primary/15 transition-all duration-500 group">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-3 text-primary text-xl font-bold">
+                  <div className="p-3 bg-primary/30 backdrop-blur-sm rounded-xl border border-primary/30 group-hover:bg-primary/40 transition-all duration-300">
                     <Info className="h-5 w-5" />
                   </div>
                   About Your Dashboard
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm text-foreground">
-                  <p>
-                    <strong>This dashboard shows trends, not ratings.</strong> The data here helps you understand 
-                    your work patterns and provides visibility into your contributions.
-                  </p>
-                  <p>
-                    <strong>Data is used for visibility and support.</strong> Your team lead uses this information 
-                    to understand workload distribution and provide timely support when needed.
-                  </p>
-                  <p>
-                    <strong>You are not being compared to others.</strong> This is your personal space. 
-                    There are no rankings, scores, or comparisons with your teammates.
-                  </p>
-                  <p className="text-muted-foreground text-xs mt-4">
+              <CardContent className="pt-2">
+                <div className="space-y-4 text-sm text-foreground">
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                    <p>
+                      <strong>This dashboard shows trends, not ratings.</strong> The data here helps you understand 
+                      your work patterns and provides visibility into your contributions.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                    <p>
+                      <strong>Data is used for visibility and support.</strong> Your team lead uses this information 
+                      to understand workload distribution and provide timely support when needed.
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
+                    <p>
+                      <strong>You are not being compared to others.</strong> This is your personal space. 
+                      There are no rankings, scores, or comparisons with your teammates.
+                    </p>
+                  </div>
+                  <p className="text-muted-foreground text-xs mt-6 text-center px-4">
                     If you have questions about any data shown here, please reach out to your team lead.
                   </p>
                 </div>

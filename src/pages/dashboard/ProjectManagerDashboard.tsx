@@ -294,18 +294,23 @@ const ProjectManagerDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+          className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 rounded-2xl p-8 group"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Projects</h2>
-            <div className="flex items-center gap-3">
-              <Badge variant="secondary">{totalProjects} total</Badge>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
+              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                <FolderKanban className="h-5 w-5 text-primary" />
+              </div>
+              Projects
+            </h2>
+            <div className="flex items-center gap-4">
+              <Badge variant="secondary" className="bg-white/10 backdrop-blur-sm">{totalProjects} total</Badge>
               {selectedProjects.size > 0 && (
                 <Button
                   onClick={() => setIsBulkDeleteDialogOpen(true)}
                   size="sm"
                   variant="destructive"
-                  className="gap-2"
+                  className="gap-2 bg-red-500/20 backdrop-blur-sm border border-red-500/30 hover:bg-red-500/30"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete ({selectedProjects.size})
@@ -314,7 +319,7 @@ const ProjectManagerDashboard = () => {
               <Button
                 onClick={() => setIsCreateDialogOpen(true)}
                 size="sm"
-                className="gap-2"
+                className="gap-2 bg-primary/20 backdrop-blur-sm border border-primary/30 hover:bg-primary/30"
               >
                 <Plus className="h-4 w-4" />
                 Create Project
@@ -323,28 +328,33 @@ const ProjectManagerDashboard = () => {
           </div>
 
           {isLoadingProjects ? (
-            <div className="flex items-center justify-center p-8">
+            <div className="flex items-center justify-center p-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : projectsError ? (
-            <div className="text-center py-8">
-              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="text-center py-12">
+              <div className="p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl inline-block mb-4">
+                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto" />
+              </div>
               <p className="text-muted-foreground">Error loading projects</p>
               <p className="text-xs text-muted-foreground mt-2">Please try refreshing the page</p>
             </div>
           ) : projects.length === 0 ? (
-            <div className="text-center py-8">
-              <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="text-center py-12">
+              <div className="p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl inline-block mb-4">
+                <Briefcase className="h-12 w-12 text-muted-foreground mx-auto" />
+              </div>
               <p className="text-muted-foreground">No projects found</p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {projects.length > 0 && (
-                <div className="flex items-center gap-2 pb-2 border-b">
+                <div className="flex items-center gap-3 pb-3 border-b border-white/10">
                   <Checkbox
                     checked={selectedProjects.size === projects.length && projects.length > 0}
                     onCheckedChange={selectAllProjects}
                     onClick={(e) => e.stopPropagation()}
+                    className="bg-white/10 backdrop-blur-sm border-white/20"
                   />
                   <span className="text-sm text-muted-foreground">
                     Select all ({selectedProjects.size} selected)
@@ -354,30 +364,35 @@ const ProjectManagerDashboard = () => {
               {projects.map((project: any) => (
                 <motion.div
                   key={project.id || project.project_code || Math.random()}
-                  whileHover={{ scale: 1.01 }}
-                  className="flex items-center justify-between p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300 group"
+                  whileHover={{ scale: 1.01, y: -2 }}
+                  className="flex items-center justify-between p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300 group"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
                     <Checkbox
                       checked={selectedProjects.has(project.project_code)}
                       onCheckedChange={() => toggleProjectSelection(project.project_code)}
                       onClick={(e) => e.stopPropagation()}
+                      className="bg-white/10 backdrop-blur-sm border-white/20"
                     />
                     <div
                       onClick={() => handleProjectClick(project.project_code)}
-                      className="flex items-center gap-4 flex-1 cursor-pointer"
+                      className="flex items-center gap-5 flex-1 cursor-pointer"
                     >
-                      <div className="p-2 bg-primary/10 rounded-lg">
+                      <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
                         <FolderKanban className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3 mb-1">
                           <p className="text-sm font-medium text-foreground">{project.name || "Unnamed Project"}</p>
                           {project.status === "active" && (
-                            <Activity className="h-3 w-3 text-emerald-500" />
+                            <div className="p-1 bg-emerald-500/20 backdrop-blur-sm rounded-lg border border-emerald-500/30">
+                              <Activity className="h-3 w-3 text-emerald-500" />
+                            </div>
                           )}
                           {(project.status === "paused" || project.status === "cancelled") && (
-                            <AlertCircle className="h-3 w-3 text-destructive" />
+                            <div className="p-1 bg-red-500/20 backdrop-blur-sm rounded-lg border border-red-500/30">
+                              <AlertCircle className="h-3 w-3 text-destructive" />
+                            </div>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">{project.project_code || project.code || ""}</p>
@@ -387,7 +402,7 @@ const ProjectManagerDashboard = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-5">
                     <Select
                       value={project.status}
                       onValueChange={(value: string) => {
@@ -416,7 +431,7 @@ const ProjectManagerDashboard = () => {
                       disabled={updateProjectStatusMutation.isPending}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <SelectTrigger className="w-32 h-8" onClick={(e) => e.stopPropagation()}>
+                      <SelectTrigger className="w-32 h-8 bg-white/10 backdrop-blur-sm border-white/20" onClick={(e) => e.stopPropagation()}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent onClick={(e) => e.stopPropagation()}>
@@ -435,7 +450,7 @@ const ProjectManagerDashboard = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 backdrop-blur-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setProjectToDelete(project.project_code);
@@ -444,10 +459,12 @@ const ProjectManagerDashboard = () => {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <ArrowRight
-                      className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer"
-                      onClick={() => handleProjectClick(project.project_code)}
-                    />
+                    <div className="p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10 group-hover:bg-white/10 transition-all duration-300">
+                      <ArrowRight
+                        className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer"
+                        onClick={() => handleProjectClick(project.project_code)}
+                      />
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -460,36 +477,45 @@ const ProjectManagerDashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-gradient-to-br from-card via-card to-card/80 border border-border/50 rounded-2xl p-6 mt-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+          className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 rounded-2xl p-8 mt-8 group"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Employees</h2>
-            <Badge variant="secondary">{teamMembersCount} total</Badge>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
+              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              Employees
+            </h2>
+            <Badge variant="secondary" className="bg-white/10 backdrop-blur-sm">{teamMembersCount} total</Badge>
           </div>
 
           {isLoadingEmployees ? (
-            <div className="flex items-center justify-center p-8">
+            <div className="flex items-center justify-center p-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : employeesError ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="text-center py-12">
+              <div className="p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl inline-block mb-4">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto" />
+              </div>
               <p className="text-muted-foreground">Error loading employees</p>
             </div>
           ) : employees.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="text-center py-12">
+              <div className="p-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl inline-block mb-4">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto" />
+              </div>
               <p className="text-muted-foreground">No employees found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {employees.slice(0, 6).map((employee: any) => (
                 <motion.div
                   key={employee.id || employee.user_code || Math.random()}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="flex items-center gap-3 p-4 bg-gradient-to-r from-accent/30 to-accent/10 rounded-xl border border-border/30 hover:border-border/60 hover:shadow-sm transition-all duration-300"
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  className="flex items-center gap-4 p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300"
                 >
-                  <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <div className="h-12 w-12 bg-primary/20 backdrop-blur-sm border border-primary/20 rounded-full flex items-center justify-center">
                     <Users className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -500,7 +526,7 @@ const ProjectManagerDashboard = () => {
                       {employee.email || employee.user_code || ""}
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs bg-white/10 backdrop-blur-sm">
                     {employee.role || "employee"}
                   </Badge>
                 </motion.div>
@@ -508,7 +534,7 @@ const ProjectManagerDashboard = () => {
             </div>
           )}
           {employees.length > 6 && (
-            <p className="text-xs text-muted-foreground text-center pt-4">
+            <p className="text-xs text-muted-foreground text-center pt-6">
               Showing 6 of {employees.length} employees
             </p>
           )}

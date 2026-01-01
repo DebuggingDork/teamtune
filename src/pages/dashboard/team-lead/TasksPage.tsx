@@ -357,14 +357,16 @@ const TasksPage = () => {
     >
       <div className="space-y-6">
         {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="h-5 w-5" />
+        <Card className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                <Filter className="h-5 w-5 text-primary" />
+              </div>
               Filters
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -372,11 +374,11 @@ const TasksPage = () => {
                   placeholder="Search tasks..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-white/10 backdrop-blur-sm border-white/20"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/10 backdrop-blur-sm border-white/20">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -390,7 +392,7 @@ const TasksPage = () => {
                 </SelectContent>
               </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/10 backdrop-blur-sm border-white/20">
                   <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent>
@@ -403,7 +405,7 @@ const TasksPage = () => {
                 </SelectContent>
               </Select>
               <Select value={memberFilter} onValueChange={setMemberFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/10 backdrop-blur-sm border-white/20">
                   <SelectValue placeholder="Member" />
                 </SelectTrigger>
                 <SelectContent>
@@ -424,6 +426,7 @@ const TasksPage = () => {
                     setPriorityFilter("all");
                     setMemberFilter("all");
                   }}
+                  className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Clear
@@ -434,65 +437,71 @@ const TasksPage = () => {
         </Card>
 
         {/* Tasks List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tasks ({filteredTasks.length})</CardTitle>
+        <Card className="bg-background/40 backdrop-blur-xl border border-white/10 shadow-2xl hover:shadow-3xl hover:bg-background/50 transition-all duration-500 group">
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-3">
+              <div className="p-3 bg-primary/20 backdrop-blur-sm rounded-xl border border-primary/20 group-hover:bg-primary/30 transition-all duration-300">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+              </div>
+              Tasks ({filteredTasks.length})
+            </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             {isLoadingTasksData || isLoadingTeams ? (
-              <div className="flex items-center justify-center p-8">
+              <div className="flex items-center justify-center p-12">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : !teamCode ? (
-              <p className="text-center text-muted-foreground py-4">No team assigned</p>
+              <p className="text-center text-muted-foreground py-8">No team assigned</p>
             ) : filteredTasks.length === 0 ? (
-              <p className="text-center text-muted-foreground py-4">No tasks found</p>
+              <p className="text-center text-muted-foreground py-8">No tasks found</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {filteredTasks.map((task) => (
                   <motion.div
                     key={task.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-accent/50 rounded-lg border border-border hover:bg-accent transition-colors"
+                    whileHover={{ scale: 1.01, y: -2 }}
+                    className="p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 hover:shadow-lg transition-all duration-300"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-6">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-3 mb-3">
                           <h3 className="font-medium text-foreground">{task.title}</h3>
-                          <Badge className={getStatusColor(task.status)}>{task.status}</Badge>
-                          <Badge className={getPriorityColor(task.priority)}>
+                          <Badge className={`${getStatusColor(task.status)} bg-white/10 backdrop-blur-sm`}>{task.status}</Badge>
+                          <Badge className={`${getPriorityColor(task.priority)} bg-white/10 backdrop-blur-sm`}>
                             Priority {task.priority}
                           </Badge>
                         </div>
                         {task.description && (
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                             {task.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
                             <User className="h-3 w-3" />
                             {task.assigned_to_name || "Unassigned"}
                           </div>
                           {task.due_date && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
                               <Calendar className="h-3 w-3" />
                               {format(new Date(task.due_date), "MMM d, yyyy")}
                             </div>
                           )}
                           {task.estimated_hours > 0 && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-2 p-2 rounded-lg bg-white/5 backdrop-blur-sm border border-white/10">
                               <Clock className="h-3 w-3" />
                               {task.estimated_hours}h
                             </div>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
