@@ -398,7 +398,7 @@ const AdminDashboardContent = (props: any) => {
         }}
       >
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50 px-6 py-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div

@@ -239,7 +239,7 @@ export const ProfileForm = ({
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative"
+                className="relative pb-4"
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 rounded-full blur-lg opacity-50 animate-pulse" />
@@ -252,7 +252,7 @@ export const ProfileForm = ({
                 </div>
                 {profile.role && (
                   <Badge 
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 text-white border-0 shadow-lg"
+                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-500 via-red-500 to-yellow-500 text-white border-0 shadow-lg px-3 py-1"
                     variant="default"
                   >
                     {profile.role.toUpperCase()}
