@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef, createContext, useContext, ReactNode } from "react";
-import { LogOut, Shield } from "lucide-react";
+import { LogOut, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { cn } from "@/lib/utils";
+import { getProfileRouteForRole } from "./BaseLayout/config";
+import { UserRole } from "./BaseLayout/types";
 
 interface SidebarContextType {
   isSidebarExpanded: boolean;
@@ -28,6 +30,7 @@ interface CollapsibleSidebarProps {
   userAvatar?: ReactNode;
   collapseDelay?: number;
   clickCollapseDelay?: number;
+  userRole?: UserRole;
 }
 
 const CollapsibleSidebarContent = ({
@@ -37,6 +40,7 @@ const CollapsibleSidebarContent = ({
   userAvatar,
   collapseDelay = 300,
   clickCollapseDelay = 200,
+  userRole,
 }: Omit<CollapsibleSidebarProps, "children">) => {
   const location = useLocation();
   const { isSidebarExpanded, setIsSidebarExpanded } = useCollapsibleSidebar();
@@ -180,6 +184,33 @@ const CollapsibleSidebarContent = ({
         </nav>
 
         <div className="border-t border-border/10 pt-4 pb-4 px-3">
+          {/* Profile Link */}
+          {userRole && (
+            <div className="mb-4">
+              <Link
+                to={getProfileRouteForRole(userRole)}
+                onClick={handleLinkClick}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg w-full transition-all text-muted-foreground hover:text-foreground hover:bg-white/5"
+              >
+                <User className="h-5 w-5 shrink-0" />
+                <AnimatePresence>
+                  {isSidebarExpanded && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="whitespace-nowrap overflow-hidden"
+                    >
+                      Profile
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            </div>
+          )}
+
+          {/* Sign Out Button */}
           <AnimatePresence>
             {isSidebarExpanded ? (
               <motion.div
@@ -205,6 +236,7 @@ const CollapsibleSidebarContent = ({
                 transition={{ duration: 0.15 }}
                 className="flex justify-center"
               >
+                {/* Sign Out Icon */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -242,6 +274,7 @@ export const CollapsibleSidebar = ({
   userAvatar,
   collapseDelay = 300,
   clickCollapseDelay = 200,
+  userRole,
 }: CollapsibleSidebarProps) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -284,6 +317,7 @@ export const CollapsibleSidebar = ({
         userAvatar={userAvatar}
         collapseDelay={collapseDelay}
         clickCollapseDelay={clickCollapseDelay}
+        userRole={userRole}
       />
       {children}
     </SidebarContext.Provider>

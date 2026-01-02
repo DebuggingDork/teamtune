@@ -18,7 +18,6 @@ export interface BaseLayoutProps {
 }
 
 export interface LayoutHeaderProps {
-  role: UserRole;
   onNotificationClick: () => void;
   onMobileMenuClick: () => void;
 }

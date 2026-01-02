@@ -12,6 +12,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
+import About from "./pages/About";
 
 // Auth pages
 import LoginPage from "./pages/auth/LoginPage";
@@ -92,6 +93,7 @@ const App = () => (
             <HashCleaner />
             <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
             <Route path="/pricing" element={<Pricing />} />
 
             {/* Auth routes */}

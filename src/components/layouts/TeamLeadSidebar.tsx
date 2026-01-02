@@ -34,6 +34,7 @@ export const TeamLeadSidebar = ({ onLogout, children }: TeamLeadSidebarProps) =>
     <CollapsibleSidebar
       navItems={teamLeadNavItems}
       onLogout={onLogout}
+      userRole="team-lead"
       userAvatar={
         <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
           <Users className="h-5 w-5 text-primary-foreground" />

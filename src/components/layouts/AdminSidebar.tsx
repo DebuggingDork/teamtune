@@ -52,6 +52,7 @@ export const AdminSidebar = ({ onLogout, children }: AdminSidebarProps) => {
     <CollapsibleSidebar
       navItems={adminNavItems}
       onLogout={onLogout}
+      userRole="admin"
       userAvatar={
         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-yellow-500 p-[1.5px] flex items-center justify-center">
           <div className="h-full w-full bg-background rounded-full flex items-center justify-center">

@@ -71,7 +71,6 @@ export const BaseLayout = ({
         >
           {/* Header */}
           <LayoutHeader
-            role={role}
             onNotificationClick={() => setIsNotificationPanelOpen(true)}
             onMobileMenuClick={() => setIsMobileMenuOpen(true)}
           />

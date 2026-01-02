@@ -29,6 +29,7 @@ export const MemberSidebar = ({ onLogout, children }: MemberSidebarProps) => {
     <CollapsibleSidebar
       navItems={memberNavItems}
       onLogout={onLogout}
+      userRole="member"
       userAvatar={
         <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
           <User className="h-5 w-5 text-primary-foreground" />

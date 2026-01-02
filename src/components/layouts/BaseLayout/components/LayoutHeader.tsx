@@ -1,16 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { Bell, Sun, Moon, User, ChevronDown, LogOut } from "lucide-react";
+import { Bell, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import TeamTuneLogo from "@/components/TeamTuneLogo";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/contexts/ThemeContext";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { LayoutHeaderProps } from "../types";
 import { UserAvatar } from "./UserAvatar";
 import { getUserNameFromEmail } from "../hooks";
@@ -36,14 +35,8 @@ export const LayoutHeader = ({
   onNotificationClick,
   onMobileMenuClick,
 }: LayoutHeaderProps) => {
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
-  };
 
   const displayName = user?.full_name || getUserNameFromEmail(user?.email || "");
   const roleLabel = user?.email || getRoleDisplayName(role);
@@ -64,19 +57,9 @@ export const LayoutHeader = ({
 
         {/* Right Section: Theme Toggle, Notifications, Profile */}
         <div className="flex items-center gap-4">
-          {/* Theme Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleTheme}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
+
+          {/* Theme Selector */}
+          <ThemeSelector />
 
           {/* Notifications */}
           <button
@@ -110,14 +93,6 @@ export const LayoutHeader = ({
               >
                 <User className="h-4 w-4" />
                 Profile
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-destructive focus:text-destructive"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
