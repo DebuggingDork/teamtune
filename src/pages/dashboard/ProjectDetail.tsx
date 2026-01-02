@@ -367,7 +367,7 @@ const ProjectDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
