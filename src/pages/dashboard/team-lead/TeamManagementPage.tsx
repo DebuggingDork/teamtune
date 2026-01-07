@@ -102,6 +102,10 @@ const TeamManagementPage = () => {
   const [addMemberData, setAddMemberData] = useState<AddTeamMemberRequest>({ user_code: '', allocation_percentage: 100 });
   const [editAllocationData, setEditAllocationData] = useState<UpdateTeamMemberAllocationRequest>({ allocation_percentage: 100 });
 
+  // Add Member Dialog Filters
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all");
+
   // Get teams
   const { data: teamsData, isLoading: isLoadingTeams, refetch: refetchTeams } = useMyTeams();
   const teamCode = useMemo(() => {
@@ -154,6 +158,29 @@ const TeamManagementPage = () => {
 
   // Get available members
   const { data: availableMembers, isLoading: isLoadingAvailableMembers } = useAvailableMembers(teamCode || "");
+
+  // Filter available members based on search and role
+  const filteredAvailableMembers = useMemo(() => {
+    if (!availableMembers) return [];
+
+    let filtered = [...availableMembers];
+
+    // Role filter
+    if (selectedRoleFilter !== "all") {
+      filtered = filtered.filter(user => user.role === selectedRoleFilter);
+    }
+
+    // Search filter (name or email)
+    if (memberSearchQuery.trim()) {
+      const query = memberSearchQuery.toLowerCase();
+      filtered = filtered.filter(user =>
+        user.full_name.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [availableMembers, selectedRoleFilter, memberSearchQuery]);
 
   // Transform team data
   const teamData = useMemo(() => {
@@ -555,8 +582,15 @@ const TeamManagementPage = () => {
       </div>
 
       {/* Add Member Dialog */}
-      <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
-        <DialogContent>
+      <Dialog open={isAddMemberDialogOpen} onOpenChange={(open) => {
+        setIsAddMemberDialogOpen(open);
+        if (!open) {
+          // Reset filters when closing
+          setMemberSearchQuery("");
+          setSelectedRoleFilter("all");
+        }
+      }}>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add Team Member</DialogTitle>
             <DialogDescription>
@@ -564,6 +598,35 @@ const TeamManagementPage = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Search and Filter Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Search Members</Label>
+                <Input
+                  placeholder="Search by name or email..."
+                  value={memberSearchQuery}
+                  onChange={(e) => setMemberSearchQuery(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Filter by Role</Label>
+                <Select value={selectedRoleFilter} onValueChange={setSelectedRoleFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Roles" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Roles</SelectItem>
+                    <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="team_lead">Team Lead</SelectItem>
+                    <SelectItem value="project_manager">Project Manager</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Member Selection */}
             <div className="space-y-2">
               <Label>Select Member</Label>
               <Select
@@ -575,19 +638,51 @@ const TeamManagementPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {isLoadingAvailableMembers ? (
-                    <div className="p-2 flex items-center justify-center"><Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...</div>
-                  ) : !availableMembers || availableMembers.length === 0 ? (
-                    <div className="p-2 text-sm text-center text-muted-foreground">No available users found</div>
+                    <div className="p-2 flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" /> Loading...
+                    </div>
+                  ) : !filteredAvailableMembers || filteredAvailableMembers.length === 0 ? (
+                    <div className="p-2 text-sm text-center text-muted-foreground">
+                      {memberSearchQuery || selectedRoleFilter !== "all"
+                        ? "No users match your filters"
+                        : "No available users found"}
+                    </div>
                   ) : (
-                    availableMembers.map((user) => (
+                    filteredAvailableMembers.map((user) => (
                       <SelectItem key={user.user_code} value={user.user_code}>
-                        {user.full_name} ({user.email})
+                        <div className="flex items-center justify-between w-full gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{user.full_name}</div>
+                            <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                          </div>
+                          <Badge
+                            variant={
+                              user.role === "admin" ? "default" :
+                                user.role === "team_lead" ? "secondary" :
+                                  user.role === "project_manager" ? "outline" :
+                                    "secondary"
+                            }
+                            className="shrink-0 text-xs"
+                          >
+                            {user.role === "team_lead" ? "Team Lead" :
+                              user.role === "project_manager" ? "PM" :
+                                user.role === "admin" ? "Admin" :
+                                  "Employee"}
+                          </Badge>
+                        </div>
                       </SelectItem>
                     ))
                   )}
                 </SelectContent>
               </Select>
+              {filteredAvailableMembers && filteredAvailableMembers.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Showing {filteredAvailableMembers.length} of {availableMembers?.length || 0} available users
+                </p>
+              )}
             </div>
+
+            {/* Allocation Percentage */}
             <div className="space-y-2">
               <Label htmlFor="allocation">Allocation Percentage (%)</Label>
               <Input
@@ -598,6 +693,9 @@ const TeamManagementPage = () => {
                 value={addMemberData.allocation_percentage}
                 onChange={(e) => setAddMemberData(prev => ({ ...prev, allocation_percentage: parseInt(e.target.value) }))}
               />
+              <p className="text-xs text-muted-foreground">
+                Percentage of their time allocated to this team (1-100%)
+              </p>
             </div>
           </div>
           <DialogFooter>

@@ -10,6 +10,7 @@ import {
   TrendingUp,
   MessageSquare,
   Calendar,
+  Megaphone,
 } from "lucide-react";
 import { NavItem, UserRole } from "./types";
 
@@ -89,6 +90,16 @@ export const navigationConfig: Record<UserRole, NavItem[]> = {
       icon: CheckSquare,
     },
     {
+      path: "/dashboard/team-lead/sprints",
+      label: "Sprints",
+      icon: Calendar,
+    },
+    {
+      path: "/dashboard/team-lead/time-approval",
+      label: "Time Approval",
+      icon: Clock,
+    },
+    {
       path: "/dashboard/team-lead/feedback",
       label: "Feedback",
       icon: MessageSquare,
@@ -97,6 +108,16 @@ export const navigationConfig: Record<UserRole, NavItem[]> = {
       path: "/dashboard/team-lead/team",
       label: "Team",
       icon: Users,
+    },
+    {
+      path: "/dashboard/team-lead/communications",
+      label: "Communications",
+      icon: Megaphone,
+    },
+    {
+      path: "/dashboard/team-lead/profile",
+      label: "Profile",
+      icon: UserCog,
     },
   ],
   "project-manager": [

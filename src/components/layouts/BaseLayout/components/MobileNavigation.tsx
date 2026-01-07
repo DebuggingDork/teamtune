@@ -16,7 +16,7 @@ import { useIsActiveRoute } from "../hooks";
  * MobileNavigation Component
  *
  * Mobile sidebar navigation that appears as a Sheet (drawer) on small screens.
- * Displays logo, navigation items, and logout button.
+ * Styled to match the desktop CollapsibleSidebar for consistency.
  *
  * @example
  * ```tsx
@@ -43,20 +43,30 @@ export const MobileNavigation = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="left" className="w-64 p-0">
-        <SheetHeader className="p-6 border-b border-border">
+      <SheetContent
+        side="left"
+        className="w-64 p-0 bg-[#0f0f0f] dark:bg-[#0a0a0a] border-r border-border/10 text-foreground"
+      >
+        <SheetHeader className="p-6 border-b border-border/10">
           <SheetTitle className="text-left">
-            <Link to="/" onClick={onClose}>
+            <Link to="/" onClick={onClose} className="flex items-center gap-2">
               <TeamTuneLogo />
             </Link>
           </SheetTitle>
         </SheetHeader>
 
-        <nav className="flex-1 p-6">
+        <nav className="flex-1 p-4">
           <div className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
+
+              const itemContent = (
+                <>
+                  <Icon className="h-5 w-5 shrink-0" />
+                  {item.label}
+                </>
+              );
 
               // Handle button-type nav items (if any)
               if (item.isButton && item.onClick) {
@@ -68,14 +78,13 @@ export const MobileNavigation = ({
                       onClose();
                     }}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors",
+                      "flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg w-full text-left transition-all",
                       active
-                        ? "font-medium text-foreground bg-accent"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        ? "text-foreground bg-white/10 font-medium"
+                        : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                     )}
                   >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
+                    {itemContent}
                   </button>
                 );
               }
@@ -87,24 +96,23 @@ export const MobileNavigation = ({
                   to={item.path}
                   onClick={onClose}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2 text-sm rounded-lg w-full text-left transition-colors",
+                    "flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg w-full text-left transition-all",
                     active
-                      ? "font-medium text-foreground bg-accent"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      ? "text-foreground bg-white/10 font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
+                  {itemContent}
                 </Link>
               );
             })}
           </div>
         </nav>
 
-        <div className="border-t border-border p-6">
+        <div className="border-t border-border/10 p-4">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-2 text-muted-foreground"
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground hover:bg-white/5"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />

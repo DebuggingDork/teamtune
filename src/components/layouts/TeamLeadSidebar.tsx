@@ -1,64 +1,17 @@
 import {
   Users,
-  MessageSquare,
-  CheckSquare,
-  BarChart3,
-  Calendar,
-  Clock,
-  UserCog,
-  Megaphone
 } from "lucide-react";
-import { CollapsibleSidebar, useCollapsibleSidebar, type NavItem } from "./CollapsibleSidebar";
+import { CollapsibleSidebar, useCollapsibleSidebar } from "./CollapsibleSidebar";
+import { getNavItemsForRole } from "./BaseLayout/config";
 
 interface TeamLeadSidebarProps {
   onLogout: () => void;
   children?: React.ReactNode;
 }
 
-const teamLeadNavItems: NavItem[] = [
-  {
-    path: "/dashboard/team-lead",
-    label: "Overview",
-    icon: BarChart3,
-  },
-  {
-    path: "/dashboard/team-lead/tasks",
-    label: "Tasks",
-    icon: CheckSquare,
-  },
-  {
-    path: "/dashboard/team-lead/sprints",
-    label: "Sprints",
-    icon: Calendar,
-  },
-  {
-    path: "/dashboard/team-lead/time-approval",
-    label: "Time Approval",
-    icon: Clock,
-  },
-  {
-    path: "/dashboard/team-lead/feedback",
-    label: "Feedback",
-    icon: MessageSquare,
-  },
-  {
-    path: "/dashboard/team-lead/team",
-    label: "Team",
-    icon: Users,
-  },
-  {
-    path: "/dashboard/team-lead/communications",
-    label: "Communications",
-    icon: Megaphone,
-  },
-  {
-    path: "/dashboard/team-lead/profile",
-    label: "Profile",
-    icon: UserCog,
-  },
-];
-
 export const TeamLeadSidebar = ({ onLogout, children }: TeamLeadSidebarProps) => {
+  const teamLeadNavItems = getNavItemsForRole("team-lead");
+
   return (
     <CollapsibleSidebar
       navItems={teamLeadNavItems}
