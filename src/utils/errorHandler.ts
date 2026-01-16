@@ -2,43 +2,48 @@ import { ApiError } from '@/api/types';
 import { toast } from '@/hooks/use-toast';
 
 /**
- * Centralized error handling utility
+ * Centralized error handling utility for useMutation onError callbacks
+ * This signature is compatible with TanStack Query's onError callback
  */
-export const handleError = (error: unknown, customMessage?: string): void => {
-  let message = customMessage;
+export const handleError = (error: unknown): void => {
+  let message: string;
 
-  if (!message) {
-    // Check for nested error structure from API response
-    if (error && typeof error === 'object') {
-      const errorObj = error as any;
-      
-      // Priority 1: Check for nested error.error.message structure (API format: { error: { message: ... } })
-      if (errorObj.error?.message) {
-        message = errorObj.error.message;
-      } 
-      // Priority 2: Check for direct message property (ApiError interface)
-      else if (errorObj.message && typeof errorObj.message === 'string') {
-        message = errorObj.message;
-      } 
-      // Priority 3: Check axios error response data structure
-      else if (errorObj.response?.data) {
-        const responseData = errorObj.response.data;
-        if (responseData.error?.message) {
-          message = responseData.error.message;
-        } else if (responseData.message) {
+  // Check for nested error structure from API response
+  if (error && typeof error === 'object') {
+    const errorObj = error as Record<string, unknown>;
+    
+    // Priority 1: Check for nested error.error.message structure (API format: { error: { message: ... } })
+    const nestedError = errorObj.error as Record<string, unknown> | undefined;
+    if (nestedError?.message && typeof nestedError.message === 'string') {
+      message = nestedError.message;
+    } 
+    // Priority 2: Check for direct message property (ApiError interface)
+    else if (errorObj.message && typeof errorObj.message === 'string') {
+      message = errorObj.message;
+    } 
+    // Priority 3: Check axios error response data structure
+    else if (errorObj.response && typeof errorObj.response === 'object') {
+      const responseData = (errorObj.response as Record<string, unknown>).data as Record<string, unknown> | undefined;
+      if (responseData) {
+        const respNestedError = responseData.error as Record<string, unknown> | undefined;
+        if (respNestedError?.message && typeof respNestedError.message === 'string') {
+          message = respNestedError.message;
+        } else if (responseData.message && typeof responseData.message === 'string') {
           message = responseData.message;
+        } else {
+          message = 'An unexpected error occurred';
         }
-      }
-      
-      // Fallback to default if still no message
-      if (!message) {
+      } else {
         message = 'An unexpected error occurred';
       }
-    } else if (error instanceof Error) {
-      message = error.message;
-    } else {
+    }
+    else {
       message = 'An unexpected error occurred';
     }
+  } else if (error instanceof Error) {
+    message = error.message;
+  } else {
+    message = 'An unexpected error occurred';
   }
 
   // Show toast notification with clean UI

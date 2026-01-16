@@ -56,10 +56,16 @@ const CommunicationsPage = () => {
     const [isSchedule1on1Open, setIsSchedule1on1Open] = useState(false);
 
     // Form states
-    const [announcementForm, setAnnouncementForm] = useState({
+    const [announcementForm, setAnnouncementForm] = useState<{
+        title: string;
+        message: string;
+        priority: "low" | "medium" | "high" | "urgent";
+        target_audience: string;
+        is_pinned: boolean;
+    }>({
         title: "",
         message: "",
-        priority: "normal" as const,
+        priority: "medium",
         target_audience: "all",
         is_pinned: false
     });
@@ -107,7 +113,7 @@ const CommunicationsPage = () => {
             });
             toast({ title: "Success", description: "Announcement sent to team" });
             setIsCreateAnnouncementOpen(false);
-            setAnnouncementForm({ title: "", message: "", priority: "normal", target_audience: "all", is_pinned: false });
+            setAnnouncementForm({ title: "", message: "", priority: "medium", target_audience: "all", is_pinned: false });
         } catch (error: any) {
             toast({ title: "Error", description: error?.message || "Failed to create announcement", variant: "destructive" });
         }

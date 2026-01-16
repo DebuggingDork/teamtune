@@ -1,4 +1,4 @@
-import { type LucideIcon, BarChart3, Users, UserCog, FolderKanban, Settings, Plug, CheckSquare, Clock, TrendingUp, MessageSquare, Calendar } from "lucide-react";
+import { type LucideIcon, BarChart3, Users, UserCog, FolderKanban, Settings, Plug, CheckSquare, Clock, TrendingUp, MessageSquare, Calendar, Megaphone } from "lucide-react";
 import { UserRole } from "@/api/types";
 
 export interface RouteConfig {
