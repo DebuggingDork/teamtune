@@ -41,6 +41,7 @@ import TeamLeadProfilePage from "./pages/dashboard/team-lead/ProfilePage";
 import MemberTasksPage from "./pages/dashboard/member/TasksPage";
 import TimeTrackingPage from "./pages/dashboard/member/TimeTrackingPage";
 import MemberProfilePage from "./pages/dashboard/member/ProfilePage";
+import MemberGithubPage from "./pages/dashboard/member/GithubPage";
 
 // Admin pages
 import AdminSettingsPage from "./pages/dashboard/admin/SettingsPage";
@@ -50,6 +51,9 @@ import AdminProjectDetailPage from "./pages/dashboard/admin/ProjectDetailPage";
 import AdminProfilePage from "./pages/dashboard/admin/ProfilePage";
 import UsersPage from "./pages/dashboard/admin/UsersPage";
 import RolesPage from "./pages/dashboard/admin/RolesPage";
+
+// GitHub OAuth callback
+import GitHubCallbackPage from "./pages/GitHubCallbackPage";
 
 // Project Manager pages
 import ProjectManagerProfilePage from "./pages/dashboard/project-manager/ProfilePage";
@@ -103,6 +107,10 @@ const App = () => (
                 <Route path="/auth/login" element={<LoginPage />} />
                 <Route path="/auth/signup" element={<EmployeeSignUp />} />
                 <Route path="/auth/pending-approval" element={<PendingApproval />} />
+
+                {/* GitHub OAuth callback routes */}
+                <Route path="/admin/plugins" element={<GitHubCallbackPage />} />
+                <Route path="/employee/github" element={<GitHubCallbackPage />} />
 
                 {/* Dashboard routes - Protected */}
                 <Route
@@ -273,6 +281,14 @@ const App = () => (
                   element={
                     <ProtectedRoute requiredRole="employee">
                       <MemberProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/member/github"
+                  element={
+                    <ProtectedRoute requiredRole="employee">
+                      <MemberGithubPage />
                     </ProtectedRoute>
                   }
                 />

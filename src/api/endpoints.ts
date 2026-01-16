@@ -39,6 +39,7 @@ export const ENDPOINTS = {
     PLUGINS: {
       LIST: `${API_BASE}${API_PREFIX}/admin/plugins`,
       CONNECT_GITHUB: `${API_BASE}${API_PREFIX}/admin/plugins/github/connect`,
+      DISCONNECT_GITHUB: `${API_BASE}${API_PREFIX}/admin/plugins/github/disconnect`,
       UPDATE: (pluginId: string) => `${API_BASE}${API_PREFIX}/admin/plugins/${pluginId}`,
       SYNC: (pluginId: string) => `${API_BASE}${API_PREFIX}/admin/plugins/${pluginId}/sync`,
     },
@@ -231,6 +232,17 @@ export const ENDPOINTS = {
     // GitHub Integration
     GITHUB: {
       LINK_REPOSITORY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/repository`,
+      REPOSITORY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/repository`,
+      COLLABORATORS: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/collaborators`,
+      REMOVE_COLLABORATOR: (teamCode: string, userCode: string) =>
+        `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/collaborators/${userCode}`,
+      PULL_REQUESTS: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/pull-requests`,
+      PULL_REQUEST_DETAILS: (teamCode: string, prNumber: number) =>
+        `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/pull-requests/${prNumber}`,
+      SUBMIT_REVIEW: (teamCode: string, prNumber: number) =>
+        `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/pull-requests/${prNumber}/review`,
+      MERGE_PR: (teamCode: string, prNumber: number) =>
+        `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/pull-requests/${prNumber}/merge`,
       GIT_ACTIVITY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/git-activity`,
       MEMBER_GIT_ACTIVITY: (teamCode: string, userCode: string) =>
         `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/members/${userCode}/git-activity`,
@@ -265,6 +277,13 @@ export const ENDPOINTS = {
       CONNECT: `${API_BASE}${API_PREFIX}/employee/github/connect`,
       DISCONNECT: `${API_BASE}${API_PREFIX}/employee/github/disconnect`,
       STATUS: `${API_BASE}${API_PREFIX}/employee/github/status`,
+      REPOSITORIES: `${API_BASE}${API_PREFIX}/employee/github/repositories`,
+      REPO_BRANCHES: (repoId: string) => `${API_BASE}${API_PREFIX}/employee/github/repositories/${repoId}/branches`,
+      MY_BRANCHES: `${API_BASE}${API_PREFIX}/employee/github/my-branches`,
+      PULL_REQUESTS: `${API_BASE}${API_PREFIX}/employee/github/pull-requests`,
+      REPO_PULL_REQUESTS: (repoId: string) => `${API_BASE}${API_PREFIX}/employee/github/repositories/${repoId}/pull-requests`,
+      PULL_REQUEST_DETAILS: (prId: string) => `${API_BASE}${API_PREFIX}/employee/github/pull-requests/${prId}`,
+      REQUEST_REVIEW: (prId: string) => `${API_BASE}${API_PREFIX}/employee/github/pull-requests/${prId}/request-review`,
     },
     GIT_ACTIVITY: `${API_BASE}${API_PREFIX}/employee/git-activity`,
   },

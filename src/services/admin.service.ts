@@ -66,7 +66,7 @@ export const getAllUsers = async (filters?: UserFilters): Promise<UsersResponse>
 
   const queryString = params.toString();
   const url = queryString ? `${ENDPOINTS.ADMIN.USERS.ALL}?${queryString}` : ENDPOINTS.ADMIN.USERS.ALL;
-  
+
   const response = await apiClient.get<UsersResponse>(url);
   return response.data;
 };
@@ -193,7 +193,7 @@ export const getUsersByRole = async (role: string, filters?: { page?: number; li
 
   const queryString = params.toString();
   const url = queryString ? `${ENDPOINTS.ADMIN.ROLES.USERS(role)}?${queryString}` : ENDPOINTS.ADMIN.ROLES.USERS(role);
-  
+
   const response = await apiClient.get<UsersResponse>(url);
   return response.data;
 };
@@ -226,8 +226,12 @@ export const changeUserRole = async (id: string, data: ChangeRoleRequest): Promi
  * Get list of plugins
  */
 export const getPlugins = async (): Promise<Plugin[]> => {
-  const response = await apiClient.get<Plugin[]>(ENDPOINTS.ADMIN.PLUGINS.LIST);
-  return response.data;
+  const response = await apiClient.get<{ plugins: Plugin[] } | Plugin[]>(ENDPOINTS.ADMIN.PLUGINS.LIST);
+  // Handle both response formats: { plugins: [...] } or [...]
+  if (Array.isArray(response.data)) {
+    return response.data;
+  }
+  return (response.data as { plugins: Plugin[] }).plugins || [];
 };
 
 /**
@@ -235,6 +239,14 @@ export const getPlugins = async (): Promise<Plugin[]> => {
  */
 export const connectGitHubPlugin = async (): Promise<GitHubConnectResponse> => {
   const response = await apiClient.post<GitHubConnectResponse>(ENDPOINTS.ADMIN.PLUGINS.CONNECT_GITHUB);
+  return response.data;
+};
+
+/**
+ * Disconnect GitHub plugin
+ */
+export const disconnectGitHubPlugin = async (): Promise<{ message: string; plugin: Plugin }> => {
+  const response = await apiClient.delete<{ message: string; plugin: Plugin }>(ENDPOINTS.ADMIN.PLUGINS.DISCONNECT_GITHUB);
   return response.data;
 };
 
@@ -285,7 +297,7 @@ export const getAdminProjects = async (filters?: {
 
   const queryString = params.toString();
   const url = queryString ? `${ENDPOINTS.ADMIN.PROJECTS.LIST}?${queryString}` : ENDPOINTS.ADMIN.PROJECTS.LIST;
-  
+
   const response = await apiClient.get<AdminProjectsListResponse>(url);
   return response.data;
 };

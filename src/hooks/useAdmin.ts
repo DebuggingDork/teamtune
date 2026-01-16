@@ -39,7 +39,7 @@ export const adminKeys = {
   },
   projects: {
     all: ['admin', 'projects'] as const,
-    list: (filters?: { page?: number; limit?: number; status?: ProjectStatus }) => 
+    list: (filters?: { page?: number; limit?: number; status?: ProjectStatus }) =>
       ['admin', 'projects', 'list', filters] as const,
     detail: (projectId: string) => ['admin', 'projects', 'detail', projectId] as const,
     stats: ['admin', 'projects', 'stats'] as const,
@@ -343,6 +343,7 @@ export const usePlugins = () => {
     queryKey: adminKeys.plugins.list,
     queryFn: adminService.getPlugins,
     staleTime: 60000, // 1 minute
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 };
 
@@ -354,6 +355,21 @@ export const useConnectGitHubPlugin = () => {
 
   return useMutation({
     mutationFn: adminService.connectGitHubPlugin,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.plugins.all });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Disconnect GitHub plugin mutation
+ */
+export const useDisconnectGitHubPlugin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminService.disconnectGitHubPlugin,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.plugins.all });
     },

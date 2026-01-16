@@ -980,7 +980,14 @@ export const useLinkRepository = () => {
     mutationFn: ({ teamCode, data }: { teamCode: string; data: LinkRepositoryRequest }) =>
       teamLeadService.linkRepository(teamCode, data),
     onSuccess: (_, variables) => {
+      // Invalidate metrics to update git activity
       queryClient.invalidateQueries({ queryKey: teamLeadKeys.metrics.team(variables.teamCode) });
+
+      // Invalidate teams query to update repository display
+      queryClient.invalidateQueries({ queryKey: teamLeadKeys.teams });
+
+      // Invalidate team info to update repository in team overview
+      queryClient.invalidateQueries({ queryKey: teamLeadKeys.teamInfo(variables.teamCode) });
     },
     onError: handleError,
   });

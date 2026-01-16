@@ -1,12 +1,10 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { 
-  Settings, 
-  Building, 
-  Mail, 
-  Shield, 
-  Github, 
-  Slack, 
+import { useState, useEffect } from "react";
+import {
+  Building,
+  Shield,
+  Github,
+  Slack,
   Zap,
   Save,
   AlertCircle,
@@ -38,11 +36,17 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import { usePlugins, useDisconnectGitHubPlugin } from "@/hooks/useAdmin";
+import type { PluginStatus } from "@/api/types";
 
 const AdminSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [pendingChanges, setPendingChanges] = useState<any>(null);
+
+  // Real hooks
+  const { data: plugins, isLoading: isLoadingPlugins, refetch: refetchPlugins } = usePlugins();
+  const disconnectGitHubMutation = useDisconnectGitHubPlugin();
 
   // Organization Settings
   const [orgSettings, setOrgSettings] = useState({
@@ -61,39 +65,10 @@ const AdminSettings = () => {
     twoFactorEnabled: false
   });
 
-  // Integration Settings
-  const [integrations, setIntegrations] = useState([
-    {
-      id: "github",
-      name: "GitHub",
-      description: "Connect repositories and track commits",
-      icon: Github,
-      status: "connected",
-      lastSync: "2024-12-29T10:30:00Z",
-      config: {
-        organization: "teamtune-org",
-        repositories: 12
-      }
-    },
-    {
-      id: "slack",
-      name: "Slack",
-      description: "Team communication and notifications",
-      icon: Slack,
-      status: "disconnected",
-      lastSync: null,
-      config: null
-    },
-    {
-      id: "jira",
-      name: "Jira",
-      description: "Issue tracking and project management",
-      icon: Zap,
-      status: "pending",
-      lastSync: null,
-      config: null
-    }
-  ]);
+  // Refetch plugins when component mounts to get latest status
+  useEffect(() => {
+    refetchPlugins();
+  }, [refetchPlugins]);
 
   const handleSaveSettings = (settingsType: string, newSettings: any) => {
     setPendingChanges({ type: settingsType, settings: newSettings });
@@ -134,31 +109,111 @@ const AdminSettings = () => {
     }
   };
 
-  const getIntegrationStatusBadge = (status: string) => {
+  const handleConnectPlugin = (pluginId: string) => {
+    if (pluginId === 'github') {
+      // OAuth flows require direct browser redirect, not AJAX calls
+      // This prevents CORS errors when redirecting to GitHub's OAuth page
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://upea.onrender.com';
+      const token = localStorage.getItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'upea_token');
+
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to connect GitHub.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Pass token as query parameter for backend authentication
+      window.location.href = `${apiBase}/api/admin/plugins/github/connect?token=${token}`;
+    } else {
+      toast({
+        title: "Not Implemented",
+        description: `Connection flow for ${pluginId} is coming soon.`,
+      });
+    }
+  };
+
+  const handleDisconnectPlugin = async (pluginId: string) => {
+    if (pluginId === 'github') {
+      try {
+        await disconnectGitHubMutation.mutateAsync();
+        toast({
+          title: "Success",
+          description: "GitHub plugin disconnected successfully.",
+        });
+      } catch (error: any) {
+        // Error is already handled by the mutation's onError
+        // But we can add additional UI feedback if needed
+        toast({
+          title: "Failed to Disconnect",
+          description: error?.response?.data?.error?.message || error?.response?.data?.message || "Failed to disconnect GitHub plugin.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Not Implemented",
+        description: `Disconnection flow for ${pluginId} is coming soon.`,
+      });
+    }
+  };
+
+  const getIntegrationStatusBadge = (status?: PluginStatus) => {
     switch (status) {
+      case "active":
       case "connected":
-        return <Badge className="bg-emerald-500/10 text-emerald-500">Connected</Badge>;
+        return <Badge className="bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 shadow-none">Connected</Badge>;
+      case "inactive":
       case "disconnected":
-        return <Badge variant="outline">Disconnected</Badge>;
-      case "pending":
-        return <Badge className="bg-warning/10 text-warning">Pending</Badge>;
+        return <Badge variant="outline" className="text-muted-foreground">Disconnected</Badge>;
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
   };
 
-  const getIntegrationIcon = (status: string) => {
+  const getIntegrationIcon = (status?: PluginStatus) => {
     switch (status) {
+      case "active":
       case "connected":
         return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+      case "inactive":
       case "disconnected":
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
-      case "pending":
-        return <Loader2 className="h-4 w-4 text-warning animate-spin" />;
       default:
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
+
+  // Merge real plugins with static definitions for display
+  // Merge real plugins with static definitions for display
+  const displayIntegrations = [
+    {
+      id: "github",
+      name: "GitHub",
+      description: "Connect repositories and track commits",
+      icon: Github,
+      status: (plugins || []).find((p: any) => p.type === 'github')?.status || "disconnected",
+      config: (plugins || []).find((p: any) => p.type === 'github')?.config
+    },
+    {
+      id: "slack",
+      name: "Slack",
+      description: "Team communication and notifications",
+      icon: Slack,
+      status: "disconnected", // Placeholder
+      config: null
+    },
+    {
+      id: "jira",
+      name: "Jira",
+      description: "Issue tracking and project management",
+      icon: Zap,
+      status: "disconnected", // Placeholder
+      config: null
+    }
+  ];
 
   return (
     <motion.div
@@ -179,7 +234,7 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
+            <Building className="h-5 w-5 text-primary" />
             Organization Settings
           </CardTitle>
           <CardDescription>
@@ -193,7 +248,7 @@ const AdminSettings = () => {
               <Input
                 id="org-name"
                 value={orgSettings.name}
-                onChange={(e) => setOrgSettings({...orgSettings, name: e.target.value})}
+                onChange={(e) => setOrgSettings({ ...orgSettings, name: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -201,19 +256,19 @@ const AdminSettings = () => {
               <Input
                 id="timezone"
                 value={orgSettings.timezone}
-                onChange={(e) => setOrgSettings({...orgSettings, timezone: e.target.value})}
+                onChange={(e) => setOrgSettings({ ...orgSettings, timezone: e.target.value })}
                 readOnly
                 className="bg-muted"
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="org-description">Description</Label>
             <Textarea
               id="org-description"
               value={orgSettings.description}
-              onChange={(e) => setOrgSettings({...orgSettings, description: e.target.value})}
+              onChange={(e) => setOrgSettings({ ...orgSettings, description: e.target.value })}
               rows={3}
             />
           </div>
@@ -224,7 +279,7 @@ const AdminSettings = () => {
               <Input
                 id="allowed-domains"
                 value={orgSettings.allowedDomains}
-                onChange={(e) => setOrgSettings({...orgSettings, allowedDomains: e.target.value})}
+                onChange={(e) => setOrgSettings({ ...orgSettings, allowedDomains: e.target.value })}
                 placeholder="company.com, example.org"
               />
             </div>
@@ -233,7 +288,7 @@ const AdminSettings = () => {
               <Input
                 id="max-users"
                 value={orgSettings.maxUsers}
-                onChange={(e) => setOrgSettings({...orgSettings, maxUsers: e.target.value})}
+                onChange={(e) => setOrgSettings({ ...orgSettings, maxUsers: e.target.value })}
                 readOnly
                 className="bg-muted"
               />
@@ -241,7 +296,7 @@ const AdminSettings = () => {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button 
+            <Button
               onClick={() => handleSaveSettings("organization", orgSettings)}
               disabled={isLoading}
             >
@@ -256,7 +311,7 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+            <Shield className="h-5 w-5 text-primary" />
             Authentication & Security
           </CardTitle>
           <CardDescription>
@@ -273,8 +328,8 @@ const AdminSettings = () => {
                 </div>
                 <Switch
                   checked={authSettings.requireEmailVerification}
-                  onCheckedChange={(checked) => 
-                    setAuthSettings({...authSettings, requireEmailVerification: checked})
+                  onCheckedChange={(checked) =>
+                    setAuthSettings({ ...authSettings, requireEmailVerification: checked })
                   }
                 />
               </div>
@@ -286,8 +341,8 @@ const AdminSettings = () => {
                 </div>
                 <Switch
                   checked={authSettings.twoFactorEnabled}
-                  onCheckedChange={(checked) => 
-                    setAuthSettings({...authSettings, twoFactorEnabled: checked})
+                  onCheckedChange={(checked) =>
+                    setAuthSettings({ ...authSettings, twoFactorEnabled: checked })
                   }
                 />
               </div>
@@ -300,8 +355,8 @@ const AdminSettings = () => {
                   id="password-length"
                   type="number"
                   value={authSettings.passwordMinLength}
-                  onChange={(e) => 
-                    setAuthSettings({...authSettings, passwordMinLength: parseInt(e.target.value)})
+                  onChange={(e) =>
+                    setAuthSettings({ ...authSettings, passwordMinLength: parseInt(e.target.value) })
                   }
                   min="6"
                   max="32"
@@ -314,8 +369,8 @@ const AdminSettings = () => {
                   id="session-timeout"
                   type="number"
                   value={authSettings.sessionTimeout}
-                  onChange={(e) => 
-                    setAuthSettings({...authSettings, sessionTimeout: parseInt(e.target.value)})
+                  onChange={(e) =>
+                    setAuthSettings({ ...authSettings, sessionTimeout: parseInt(e.target.value) })
                   }
                   min="1"
                   max="168"
@@ -325,7 +380,7 @@ const AdminSettings = () => {
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button 
+            <Button
               onClick={() => handleSaveSettings("authentication", authSettings)}
               disabled={isLoading}
             >
@@ -340,77 +395,75 @@ const AdminSettings = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5" />
+            <Zap className="h-5 w-5 text-primary" />
             Integrations
           </CardTitle>
           <CardDescription>
-            Connect external services and tools
+            Connect external services and tools to enhance your workflow
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {integrations.map((integration) => {
-              const Icon = integration.icon;
-              return (
-                <div
-                  key={integration.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-accent rounded-lg">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-foreground">{integration.name}</h4>
-                        {getIntegrationIcon(integration.status)}
+            {isLoadingPlugins ? (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              displayIntegrations.map((integration) => {
+                const Icon = integration.icon;
+                const isConnected = integration.status === 'connected' || integration.status === 'active';
+
+                return (
+                  <div
+                    key={integration.id}
+                    className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50 hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-lg ${isConnected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <p className="text-sm text-muted-foreground">{integration.description}</p>
-                      {integration.config && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {integration.id === "github" && 
-                            `${integration.config.repositories} repositories in ${integration.config.organization}`
-                          }
-                        </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-foreground">{integration.name}</h4>
+                          {getIntegrationIcon(integration.status as PluginStatus)}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{integration.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {getIntegrationStatusBadge(integration.status as PluginStatus)}
+                      {isConnected ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleDisconnectPlugin(integration.id)}
+                          disabled={disconnectGitHubMutation.isPending}
+                        >
+                          {disconnectGitHubMutation.isPending ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Disconnecting...
+                            </>
+                          ) : (
+                            "Disconnect"
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
+                          onClick={() => handleConnectPlugin(integration.id)}
+                        >
+                          Connect
+                        </Button>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {getIntegrationStatusBadge(integration.status)}
-                    <Button variant="outline" size="sm" className="gap-2">
-                      {integration.status === "connected" ? "Configure" : "Connect"}
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* System Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>System Information</CardTitle>
-          <CardDescription>
-            Read-only system configuration and status
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Version</Label>
-              <p className="text-sm font-medium">TeamTune v2.1.0</p>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Environment</Label>
-              <p className="text-sm font-medium">Production</p>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Last Updated</Label>
-              <p className="text-sm font-medium">Dec 29, 2024</p>
-            </div>
+                );
+              })
+            )}
           </div>
         </CardContent>
       </Card>

@@ -61,9 +61,10 @@ import {
   useDeleteTask,
   useAssignTask,
   useUpdateTaskStatus,
+  useTeamInfo,
 } from "@/hooks/useTeamLead";
-import { useTeamPerformance } from "@/hooks/useTeamLead";
 import { toast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { TaskStatus, CreateTaskRequest, UpdateTaskRequest, TaskFilters } from "@/api/types";
 import { format } from "date-fns";
 
@@ -95,18 +96,7 @@ const TasksPage = () => {
     return null;
   }, [teamsData]);
 
-  // Get team performance to get member list
-  const dateRanges = useMemo(() => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 30);
-    return {
-      period_start: startDate.toISOString().split('T')[0],
-      period_end: endDate.toISOString().split('T')[0],
-    };
-  }, []);
-
-  const { data: teamPerformance } = useTeamPerformance(teamCode || "", dateRanges);
+  const { data: teamInfo } = useTeamInfo(teamCode || "");
 
   // Get tasks
   const filters: TaskFilters = useMemo(() => {
@@ -129,12 +119,13 @@ const TasksPage = () => {
 
   // Get members for filters and assignment
   const members = useMemo(() => {
-    if (!teamPerformance?.members) return [];
-    return teamPerformance.members.map((m) => ({
+    if (!teamInfo?.members) return [];
+    return teamInfo.members.map((m) => ({
       user_code: m.user_code,
-      name: m.user_name,
+      name: m.full_name,
+      avatar_url: m.avatar_url,
     }));
-  }, [teamPerformance]);
+  }, [teamInfo]);
 
   // Filter tasks
   const filteredTasks = useMemo(() => {
@@ -412,7 +403,13 @@ const TasksPage = () => {
                   <SelectItem value="all">All Members</SelectItem>
                   {members.map((member) => (
                     <SelectItem key={member.user_code} value={member.user_code}>
-                      {member.name}
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={member.avatar_url || ""} />
+                          <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {member.name}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -580,7 +577,13 @@ const TasksPage = () => {
                   <SelectContent>
                     {members.map((member) => (
                       <SelectItem key={member.user_code} value={member.user_code}>
-                        {member.name}
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={member.avatar_url || ""} />
+                            <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          {member.name}
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -752,7 +755,13 @@ const TasksPage = () => {
                 <SelectContent>
                   {members.map((member) => (
                     <SelectItem key={member.user_code} value={member.user_code}>
-                      {member.name}
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={member.avatar_url || ""} />
+                          <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        {member.name}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

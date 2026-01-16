@@ -290,9 +290,23 @@ const TeamManagementPage = () => {
       setIsLinkRepoDialogOpen(false);
       setRepositoryUrl("");
     } catch (error: any) {
+      // Extract error message from various possible error structures
+      let errorMessage = "Failed to link repository.";
+
+      if (error?.response?.data?.error?.message) {
+        // Backend error format: { error: { message: "..." } }
+        errorMessage = error.response.data.error.message;
+      } else if (error?.response?.data?.message) {
+        // Backend error format: { message: "..." }
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        // Direct error message
+        errorMessage = error.message;
+      }
+
       toast({
-        title: "Error",
-        description: error?.response?.data?.message || "Failed to link repository.",
+        title: "Failed to Link Repository",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -786,6 +800,9 @@ const TeamManagementPage = () => {
                 value={repositoryUrl}
                 onChange={(e) => setRepositoryUrl(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground">
+                Expected format: <code className="bg-muted px-1 py-0.5 rounded">https://github.com/org/repo</code>
+              </p>
             </div>
           </div>
           <DialogFooter>
