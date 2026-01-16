@@ -571,9 +571,10 @@ const TasksPage = () => {
                   value={newTask.assigned_to}
                   onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select member" />
+                  <SelectTrigger className="bg-background border-border">
+                    <SelectValue placeholder="Select a team member" />
                   </SelectTrigger>
+<<<<<<< HEAD
                   <SelectContent>
                     {members.map((member) => (
                       <SelectItem key={member.user_code} value={member.user_code}>
@@ -586,6 +587,29 @@ const TasksPage = () => {
                         </div>
                       </SelectItem>
                     ))}
+=======
+                  <SelectContent className="bg-popover border-border z-50 max-h-60">
+                    {members.length === 0 ? (
+                      <div className="py-6 text-center text-sm text-muted-foreground">
+                        No team members available
+                      </div>
+                    ) : (
+                      members.map((member) => (
+                        <SelectItem 
+                          key={member.user_code} 
+                          value={member.user_code}
+                          className="cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-medium">
+                              {member.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span>{member.name}</span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
+>>>>>>> 3facada92230ad844ad2753c069246ef8e9bf2b4
                   </SelectContent>
                 </Select>
               </div>

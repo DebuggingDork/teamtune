@@ -429,7 +429,6 @@ const ProjectManagerDashboard = () => {
                         );
                       }}
                       disabled={updateProjectStatusMutation.isPending}
-                      onClick={(e) => e.stopPropagation()}
                     >
                       <SelectTrigger className="w-32 h-8 bg-white/10 backdrop-blur-sm border-white/20" onClick={(e) => e.stopPropagation()}>
                         <SelectValue />

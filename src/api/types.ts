@@ -1387,26 +1387,7 @@ export interface MemberPerformanceDashboard {
   recommendations: string[];
 }
 
-export interface FeedbackRequest {
-  id: string;
-  request_code: string;
-  subject_user_id: string;
-  title: string;
-  description?: string;
-  feedback_type: string;
-  reviewers: Array<{
-    user_id: string;
-    relationship: string;
-  }>;
-  questions: Array<{
-    question: string;
-    type: string;
-  }>;
-  anonymous: boolean;
-  deadline: string;
-  status: string;
-  created_at: string;
-}
+// FeedbackRequestLegacy moved - see FeedbackRequest interface below for the unified version
 
 export interface CreateFeedbackRequest {
   title: string;

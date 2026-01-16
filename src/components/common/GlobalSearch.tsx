@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MagnifyingGlassIcon, CommandIcon } from 'lucide-react';
+import { Search, Command } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -115,11 +115,11 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
         onClick={() => setIsOpen(true)}
       >
         <div className="relative flex-1">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <div className="pl-10 pr-4 py-2 bg-accent border border-border rounded-lg text-sm text-muted-foreground flex items-center justify-between">
             <span>{placeholder}</span>
             <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-              <CommandIcon className="h-3 w-3" />
+              <Command className="h-3 w-3" />
               <span>K</span>
             </kbd>
           </div>
@@ -131,7 +131,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   return (
     <div ref={containerRef} className={cn('relative', className)}>
       <div className="relative">
-        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           ref={inputRef}
           type="text"

@@ -908,7 +908,7 @@ export const useFlagPerformanceIssue = () => {
       teamLeadService.flagPerformanceIssue(userCode, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: teamLeadKeys.performance.member(variables.userCode) });
-      queryClient.invalidateQueries({ queryKey: teamLeadKeys.flags });
+      queryClient.invalidateQueries({ queryKey: ['team-lead', 'flags'] });
     },
     onError: handleError,
   });

@@ -194,7 +194,7 @@ const TeamLeadDashboard = () => {
 
   const handleResolveAlert = async (alertCode: string) => {
     try {
-      await resolveAlert.mutateAsync({ alertCode });
+      await resolveAlert.mutateAsync({ alertCode, data: { resolution_notes: 'Resolved' } });
       toast({ title: "Success", description: "Alert resolved" });
       refetchDashboard();
     } catch (error: any) {
@@ -550,36 +550,27 @@ const TeamLeadDashboard = () => {
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatCard
-            title="Active Tasks"
-            value={(dashboard?.quick_stats?.active_tasks ?? 0).toString()}
+            label="Active Tasks"
+            value={(dashboard?.quick_stats as any)?.active_tasks ?? 0}
             icon={ListTodo}
-            description="Across all current sprints"
-            trend={(dashboard?.quick_stats?.task_completion_rate ?? 0) > 80 ? "up" : "stable"}
-            trendLabel={`${dashboard?.quick_stats?.task_completion_rate ?? 0}% completion`}
             isLoading={isLoadingDashboard}
           />
           <StatCard
-            title="Open Alerts"
-            value={(dashboard?.quick_stats?.open_alerts ?? 0).toString()}
+            label="Open Alerts"
+            value={(dashboard?.quick_stats as any)?.open_alerts ?? 0}
             icon={AlertCircle}
-            description="Pending lead attention"
-            status={(dashboard?.quick_stats?.open_alerts ?? 0) > 0 ? "critical" : "good"}
             isLoading={isLoadingDashboard}
           />
           <StatCard
-            title="Team Risks"
-            value={(dashboard?.active_risks?.length ?? 0).toString()}
+            label="Team Risks"
+            value={dashboard?.active_risks?.length ?? 0}
             icon={AlertTriangle}
-            description="Identified project risks"
-            status={(dashboard?.active_risks?.length ?? 0) > 2 ? "at_risk" : "good"}
             isLoading={isLoadingDashboard}
           />
           <StatCard
-            title="Health Score"
+            label="Health Score"
             value={`${dashboard?.team_health?.score ?? 0}%`}
             icon={Activity}
-            description={dashboard?.team_health?.status?.replace('_', ' ') ?? "No data"}
-            status={dashboard?.team_health?.status === 'good' ? 'good' : dashboard?.team_health?.status === 'at_risk' ? 'at_risk' : 'critical'}
             isLoading={isLoadingDashboard}
           />
         </div>

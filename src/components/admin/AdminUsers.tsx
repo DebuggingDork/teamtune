@@ -64,7 +64,7 @@ import {
 import { useAllUsers, useBlockUser, useUnblockUser, useBulkApproveUsers, useBulkRejectUsers, useDeleteUser, useBulkDeleteUsers, useManagedProjects, useLedTeams, useDemoteProjectManager, useDemoteTeamLead } from "@/hooks/useAdmin";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import type { UserRole } from "@/api/types";
+import type { UserRole, UserStatus } from "@/api/types";
 
 // Component to show user details (projects/teams)
 const UserDetailsSection = ({ userId, role }: { userId: string; role: UserRole }) => {
@@ -158,14 +158,14 @@ const AdminUsers = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
   const { data: usersData, isLoading } = useAllUsers({
     page,
     limit,
-    status: statusFilter !== "all" ? statusFilter : undefined,
-    role: roleFilter !== "all" ? roleFilter : undefined,
+    status: statusFilter !== "all" ? (statusFilter as UserStatus) : undefined,
+    role: roleFilter !== "all" ? (roleFilter as UserRole) : undefined,
   });
   
   const allUsers = usersData?.users || [];
@@ -846,8 +846,8 @@ const AdminUsers = () => {
                         {getStatusIcon(user.status)}
                       </div>
                       <p className="text-xs text-muted-foreground">{user.email}</p>
-                      {user.department && (
-                        <p className="text-xs text-muted-foreground">Department: {user.department}</p>
+                      {user.department_id && (
+                        <p className="text-xs text-muted-foreground">Department: {user.department_id}</p>
                       )}
                     </div>
                   </div>

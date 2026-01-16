@@ -77,11 +77,12 @@ const MemberDashboard = () => {
   // Transform profile data
   const personalData = useMemo(() => {
     if (!profile) return null;
+    const profileAny = profile as unknown as Record<string, unknown>;
     return {
       name: profile.full_name || user?.full_name || "Member",
       email: profile.email || user?.email || "",
-      team: profile.teams?.[0]?.team_name || "Team",
-      project: profile.projects?.[0]?.project_name || "Project",
+      team: (profileAny.teams as Array<{team_name: string}> | undefined)?.[0]?.team_name || "Team",
+      project: (profileAny.projects as Array<{project_name: string}> | undefined)?.[0]?.project_name || "Project",
       status: profile.status === "active" ? "Active" : profile.status || "Active",
       joinedDate: profile.created_at ? format(new Date(profile.created_at), "MMMM yyyy") : "N/A",
     };
@@ -142,10 +143,12 @@ const MemberDashboard = () => {
 
   // Transform metrics for time log data
   const timeLogData = useMemo(() => {
-    if (!metrics?.time_tracking) return [];
+    const metricsAny = metrics as unknown as Record<string, unknown> | undefined;
+    const timeTracking = metricsAny?.time_tracking as { total_hours_logged?: number } | undefined;
+    if (!timeTracking) return [];
     
     // Since we don't have weekly breakdown, create a simplified representation
-    const totalHours = metrics.time_tracking.total_hours_logged || 0;
+    const totalHours = timeTracking.total_hours_logged || 0;
     const weeks = 6;
     const avgHoursPerWeek = Math.round(totalHours / weeks);
     

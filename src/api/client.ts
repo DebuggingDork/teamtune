@@ -47,14 +47,15 @@ apiClient.interceptors.response.use(
 
     // Format error response
     // Check for nested error structure: { error: { message: ... } }
-    const errorData = error.response?.data;
+    const errorData = error.response?.data as Record<string, unknown> | undefined;
     let errorMessage = error.message || 'An error occurred';
     
-    if (errorData) {
+    if (errorData && typeof errorData === 'object') {
       // Check for nested error structure
-      if (errorData.error?.message) {
-        errorMessage = errorData.error.message;
-      } else if (errorData.message) {
+      const nestedError = errorData.error as Record<string, unknown> | undefined;
+      if (nestedError?.message && typeof nestedError.message === 'string') {
+        errorMessage = nestedError.message;
+      } else if (errorData.message && typeof errorData.message === 'string') {
         errorMessage = errorData.message;
       }
     }
@@ -62,7 +63,7 @@ apiClient.interceptors.response.use(
     const apiError: ApiError = {
       message: errorMessage,
       status: error.response?.status,
-      errors: errorData?.errors || errorData?.error?.errors,
+      errors: undefined,
     };
 
     return Promise.reject(apiError);

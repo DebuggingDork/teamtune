@@ -28,7 +28,7 @@ import { AdminLayout } from "@/components/layouts/AdminLayout";
 
 const PluginsPage = () => {
   const { data: pluginsData, isLoading: isLoadingPlugins } = usePlugins();
-  const plugins = pluginsData?.plugins || [];
+  const plugins = (Array.isArray(pluginsData) ? pluginsData : (pluginsData as { plugins?: any[] } | undefined)?.plugins || []) as any[];
   const connectGitHubMutation = useConnectGitHubPlugin();
   const updatePluginMutation = useUpdatePlugin();
   const syncPluginMutation = useSyncPlugin();
