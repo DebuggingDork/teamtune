@@ -574,20 +574,6 @@ const TasksPage = () => {
                   <SelectTrigger className="bg-background border-border">
                     <SelectValue placeholder="Select a team member" />
                   </SelectTrigger>
-<<<<<<< HEAD
-                  <SelectContent>
-                    {members.map((member) => (
-                      <SelectItem key={member.user_code} value={member.user_code}>
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={member.avatar_url || ""} />
-                            <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          {member.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-=======
                   <SelectContent className="bg-popover border-border z-50 max-h-60">
                     {members.length === 0 ? (
                       <div className="py-6 text-center text-sm text-muted-foreground">
@@ -595,8 +581,8 @@ const TasksPage = () => {
                       </div>
                     ) : (
                       members.map((member) => (
-                        <SelectItem 
-                          key={member.user_code} 
+                        <SelectItem
+                          key={member.user_code}
                           value={member.user_code}
                           className="cursor-pointer"
                         >
@@ -609,7 +595,6 @@ const TasksPage = () => {
                         </SelectItem>
                       ))
                     )}
->>>>>>> 3facada92230ad844ad2753c069246ef8e9bf2b4
                   </SelectContent>
                 </Select>
               </div>
