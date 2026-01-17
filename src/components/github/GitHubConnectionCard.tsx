@@ -13,7 +13,7 @@ export function GitHubConnectionCard() {
     const disconnectMutation = useDisconnectGitHub();
     const { user } = useAuth();
 
-    const handleConnect = () => {
+    const handleConnect = (forceAccountSelection = false) => {
         const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://upea.onrender.com';
         const token = localStorage.getItem(import.meta.env.VITE_TOKEN_STORAGE_KEY || 'upea_token');
 
@@ -24,7 +24,11 @@ export function GitHubConnectionCard() {
 
         // Use appropriate endpoint based on user role
         const roleEndpoint = user?.role === 'team_lead' ? 'team-lead' : 'employee';
-        window.location.href = `${apiBase}/api/${roleEndpoint}/github/connect?token=${token}`;
+
+        // Add force_account_selection parameter to force GitHub to show account picker
+        const forceParam = forceAccountSelection ? '&force_account_selection=true' : '';
+
+        window.location.href = `${apiBase}/api/${roleEndpoint}/github/connect?token=${token}${forceParam}`;
     };
 
     const handleDisconnect = () => {
@@ -116,13 +120,24 @@ export function GitHubConnectionCard() {
                         </p>
                     </div>
 
-                    <Button
-                        onClick={handleConnect}
-                        className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all active:scale-95 font-bold gap-2"
-                    >
-                        <Github className="h-5 w-5" />
-                        Link GitHub Profile
-                    </Button>
+                    <div className="space-y-3">
+                        <Button
+                            onClick={() => handleConnect(false)}
+                            className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all active:scale-95 font-bold gap-2"
+                        >
+                            <Github className="h-5 w-5" />
+                            Link GitHub Profile
+                        </Button>
+
+                        <Button
+                            onClick={() => handleConnect(true)}
+                            variant="outline"
+                            className="w-full rounded-xl h-10 border-border/50 hover:bg-accent transition-all font-medium gap-2 text-sm"
+                        >
+                            <Github className="h-4 w-4" />
+                            Choose Different Account
+                        </Button>
+                    </div>
                 </div>
             )}
         </motion.div>

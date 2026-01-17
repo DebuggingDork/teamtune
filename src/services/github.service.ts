@@ -21,17 +21,36 @@ export const disconnectGitHub = async (): Promise<{ message: string }> => {
 
 export const getRepositories = async (): Promise<Types.RepositoryWithAccessResponse[]> => {
     const response = await apiClient.get<Types.RepositoryWithAccessResponse[]>(ENDPOINTS.EMPLOYEE.GITHUB.REPOSITORIES);
-    return response.data;
+    // Handle both direct array and wrapped response
+    const data = response.data as any;
+    if (Array.isArray(data)) {
+        return data;
+    }
+    // If the response is wrapped in a 'data' property
+    if (data && Array.isArray(data.data)) {
+        return data.data;
+    }
+    // Fallback to empty array if structure is unexpected
+    console.warn('Unexpected repositories response structure:', data);
+    return [];
 };
 
 export const getRepoBranches = async (repoId: string): Promise<Types.BranchResponse[]> => {
     const response = await apiClient.get<Types.BranchResponse[]>(ENDPOINTS.EMPLOYEE.GITHUB.REPO_BRANCHES(repoId));
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected repo branches response structure:', data);
+    return [];
 };
 
 export const getMyBranches = async (): Promise<Types.UserBranchResponse[]> => {
     const response = await apiClient.get<Types.UserBranchResponse[]>(ENDPOINTS.EMPLOYEE.GITHUB.MY_BRANCHES);
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected my branches response structure:', data);
+    return [];
 };
 
 export const createBranch = async (repoId: string, data: Types.CreateBranchRequest): Promise<Types.BranchResponse> => {
@@ -42,13 +61,21 @@ export const createBranch = async (repoId: string, data: Types.CreateBranchReque
 export const getPullRequests = async (state?: Types.PRState): Promise<Types.PullRequestResponse[]> => {
     const params = state ? { state } : {};
     const response = await apiClient.get<Types.PullRequestResponse[]>(ENDPOINTS.EMPLOYEE.GITHUB.PULL_REQUESTS, { params });
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected pull requests response structure:', data);
+    return [];
 };
 
 export const getRepoPullRequests = async (repoId: string, state?: Types.PRState): Promise<Types.PullRequestResponse[]> => {
     const params = state ? { state } : {};
     const response = await apiClient.get<Types.PullRequestResponse[]>(ENDPOINTS.EMPLOYEE.GITHUB.REPO_PULL_REQUESTS(repoId), { params });
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected repo pull requests response structure:', data);
+    return [];
 };
 
 export const createPullRequest = async (repoId: string, data: Types.CreatePRRequest): Promise<Types.PullRequestResponse> => {
@@ -104,7 +131,11 @@ export const addCollaborators = async (teamCode: string, data: Types.AddCollabor
 
 export const getCollaborators = async (teamCode: string): Promise<Types.CollaboratorResponse[]> => {
     const response = await apiClient.get<Types.CollaboratorResponse[]>(ENDPOINTS.TEAM_LEAD.GITHUB.COLLABORATORS(teamCode));
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected collaborators response structure:', data);
+    return [];
 };
 
 export const removeCollaborator = async (teamCode: string, userCode: string): Promise<{ message: string }> => {
@@ -120,7 +151,11 @@ export const getTeamPullRequests = async (teamCode: string, state?: Types.PRStat
         ENDPOINTS.TEAM_LEAD.GITHUB.PULL_REQUESTS(teamCode),
         { params }
     );
-    return response.data;
+    const data = response.data as any;
+    if (Array.isArray(data)) return data;
+    if (data && Array.isArray(data.data)) return data.data;
+    console.warn('Unexpected team pull requests response structure:', data);
+    return [];
 };
 
 export const getTeamPullRequestDetails = async (teamCode: string, prNumber: number): Promise<Types.PullRequestWithReviewsResponse> => {

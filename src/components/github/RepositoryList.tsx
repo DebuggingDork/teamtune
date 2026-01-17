@@ -15,10 +15,10 @@ export function RepositoryList() {
     const [selectedRepo, setSelectedRepo] = useState<{ id: number; name: string } | null>(null);
     const [modalMode, setModalMode] = useState<'branch' | 'pr' | null>(null);
 
-    const filteredRepos = repositories?.filter(repo =>
+    const filteredRepos = Array.isArray(repositories) ? repositories.filter(repo =>
         repo.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         repo.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) : [];
 
     if (isLoading) {
         return (
@@ -29,7 +29,7 @@ export function RepositoryList() {
         );
     }
 
-    if (!repositories || repositories.length === 0) {
+    if (!Array.isArray(repositories) || repositories.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border/50 rounded-2xl bg-accent/5">
                 <Globe className="h-12 w-12 text-muted-foreground/30 mb-4" />

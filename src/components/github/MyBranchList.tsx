@@ -15,7 +15,8 @@ export function MyBranchList() {
     const [selectedRepo, setSelectedRepo] = useState<{ id: string; name: string; head: string } | null>(null);
 
     const filteredBranches = useMemo(() => {
-        return branches?.filter(branch =>
+        if (!Array.isArray(branches)) return [];
+        return branches.filter(branch =>
             branch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             branch.repository_name.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -45,7 +46,7 @@ export function MyBranchList() {
         );
     }
 
-    if (!branches || branches.length === 0) {
+    if (!Array.isArray(branches) || branches.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border/50 rounded-2xl bg-accent/5">
                 <div className="h-16 w-16 bg-purple-500/10 rounded-full flex items-center justify-center mb-4">

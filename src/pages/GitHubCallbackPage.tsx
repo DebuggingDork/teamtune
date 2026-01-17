@@ -115,7 +115,27 @@ export default function GitHubCallbackPage() {
         if (status === 'success') {
             return message || 'Your GitHub account has been successfully connected. You can now access GitHub features.';
         } else if (status === 'error') {
-            return error || message || 'Failed to connect your GitHub account. Please try again.';
+            const errorMessage = error || message || 'Failed to connect your GitHub account. Please try again.';
+
+            // Provide user-friendly messages for specific errors
+            if (errorMessage.includes('duplicate key') || errorMessage.includes('users_github_user_id_key')) {
+                return 'This GitHub account is already connected to another user in the system. Each GitHub account can only be linked to one user. Please use a different GitHub account or contact your administrator if you believe this is an error.';
+            }
+
+            if (errorMessage.includes('already connected') || errorMessage.includes('already linked')) {
+                return 'This GitHub account is already connected. Please disconnect it first before reconnecting, or use a different GitHub account.';
+            }
+
+            if (errorMessage.includes('unauthorized') || errorMessage.includes('access denied')) {
+                return 'GitHub authorization was denied or expired. Please try connecting again and make sure to authorize the application.';
+            }
+
+            if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
+                return 'Network error occurred while connecting to GitHub. Please check your internet connection and try again.';
+            }
+
+            // Return the original error message if no specific match
+            return errorMessage;
         } else {
             return 'Please wait while we complete your GitHub connection...';
         }
@@ -137,6 +157,17 @@ export default function GitHubCallbackPage() {
                     {status === 'success' && (
                         <div className="text-center text-sm text-muted-foreground">
                             Refreshing connection status... Redirecting in 6 seconds...
+                        </div>
+                    )}
+
+                    {status === 'error' && (error || message || '').includes('duplicate key') && (
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-2">
+                            <h4 className="font-semibold text-amber-900 dark:text-amber-100 text-sm">What can you do?</h4>
+                            <ul className="text-sm text-amber-800 dark:text-amber-200 space-y-1 list-disc list-inside">
+                                <li>Use a different GitHub account that isn't already linked</li>
+                                <li>Contact your administrator to unlink this GitHub account from the other user</li>
+                                <li>If you previously had an account, ask admin to restore or clean up the old connection</li>
+                            </ul>
                         </div>
                     )}
                     <div className="flex gap-2">
