@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Calendar,
   Megaphone,
+  Github,
 } from "lucide-react";
 import { NavItem, UserRole } from "./types";
 
@@ -77,6 +78,11 @@ export const navigationConfig: Record<UserRole, NavItem[]> = {
       label: "Feedback",
       icon: MessageSquare,
     },
+    {
+      path: "/dashboard/member/github",
+      label: "GitHub",
+      icon: Github,
+    },
   ],
   "team-lead": [
     {
@@ -118,6 +124,11 @@ export const navigationConfig: Record<UserRole, NavItem[]> = {
       path: "/dashboard/team-lead/profile",
       label: "Profile",
       icon: UserCog,
+    },
+    {
+      path: "/dashboard/team-lead/github",
+      label: "GitHub",
+      icon: Github,
     },
   ],
   "project-manager": [

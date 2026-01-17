@@ -32,29 +32,58 @@ export default function GitHubCallbackPage() {
     useEffect(() => {
         // Invalidate queries to refresh plugin/GitHub status
         if (status === 'success') {
-            // Invalidate admin plugins query
+            console.log('=== GitHub OAuth Success - Invalidating Caches ===');
+
+            // AGGRESSIVE CACHE INVALIDATION
+            // Invalidate ALL admin-related queries
+            queryClient.invalidateQueries({ queryKey: ['admin'] });
+            queryClient.invalidateQueries({ queryKey: adminKeys.all });
             queryClient.invalidateQueries({ queryKey: adminKeys.plugins.all });
 
-            // Invalidate employee GitHub status query
+            // Invalidate GitHub status queries for both employee and team lead
             queryClient.invalidateQueries({ queryKey: githubKeys.employee.status });
+            queryClient.invalidateQueries({ queryKey: githubKeys.teamLead.status });
 
-            // Auto-redirect after 3 seconds on success
+            // Force immediate refetch
+            queryClient.refetchQueries({ queryKey: adminKeys.plugins.all });
+
+            console.log('Cache invalidation complete');
+
+            // POLLING MECHANISM - Poll for 10 seconds to catch status update
+            let pollCount = 0;
+            const maxPolls = 5; // Poll 5 times
+            const pollInterval = setInterval(async () => {
+                pollCount++;
+                console.log(`Polling for status update (${pollCount}/${maxPolls})...`);
+                await queryClient.refetchQueries({ queryKey: adminKeys.plugins.all });
+
+                if (pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    console.log('Polling complete');
+                }
+            }, 2000); // Poll every 2 seconds
+
+            // Auto-redirect after 6 seconds (after polling completes)
             const timer = setTimeout(() => {
+                clearInterval(pollInterval);
                 redirectToDashboard();
-            }, 3000);
+            }, 6000);
 
-            return () => clearTimeout(timer);
+            return () => {
+                clearTimeout(timer);
+                clearInterval(pollInterval);
+            };
         }
     }, [status, user, queryClient]);
 
     const redirectToDashboard = () => {
-        // Redirect based on user role
+        // Redirect based on user role - go to GitHub page for roles that use GitHub
         if (user?.role === 'admin') {
-            navigate('/dashboard/admin/settings');
+            navigate('/dashboard/admin/plugins');
         } else if (user?.role === 'employee') {
-            navigate('/dashboard/member');
+            navigate('/dashboard/member/github');
         } else if (user?.role === 'team_lead') {
-            navigate('/dashboard/team-lead');
+            navigate('/dashboard/team-lead/github');
         } else if (user?.role === 'project_manager') {
             navigate('/dashboard/project-manager');
         } else {
@@ -107,7 +136,7 @@ export default function GitHubCallbackPage() {
                 <CardContent className="space-y-4">
                     {status === 'success' && (
                         <div className="text-center text-sm text-muted-foreground">
-                            Redirecting to dashboard in 3 seconds...
+                            Refreshing connection status... Redirecting in 6 seconds...
                         </div>
                     )}
                     <div className="flex gap-2">

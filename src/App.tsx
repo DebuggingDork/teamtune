@@ -36,6 +36,7 @@ import TeamManagementPage from "./pages/dashboard/team-lead/TeamManagementPage";
 import SprintManagementPage from "./pages/dashboard/team-lead/SprintManagementPage";
 import CommunicationsPage from "./pages/dashboard/team-lead/CommunicationsPage";
 import TeamLeadProfilePage from "./pages/dashboard/team-lead/ProfilePage";
+import TeamLeadGithubPage from "./pages/dashboard/team-lead/GithubPage";
 
 // Member pages
 import MemberTasksPage from "./pages/dashboard/member/TasksPage";
@@ -111,6 +112,7 @@ const App = () => (
                 {/* GitHub OAuth callback routes */}
                 <Route path="/admin/plugins" element={<GitHubCallbackPage />} />
                 <Route path="/employee/github" element={<GitHubCallbackPage />} />
+                <Route path="/team-lead/github" element={<GitHubCallbackPage />} />
 
                 {/* Dashboard routes - Protected */}
                 <Route
@@ -223,6 +225,14 @@ const App = () => (
                   element={
                     <ProtectedRoute requiredRole="team_lead">
                       <CommunicationsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/team-lead/github"
+                  element={
+                    <ProtectedRoute requiredRole="team_lead">
+                      <TeamLeadGithubPage />
                     </ProtectedRoute>
                   }
                 />

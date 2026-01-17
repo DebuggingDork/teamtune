@@ -44,12 +44,11 @@ export const TextHoverEffect = ({
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 1, ease: "easeOut" }}
       animate={{
         y: [0, -10, 0],
       }}
-      // @ts-ignore - framer-motion types issue
       transition={{
+        opacity: { duration: 1, ease: "easeOut" },
         y: {
           duration: 4,
           repeat: Infinity,
@@ -111,19 +110,18 @@ export const TextHoverEffect = ({
           strokeDasharray: 2000,
         }}
         viewport={{ once: true }}
-        transition={{
-          duration: 3,
-          ease: "easeInOut",
-        }}
         animate={{
           stroke: ["#1e3a5f", "#3ca2fa", "#1e3a5f"],
         }}
-        // @ts-ignore
         transition={{
           stroke: {
             duration: 4,
             repeat: Infinity,
             ease: "linear",
+          },
+          strokeDashoffset: {
+            duration: 3,
+            ease: "easeInOut",
           }
         }}
       >

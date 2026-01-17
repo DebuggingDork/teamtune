@@ -1,4 +1,4 @@
-import { User, TrendingUp, MessageSquare } from "lucide-react";
+import { User, TrendingUp, MessageSquare, Github } from "lucide-react";
 import { CollapsibleSidebar, useCollapsibleSidebar, type NavItem } from "./CollapsibleSidebar";
 
 interface MemberSidebarProps {
@@ -21,6 +21,11 @@ const memberNavItems: NavItem[] = [
     path: "/dashboard/member/feedback",
     label: "Feedback",
     icon: MessageSquare,
+  },
+  {
+    path: "/dashboard/member/github",
+    label: "GitHub",
+    icon: Github,
   },
 ];
 

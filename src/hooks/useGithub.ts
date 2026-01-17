@@ -9,8 +9,10 @@ import type {
     SubmitReviewRequest,
     MergePRRequest,
     PRState,
+    UserRole,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
+import { useAuth } from '@/hooks/useAuth';
 
 // Query Keys
 export const githubKeys = {
@@ -24,6 +26,7 @@ export const githubKeys = {
         pullRequestDetails: (prId: string) => ['github', 'employee', 'pull-requests', prId] as const,
     },
     teamLead: {
+        status: ['github', 'team-lead', 'status'] as const,
         repository: (teamCode: string) => ['github', 'team-lead', teamCode, 'repository'] as const,
         collaborators: (teamCode: string) => ['github', 'team-lead', teamCode, 'collaborators'] as const,
         pullRequests: (teamCode: string, state?: string) => ['github', 'team-lead', teamCode, 'pull-requests', state] as const,
@@ -42,22 +45,33 @@ export const useConnectGitHub = () => {
 
 export const useDisconnectGitHub = () => {
     const queryClient = useQueryClient();
+    const { user } = useAuth();
+    const isTeamLead = user?.role === 'team_lead';
+
     return useMutation({
-        mutationFn: githubService.disconnectGitHub,
+        mutationFn: isTeamLead ? githubService.disconnectTeamLeadGitHub : githubService.disconnectGitHub,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: githubKeys.employee.status });
-            queryClient.invalidateQueries({ queryKey: githubKeys.employee.repositories });
+            if (isTeamLead) {
+                queryClient.invalidateQueries({ queryKey: githubKeys.teamLead.status });
+            } else {
+                queryClient.invalidateQueries({ queryKey: githubKeys.employee.status });
+                queryClient.invalidateQueries({ queryKey: githubKeys.employee.repositories });
+            }
         },
         onError: handleError,
     });
 };
 
 export const useGithubStatus = () => {
+    const { user } = useAuth();
+    const isTeamLead = user?.role === 'team_lead';
+
     return useQuery({
-        queryKey: githubKeys.employee.status,
-        queryFn: githubService.getGithubStatus,
+        queryKey: isTeamLead ? githubKeys.teamLead.status : githubKeys.employee.status,
+        queryFn: isTeamLead ? githubService.getTeamLeadGithubStatus : githubService.getGithubStatus,
         staleTime: 300000,
-        refetchOnWindowFocus: true, // Refetch when window regains focus
+        refetchOnWindowFocus: true,
+        retry: false,
     });
 };
 
@@ -170,6 +184,7 @@ export const useTeamRepository = (teamCode: string) => {
         queryFn: () => githubService.getTeamRepository(teamCode),
         enabled: !!teamCode,
         staleTime: 300000,
+        retry: false,
     });
 };
 
@@ -185,12 +200,13 @@ export const useAddCollaborators = () => {
     });
 };
 
-export const useTeamCollaborators = (teamCode: string) => {
+export const useTeamCollaborators = (teamCode: string, enabled: boolean = true) => {
     return useQuery({
         queryKey: githubKeys.teamLead.collaborators(teamCode),
         queryFn: () => githubService.getCollaborators(teamCode),
-        enabled: !!teamCode,
+        enabled: !!teamCode && enabled,
         staleTime: 60000,
+        retry: false,
     });
 };
 
@@ -206,12 +222,13 @@ export const useRemoveCollaborator = () => {
     });
 };
 
-export const useTeamPullRequests = (teamCode: string, state?: PRState) => {
+export const useTeamPullRequests = (teamCode: string, state?: PRState, enabled: boolean = true) => {
     return useQuery({
         queryKey: githubKeys.teamLead.pullRequests(teamCode, state),
         queryFn: () => githubService.getTeamPullRequests(teamCode, state),
-        enabled: !!teamCode,
+        enabled: !!teamCode && enabled,
         staleTime: 60000,
+        retry: false,
     });
 };
 

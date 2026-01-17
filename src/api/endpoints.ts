@@ -231,6 +231,9 @@ export const ENDPOINTS = {
 
     // GitHub Integration
     GITHUB: {
+      CONNECT: `${API_BASE}${API_PREFIX}/team-lead/github/connect`,
+      DISCONNECT: `${API_BASE}${API_PREFIX}/team-lead/github/disconnect`,
+      STATUS: `${API_BASE}${API_PREFIX}/team-lead/github/status`,
       LINK_REPOSITORY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/repository`,
       REPOSITORY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/repository`,
       COLLABORATORS: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/github/collaborators`,

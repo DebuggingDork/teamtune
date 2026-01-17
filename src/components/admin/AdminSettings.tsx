@@ -68,7 +68,8 @@ const AdminSettings = () => {
   // Refetch plugins when component mounts to get latest status
   useEffect(() => {
     refetchPlugins();
-  }, [refetchPlugins]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   const handleSaveSettings = (settingsType: string, newSettings: any) => {
     setPendingChanges({ type: settingsType, settings: newSettings });
@@ -194,8 +195,25 @@ const AdminSettings = () => {
       name: "GitHub",
       description: "Connect repositories and track commits",
       icon: Github,
-      status: (plugins || []).find((p: any) => p.type === 'github')?.status || "disconnected",
-      config: (plugins || []).find((p: any) => p.type === 'github')?.config
+      status: (() => {
+        const githubPlugin = (plugins || []).find((p: any) =>
+          p.type === 'github' || p.type === 'code_repo' || p.name === 'github' || p.id === 'github' || p.plugin_type === 'github'
+        );
+
+        // Comprehensive status detection - check ALL possible indicators
+        const isConnected =
+          githubPlugin?.is_active === true ||
+          githubPlugin?.status === 'active' ||
+          githubPlugin?.status === 'connected' ||
+          (githubPlugin?.connected_at != null && githubPlugin?.connected_at !== '') ||
+          (githubPlugin?.access_token != null && githubPlugin?.access_token !== '') ||
+          (githubPlugin?.github_username != null && githubPlugin?.github_username !== '');
+
+        return isConnected ? 'active' : 'disconnected';
+      })(),
+      config: (plugins || []).find((p: any) =>
+        p.type === 'github' || p.type === 'code_repo' || p.name === 'github' || p.id === 'github' || p.plugin_type === 'github'
+      )?.config
     },
     {
       id: "slack",
@@ -394,13 +412,17 @@ const AdminSettings = () => {
       {/* Integrations */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            Integrations
-          </CardTitle>
-          <CardDescription>
-            Connect external services and tools to enhance your workflow
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                Integrations
+              </CardTitle>
+              <CardDescription>
+                Connect external services and tools to enhance your workflow
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -495,7 +517,7 @@ const AdminSettings = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </motion.div>
+    </motion.div >
   );
 };
 

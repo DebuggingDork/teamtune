@@ -74,6 +74,16 @@ export const requestReview = async (prId: string, data: Types.RequestReviewReque
 
 // Team Lead Services
 
+export const getTeamLeadGithubStatus = async (): Promise<Types.GitHubStatusResponse> => {
+    const response = await apiClient.get<Types.GitHubStatusResponse>(ENDPOINTS.TEAM_LEAD.GITHUB.STATUS);
+    return response.data;
+};
+
+export const disconnectTeamLeadGitHub = async (): Promise<{ message: string }> => {
+    const response = await apiClient.delete<{ message: string }>(ENDPOINTS.TEAM_LEAD.GITHUB.DISCONNECT);
+    return response.data;
+};
+
 export const createRepository = async (teamCode: string, data: Types.CreateRepositoryRequest): Promise<Types.RepositoryResponse> => {
     const response = await apiClient.post<Types.RepositoryResponse>(ENDPOINTS.TEAM_LEAD.GITHUB.REPOSITORY(teamCode), data);
     return response.data;
