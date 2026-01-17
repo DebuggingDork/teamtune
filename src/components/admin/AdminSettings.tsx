@@ -240,26 +240,22 @@ const AdminSettings = () => {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">System Settings</h2>
-        <p className="text-muted-foreground">
-          Configure organization-level settings and integrations.
-        </p>
-      </div>
-
       {/* Organization Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5 text-primary" />
-            Organization Settings
-          </CardTitle>
-          <CardDescription>
-            Basic organization information and configuration
-          </CardDescription>
+      <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+              <Building className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Organization</CardTitle>
+              <CardDescription className="text-xs">
+                Basic information and configuration
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="org-name">Organization Name</Label>
@@ -326,17 +322,21 @@ const AdminSettings = () => {
       </Card>
 
       {/* Authentication Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            Authentication & Security
-          </CardTitle>
-          <CardDescription>
-            Security policies and authentication configuration
-          </CardDescription>
+      <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">Security</CardTitle>
+              <CardDescription className="text-xs">
+                Authentication and security policies
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -410,25 +410,28 @@ const AdminSettings = () => {
       </Card>
 
       {/* Integrations */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+      <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-primary/5 via-transparent to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+              <Zap className="h-5 w-5 text-primary" />
+            </div>
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                Integrations
-              </CardTitle>
-              <CardDescription>
-                Connect external services and tools to enhance your workflow
+              <CardTitle className="text-lg">Integrations</CardTitle>
+              <CardDescription className="text-xs">
+                Connect external services
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="pt-6">
+          <div className="space-y-3">
             {isLoadingPlugins ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <div className="flex items-center justify-center p-12">
+                <div className="text-center space-y-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                  <p className="text-sm text-muted-foreground">Loading integrations...</p>
+                </div>
               </div>
             ) : (
               displayIntegrations.map((integration) => {
@@ -436,20 +439,24 @@ const AdminSettings = () => {
                 const isConnected = integration.status === 'connected' || integration.status === 'active';
 
                 return (
-                  <div
+                  <motion.div
                     key={integration.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50 hover:bg-accent/5 transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center justify-between p-4 border border-border/50 rounded-xl bg-gradient-to-r from-background to-muted/20 hover:border-primary/30 hover:shadow-sm transition-all duration-200"
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-lg ${isConnected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                        <Icon className="h-5 w-5" />
+                      <div className={`p-3 rounded-xl transition-all duration-200 ${isConnected ? 'bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20' : 'bg-muted/50 border border-border/50'}`}>
+                        <Icon className={`h-5 w-5 ${isConnected ? 'text-primary' : 'text-muted-foreground'}`} />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-medium text-foreground">{integration.name}</h4>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-foreground">{integration.name}</h4>
                           {getIntegrationIcon(integration.status as PluginStatus)}
                         </div>
-                        <p className="text-sm text-muted-foreground">{integration.description}</p>
+                        <p className="text-xs text-muted-foreground">{integration.description}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -458,13 +465,13 @@ const AdminSettings = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2"
+                          className="gap-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-colors"
                           onClick={() => handleDisconnectPlugin(integration.id)}
                           disabled={disconnectGitHubMutation.isPending}
                         >
                           {disconnectGitHubMutation.isPending ? (
                             <>
-                              <Loader2 className="h-3 w-3 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
                               Disconnecting...
                             </>
                           ) : (
@@ -475,14 +482,14 @@ const AdminSettings = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-2"
+                          className="gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors"
                           onClick={() => handleConnectPlugin(integration.id)}
                         >
                           Connect
                         </Button>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })
             )}

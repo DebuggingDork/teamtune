@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { useState, useMemo, useEffect } from "react";
-import { 
-  Users, 
-  Search, 
+import {
+  Users,
+  Search,
   Filter,
   UserCheck,
   UserX,
@@ -160,17 +160,17 @@ const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  
+
   const { data: usersData, isLoading } = useAllUsers({
     page,
     limit,
     status: statusFilter !== "all" ? (statusFilter as UserStatus) : undefined,
     role: roleFilter !== "all" ? (roleFilter as UserRole) : undefined,
   });
-  
+
   const allUsers = usersData?.users || [];
   const pagination = usersData?.pagination;
-  
+
   const blockUserMutation = useBlockUser();
   const unblockUserMutation = useUnblockUser();
   const bulkApproveMutation = useBulkApproveUsers();
@@ -253,12 +253,12 @@ const AdminUsers = () => {
       setSelectedUser(null);
     } catch (error: any) {
       // Extract error message from API response
-      const errorMessage = 
-        error?.response?.data?.error?.message || 
-        error?.response?.data?.message || 
-        error?.message || 
+      const errorMessage =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         "Failed to delete user";
-      
+
       toast({
         title: "Cannot Delete User",
         description: errorMessage,
@@ -281,25 +281,25 @@ const AdminUsers = () => {
       const result = await bulkDeleteMutation.mutateAsync({
         user_ids: Array.from(selectedUserIds),
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkDeleteDialogOpen(false);
       setIsResultDialogOpen(true);
       setSelectedUserIds(new Set());
       setIsBulkMode(false);
-      
+
       toast({
         title: "Bulk Deletion Complete",
         description: `Deleted ${result.total_deleted} of ${result.total_requested} users`,
       });
     } catch (error: any) {
       // Extract error message from API response - check nested error structure
-      const errorMessage = 
-        error?.response?.data?.error?.message || 
-        error?.response?.data?.message || 
-        error?.message || 
+      const errorMessage =
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        error?.message ||
         "Failed to delete users";
-      
+
       toast({
         title: "Cannot Delete Users",
         description: errorMessage,
@@ -360,7 +360,7 @@ const AdminUsers = () => {
         id: selectedUserForDemote.id,
         data: { replacement_manager_id: replacementManagerId },
       });
-      
+
       toast({
         title: "Success",
         description: `${selectedUserForDemote.full_name} has been demoted. ${result.projects_reassigned} project(s) reassigned.`,
@@ -392,7 +392,7 @@ const AdminUsers = () => {
         id: selectedUserForDemote.id,
         data: { replacement_lead_id: replacementLeadId },
       });
-      
+
       toast({
         title: "Success",
         description: `${selectedUserForDemote.full_name} has been demoted. ${result.teams_reassigned} team(s) reassigned.`,
@@ -417,7 +417,7 @@ const AdminUsers = () => {
   // Filter users based on search (client-side search, server-side handles role/status)
   const filteredUsers = allUsers.filter(user => {
     const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
@@ -463,7 +463,7 @@ const AdminUsers = () => {
     if (!isBulkMode) return; // Only allow selection in bulk mode
     // Don't allow selecting admin users
     if (userRole === "admin") return;
-    
+
     const newSelected = new Set(selectedUserIds);
     if (newSelected.has(userId)) {
       newSelected.delete(userId);
@@ -490,7 +490,7 @@ const AdminUsers = () => {
         role: bulkApproveRole,
         department_id: bulkApproveDepartmentId || undefined,
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkApproveDialogOpen(false);
       setIsResultDialogOpen(true);
@@ -498,7 +498,7 @@ const AdminUsers = () => {
       setBulkApproveRole("employee");
       setBulkApproveDepartmentId("");
       setIsBulkMode(false); // Exit bulk mode after operation
-      
+
       toast({
         title: "Bulk Approval Complete",
         description: `Approved ${result.total_approved} of ${result.total_requested} users`,
@@ -528,14 +528,14 @@ const AdminUsers = () => {
         user_ids: Array.from(selectedUserIds),
         reason: bulkRejectReason || undefined,
       });
-      
+
       setBulkOperationResult(result);
       setIsBulkRejectDialogOpen(false);
       setIsResultDialogOpen(true);
       setSelectedUserIds(new Set());
       setBulkRejectReason("");
       setIsBulkMode(false); // Exit bulk mode after operation
-      
+
       toast({
         title: "Bulk Rejection Complete",
         description: `Rejected ${result.total_rejected} of ${result.total_requested} users`,
@@ -560,7 +560,7 @@ const AdminUsers = () => {
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case "admin": 
+      case "admin":
         return (
           <div className="relative inline-flex items-center justify-center">
             <div className="absolute inset-0 bg-gradient-to-br from-orange-500/40 via-red-500/40 to-yellow-500/40 rounded-full blur-[3px]"></div>
@@ -589,26 +589,20 @@ const AdminUsers = () => {
       transition={{ duration: 0.5 }}
       className="space-y-6"
     >
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">User Management</h2>
-        <p className="text-muted-foreground">View and manage all user accounts in your organization.</p>
-      </div>
-
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search users by name or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-11"
           />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by role" />
+          <SelectTrigger className="w-full sm:w-48 h-11">
+            <SelectValue placeholder="All Roles" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
@@ -619,8 +613,8 @@ const AdminUsers = () => {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Filter by status" />
+          <SelectTrigger className="w-full sm:w-48 h-11">
+            <SelectValue placeholder="All Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
@@ -632,23 +626,64 @@ const AdminUsers = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Users", value: allUsers.length, color: "bg-primary/10 text-primary" },
-          { label: "Active", value: allUsers.filter(u => u.status === "active").length, color: "bg-emerald-500/10 text-emerald-500" },
-          { label: "Pending", value: allUsers.filter(u => u.status === "pending").length, color: "bg-warning/10 text-warning" },
-          { label: "Blocked", value: allUsers.filter(u => u.status === "blocked").length, color: "bg-destructive/10 text-destructive" },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-card border border-border rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-              <div className={`p-2 rounded-lg ${stat.color}`}>
-                <Users className="h-4 w-4" />
+          {
+            label: "Total Users",
+            value: allUsers.length,
+            icon: Users,
+            gradient: "from-primary/20 via-primary/10 to-transparent",
+            iconBg: "bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20",
+            iconColor: "text-primary"
+          },
+          {
+            label: "Active",
+            value: allUsers.filter(u => u.status === "active").length,
+            icon: UserCheck,
+            gradient: "from-emerald-500/20 via-emerald-500/10 to-transparent",
+            iconBg: "bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-500/20",
+            iconColor: "text-emerald-500"
+          },
+          {
+            label: "Pending",
+            value: allUsers.filter(u => u.status === "pending").length,
+            icon: Clock,
+            gradient: "from-yellow-500/20 via-yellow-500/10 to-transparent",
+            iconBg: "bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 border border-yellow-500/20",
+            iconColor: "text-yellow-600"
+          },
+          {
+            label: "Blocked",
+            value: allUsers.filter(u => u.status === "blocked").length,
+            icon: UserX,
+            gradient: "from-red-500/20 via-red-500/10 to-transparent",
+            iconBg: "bg-gradient-to-br from-red-500/20 to-red-500/5 border border-red-500/20",
+            iconColor: "text-red-500"
+          },
+        ].map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              whileHover={{ scale: 1.02, y: -2 }}
+              transition={{ duration: 0.2 }}
+              className={`relative overflow-hidden bg-card border border-border/50 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300`}
+            >
+              {/* Gradient background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+              <div className="relative flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-muted-foreground mb-2">{stat.label}</p>
+                  <p className="text-3xl font-bold text-foreground">{stat.value}</p>
+                </div>
+                <div className={`p-3 rounded-xl ${stat.iconBg} shadow-sm`}>
+                  <Icon className={`h-5 w-5 ${stat.iconColor}`} />
+                </div>
               </div>
-            </div>
-            <p className="text-2xl font-bold text-foreground mt-2">{stat.value}</p>
-          </div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Bulk Actions Bar */}
@@ -728,29 +763,29 @@ const AdminUsers = () => {
                       const user = filteredUsers.find(u => u.id === id);
                       return user?.status === "pending";
                     }) && (
-                      <>
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => setIsBulkApproveDialogOpen(true)}
-                          className="flex items-center gap-2"
-                          disabled={bulkApproveMutation.isPending}
-                        >
-                          <UserCheck className="h-4 w-4" />
-                          Approve ({selectedUserIds.size})
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setIsBulkRejectDialogOpen(true)}
-                          className="flex items-center gap-2"
-                          disabled={bulkRejectMutation.isPending}
-                        >
-                          <UserX className="h-4 w-4" />
-                          Reject ({selectedUserIds.size})
-                        </Button>
-                      </>
-                    )}
+                        <>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => setIsBulkApproveDialogOpen(true)}
+                            className="flex items-center gap-2"
+                            disabled={bulkApproveMutation.isPending}
+                          >
+                            <UserCheck className="h-4 w-4" />
+                            Approve ({selectedUserIds.size})
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsBulkRejectDialogOpen(true)}
+                            className="flex items-center gap-2"
+                            disabled={bulkRejectMutation.isPending}
+                          >
+                            <UserX className="h-4 w-4" />
+                            Reject ({selectedUserIds.size})
+                          </Button>
+                        </>
+                      )}
                     <Button
                       variant="destructive"
                       size="sm"
@@ -803,169 +838,168 @@ const AdminUsers = () => {
               const isExpanded = expandedUsers.has(user.id);
               const isPM = user.role === "project_manager";
               const isTL = user.role === "team_lead";
-              
+
               return (
-              <div
-                key={user.id}
-                className={`rounded-lg transition-all ${
-                  isSelected 
-                    ? "bg-primary/10 border-2 border-primary" 
-                    : "bg-accent/50 hover:bg-accent border border-transparent"
-                }`}
-              >
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-4 flex-1">
-                    {isBulkMode && user.role !== "admin" && (
-                      <Checkbox
-                        checked={selectedUserIds.has(user.id)}
-                        onCheckedChange={() => handleToggleUser(user.id, user.role)}
-                      />
-                    )}
-                    {(isPM || isTL) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                        onClick={() => toggleUserExpansion(user.id)}
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
-                      </Button>
-                    )}
-                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary">
-                        {user.full_name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-medium text-foreground">{user.full_name}</p>
-                        {getStatusIcon(user.status)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{user.email}</p>
-                      {user.department_id && (
-                        <p className="text-xs text-muted-foreground">Department: {user.department_id}</p>
+                <div
+                  key={user.id}
+                  className={`rounded-lg transition-all ${isSelected
+                      ? "bg-primary/10 border-2 border-primary"
+                      : "bg-accent/50 hover:bg-accent border border-transparent"
+                    }`}
+                >
+                  <div className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      {isBulkMode && user.role !== "admin" && (
+                        <Checkbox
+                          checked={selectedUserIds.has(user.id)}
+                          onCheckedChange={() => handleToggleUser(user.id, user.role)}
+                        />
                       )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      {getRoleIcon(user.role)}
-                      {user.role === "admin" ? (
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-yellow-500/10 text-transparent bg-clip-text"
+                      {(isPM || isTL) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => toggleUserExpansion(user.id)}
                         >
-                          <span className="bg-gradient-to-r from-orange-400 via-red-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
-                            {user.role.replace('_', ' ')}
-                          </span>
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-xs">
-                          {user.role.replace('_', ' ')}
-                        </Badge>
-                      )}
-                    </div>
-                    <Badge variant={getStatusBadgeVariant(user.status)}>
-                      {user.status}
-                    </Badge>
-                    {user.created_at && (
-                      <span className="text-xs text-muted-foreground hidden sm:block">
-                        Joined {format(new Date(user.created_at), "MMM d, yyyy")}
-                      </span>
-                    )}
-                    
-                    {/* Actions Menu */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        {user.status === "blocked" ? (
-                          <DropdownMenuItem 
-                            onClick={() => openUnblockDialog(user)}
-                            className="text-emerald-600 focus:text-emerald-600"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Unblock User
-                          </DropdownMenuItem>
-                        ) : user.status === "active" ? (
-                          <DropdownMenuItem 
-                            onClick={() => openBlockDialog(user)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Ban className="h-4 w-4 mr-2" />
-                            Block User
-                          </DropdownMenuItem>
-                        ) : null}
-                        {isPM && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => toggleUserExpansion(user.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              {isExpanded ? "Hide" : "View"} Projects
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDemotePMDialog(user)}
-                              className="text-orange-600 focus:text-orange-600"
-                            >
-                              <ArrowDown className="h-4 w-4 mr-2" />
-                              Demote to Employee
-                            </DropdownMenuItem>
-                          </>
+                      )}
+                      <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-sm font-medium text-primary">
+                          {user.full_name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-medium text-foreground">{user.full_name}</p>
+                          {getStatusIcon(user.status)}
+                        </div>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        {user.department_id && (
+                          <p className="text-xs text-muted-foreground">Department: {user.department_id}</p>
                         )}
-                        {isTL && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => toggleUserExpansion(user.id)}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              {isExpanded ? "Hide" : "View"} Teams
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => openDemoteTLDialog(user)}
-                              className="text-orange-600 focus:text-orange-600"
-                            >
-                              <ArrowDown className="h-4 w-4 mr-2" />
-                              Demote to Employee
-                            </DropdownMenuItem>
-                          </>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        {getRoleIcon(user.role)}
+                        {user.role === "admin" ? (
+                          <Badge
+                            variant="outline"
+                            className="text-xs border-orange-500/30 bg-gradient-to-r from-orange-500/10 via-red-500/10 to-yellow-500/10 text-transparent bg-clip-text"
+                          >
+                            <span className="bg-gradient-to-r from-orange-400 via-red-500 to-yellow-400 bg-clip-text text-transparent font-semibold">
+                              {user.role.replace('_', ' ')}
+                            </span>
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-xs">
+                            {user.role.replace('_', ' ')}
+                          </Badge>
                         )}
-                        {user.role !== "admin" && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => openDeleteDialog(user)}
+                      </div>
+                      <Badge variant={getStatusBadgeVariant(user.status)}>
+                        {user.status}
+                      </Badge>
+                      {user.created_at && (
+                        <span className="text-xs text-muted-foreground hidden sm:block">
+                          Joined {format(new Date(user.created_at), "MMM d, yyyy")}
+                        </span>
+                      )}
+
+                      {/* Actions Menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {user.status === "blocked" ? (
+                            <DropdownMenuItem
+                              onClick={() => openUnblockDialog(user)}
+                              className="text-emerald-600 focus:text-emerald-600"
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Unblock User
+                            </DropdownMenuItem>
+                          ) : user.status === "active" ? (
+                            <DropdownMenuItem
+                              onClick={() => openBlockDialog(user)}
                               className="text-destructive focus:text-destructive"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
+                              <Ban className="h-4 w-4 mr-2" />
+                              Block User
                             </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                          ) : null}
+                          {isPM && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => toggleUserExpansion(user.id)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                {isExpanded ? "Hide" : "View"} Projects
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openDemotePMDialog(user)}
+                                className="text-orange-600 focus:text-orange-600"
+                              >
+                                <ArrowDown className="h-4 w-4 mr-2" />
+                                Demote to Employee
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {isTL && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => toggleUserExpansion(user.id)}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                {isExpanded ? "Hide" : "View"} Teams
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openDemoteTLDialog(user)}
+                                className="text-orange-600 focus:text-orange-600"
+                              >
+                                <ArrowDown className="h-4 w-4 mr-2" />
+                                Demote to Employee
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {user.role !== "admin" && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => openDeleteDialog(user)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete User
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
+
+                  {/* Expanded Content - Projects/Teams */}
+                  {isExpanded && (isPM || isTL) && (
+                    <UserDetailsSection userId={user.id} role={user.role} />
+                  )}
                 </div>
-                
-                {/* Expanded Content - Projects/Teams */}
-                {isExpanded && (isPM || isTL) && (
-                  <UserDetailsSection userId={user.id} role={user.role} />
-                )}
-              </div>
-            );
+              );
             })}
           </div>
         )}
-        
+
         {/* Pagination Controls */}
         {pagination && pagination.total_pages > 1 && (
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
@@ -1290,18 +1324,18 @@ const AdminUsers = () => {
                 </div>
                 <div className="bg-emerald-500/10 p-3 rounded-lg">
                   <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                    {bulkOperationResult.total_approved !== undefined ? "Approved" : 
-                     bulkOperationResult.total_rejected !== undefined ? "Rejected" : 
-                     bulkOperationResult.total_deleted !== undefined ? "Deleted" : "Processed"}
+                    {bulkOperationResult.total_approved !== undefined ? "Approved" :
+                      bulkOperationResult.total_rejected !== undefined ? "Rejected" :
+                        bulkOperationResult.total_deleted !== undefined ? "Deleted" : "Processed"}
                   </p>
                   <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {bulkOperationResult.total_approved ?? 
-                     bulkOperationResult.total_rejected ?? 
-                     bulkOperationResult.total_deleted ?? 0}
+                    {bulkOperationResult.total_approved ??
+                      bulkOperationResult.total_rejected ??
+                      bulkOperationResult.total_deleted ?? 0}
                   </p>
                 </div>
               </div>
-              
+
               {bulkOperationResult.failed && bulkOperationResult.failed.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-destructive">

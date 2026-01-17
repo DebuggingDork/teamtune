@@ -6,7 +6,6 @@ const SettingsPage = () => {
   return (
     <AdminLayout
       headerTitle="Settings"
-      headerDescription="Configure system settings and preferences."
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}

@@ -5,7 +5,6 @@ const UsersPage = () => {
   return (
     <AdminLayout
       headerTitle="User Management"
-      headerDescription="View, edit, and manage all user accounts"
     >
       <AdminUsers />
     </AdminLayout>
