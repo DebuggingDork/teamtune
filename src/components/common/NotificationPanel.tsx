@@ -53,6 +53,7 @@ const NotificationPanel = ({ isOpen, onClose }: NotificationPanelProps) => {
 
   const {
     unreadCount,
+    unreadByCategory,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -303,10 +304,23 @@ const NotificationPanel = ({ isOpen, onClose }: NotificationPanelProps) => {
               </div>
             </div>
 
-            {/* Message */}
             <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
               {notification.message}
             </p>
+
+            {/* Specialized Action for Leave Requests */}
+            {notification.type === 'leave_requested' && !notification.is_read && (
+              <Button
+                size="sm"
+                className="w-full mt-2 h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNotificationClick(notification);
+                }}
+              >
+                Review Request
+              </Button>
+            )}
 
             {/* Footer with Actor and Time */}
             <div className="flex items-center justify-between pt-1">
@@ -485,12 +499,10 @@ const NotificationPanel = ({ isOpen, onClose }: NotificationPanelProps) => {
                           )} />
                         )}
                         <span>{option.label}</span>
-                        {isActive && (
-                          <motion.div
-                            layoutId="activeFilter"
-                            className="absolute inset-0 bg-primary/10 rounded-lg -z-10"
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                          />
+
+                        {/* Category specific unread count dot */}
+                        {option.value !== 'all' && option.value !== 'unread' && (unreadByCategory as any)[option.value] > 0 && (
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-background shadow-sm" />
                         )}
                       </motion.button>
                     );
@@ -565,8 +577,9 @@ const NotificationPanel = ({ isOpen, onClose }: NotificationPanelProps) => {
             </ScrollArea>
           </motion.div>
         </>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 };
 

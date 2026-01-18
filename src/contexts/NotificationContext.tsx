@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { useUnreadCount, useMarkAsRead, useMarkAllAsRead, useDeleteNotification, useDeleteAllRead } from '@/hooks/useNotifications';
 import type { Notification, UserRole, NotificationPriority } from '@/api/types';
@@ -109,6 +110,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     });
   }, [userRole, deleteAllReadMutation]);
 
+  const navigate = useNavigate();
+
   // Handle notification click - mark as read and navigate
   const handleNotificationClick = useCallback(
     (notification: Notification) => {
@@ -119,13 +122,25 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
       // Navigate to action URL if available
       if (notification.action_url) {
-        window.location.href = notification.action_url;
+        // Map backend URLs to frontend routes if needed
+        let targetUrl = notification.action_url;
+
+        // Handle team-lead routes defined in backend guide but nested in /dashboard in frontend
+        if (targetUrl.startsWith('/team-lead/') && !targetUrl.startsWith('/dashboard/')) {
+          targetUrl = `/dashboard${targetUrl}`;
+        }
+        if (targetUrl.startsWith('/employee/') && !targetUrl.startsWith('/dashboard/member/')) {
+          targetUrl = `/dashboard/member${targetUrl.replace('/employee/', '/')}`;
+        }
+
+        // Use router for SPA navigation
+        navigate(targetUrl);
       }
 
       // Close the panel
       closePanel();
     },
-    [markAsRead, closePanel]
+    [markAsRead, closePanel, navigate]
   );
 
   const value: NotificationContextType = {

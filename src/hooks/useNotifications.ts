@@ -25,6 +25,7 @@ export const useNotifications = (role: UserRole, filters?: NotificationFilters) 
     queryFn: () => notificationService.getNotifications(role, filters),
     staleTime: 30000,
     enabled: !!role,
+    refetchInterval: 30000, // Poll every 30 seconds for new notifications
   });
 };
 

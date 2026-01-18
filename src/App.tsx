@@ -98,11 +98,11 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
-          <NotificationProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <NotificationProvider>
+              <TooltipProvider>
                 <HashCleaner />
                 <Routes>
                   <Route path="/" element={<Index />} />
@@ -404,9 +404,9 @@ const App = () => (
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </BrowserRouter>
-            </TooltipProvider>
-          </NotificationProvider>
+              </TooltipProvider>
+            </NotificationProvider>
+          </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
