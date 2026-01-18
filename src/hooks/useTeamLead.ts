@@ -37,6 +37,10 @@ import type {
   BulkApproveTimeEntriesRequest,
   CreateFeedbackRequestData,
   UpdateFeedbackRequestData,
+  // Attendance & Leave Types
+  LeaveRequestFilters,
+  AttendanceFilters,
+  ReviewLeaveRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
@@ -139,6 +143,20 @@ export const teamLeadKeys = {
     detail: (requestCode: string) => ['team-lead', 'feedback-requests', requestCode] as const,
     responses: (requestCode: string) => ['team-lead', 'feedback-requests', requestCode, 'responses'] as const,
     summary: (requestCode: string) => ['team-lead', 'feedback-requests', requestCode, 'summary'] as const,
+  },
+
+  // Attendance & Leave Management
+  leave: {
+    requests: (teamCode: string, filters?: LeaveRequestFilters) => ['team-lead', 'leave', 'requests', teamCode, filters] as const,
+    pending: (teamCode: string) => ['team-lead', 'leave', 'pending', teamCode] as const,
+    calendar: (teamCode: string, month: number, year: number) => ['team-lead', 'leave', 'calendar', teamCode, month, year] as const,
+  },
+  attendance: {
+    today: (teamCode: string) => ['team-lead', 'attendance', 'today', teamCode] as const,
+    list: (teamCode: string, filters?: AttendanceFilters) => ['team-lead', 'attendance', 'list', teamCode, filters] as const,
+  },
+  sessions: {
+    active: (teamCode: string) => ['team-lead', 'sessions', 'active', teamCode] as const,
   },
 };
 
@@ -1142,3 +1160,132 @@ export const useFeedbackSummary = (requestCode: string) => {
     enabled: !!requestCode,
   });
 };
+
+// ============================================================================
+// TEAM LEAVE MANAGEMENT HOOKS
+// ============================================================================
+
+/**
+ * Get team leave requests with optional filters
+ */
+export const useTeamLeaveRequests = (teamCode: string, filters?: LeaveRequestFilters) => {
+  return useQuery({
+    queryKey: teamLeadKeys.leave.requests(teamCode, filters),
+    queryFn: () => teamLeadService.getTeamLeaveRequests(teamCode, filters),
+    enabled: !!teamCode,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get pending leave requests for the team
+ */
+export const usePendingLeaveRequests = (teamCode: string) => {
+  return useQuery({
+    queryKey: teamLeadKeys.leave.pending(teamCode),
+    queryFn: () => teamLeadService.getPendingLeaveRequests(teamCode),
+    enabled: !!teamCode,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Approve a leave request
+ */
+export const useApproveLeaveRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      teamCode,
+      requestCode,
+      data,
+    }: {
+      teamCode: string;
+      requestCode: string;
+      data?: ReviewLeaveRequest;
+    }) => teamLeadService.approveLeaveRequest(teamCode, requestCode, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['team-lead', 'leave'] });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Reject a leave request
+ */
+export const useRejectLeaveRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      teamCode,
+      requestCode,
+      data,
+    }: {
+      teamCode: string;
+      requestCode: string;
+      data: ReviewLeaveRequest;
+    }) => teamLeadService.rejectLeaveRequest(teamCode, requestCode, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['team-lead', 'leave'] });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Get team leave calendar for a specific month
+ */
+export const useTeamLeaveCalendar = (teamCode: string, month: number, year: number) => {
+  return useQuery({
+    queryKey: teamLeadKeys.leave.calendar(teamCode, month, year),
+    queryFn: () => teamLeadService.getTeamLeaveCalendar(teamCode, month, year),
+    enabled: !!teamCode && month > 0 && year > 0,
+    staleTime: 60000,
+  });
+};
+
+// ============================================================================
+// TEAM ATTENDANCE HOOKS
+// ============================================================================
+
+/**
+ * Get team's today attendance overview
+ */
+export const useTeamTodayAttendance = (teamCode: string) => {
+  return useQuery({
+    queryKey: teamLeadKeys.attendance.today(teamCode),
+    queryFn: () => teamLeadService.getTeamTodayAttendance(teamCode),
+    enabled: !!teamCode,
+    staleTime: 30000,
+    refetchInterval: 60000, // Auto-refresh every minute
+  });
+};
+
+/**
+ * Get team attendance records with optional filters
+ */
+export const useTeamAttendance = (teamCode: string, filters?: AttendanceFilters) => {
+  return useQuery({
+    queryKey: teamLeadKeys.attendance.list(teamCode, filters),
+    queryFn: () => teamLeadService.getTeamAttendance(teamCode, filters),
+    enabled: !!teamCode,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get team's active sessions
+ */
+export const useTeamActiveSessions = (teamCode: string) => {
+  return useQuery({
+    queryKey: teamLeadKeys.sessions.active(teamCode),
+    queryFn: () => teamLeadService.getTeamActiveSessions(teamCode),
+    enabled: !!teamCode,
+    staleTime: 30000,
+    refetchInterval: 60000, // Auto-refresh every minute
+  });
+};
+

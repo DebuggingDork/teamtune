@@ -9,6 +9,12 @@ import type {
   UpdateProfileRequest,
   PerformanceFilters,
   GitActivityFilters,
+  // Attendance & Leave Types
+  LeaveRequestFilters,
+  AttendanceFilters,
+  SessionFilters,
+  SubmitLeaveRequest,
+  CheckInOutRequest,
 } from '@/api/types';
 import { handleError } from '@/utils/errorHandler';
 
@@ -54,6 +60,24 @@ export const employeeKeys = {
     all: ['employee', 'git-activity'] as const,
     detail: (filters: GitActivityFilters) => ['employee', 'git-activity', filters] as const,
   },
+  // Attendance & Leave Keys
+  leave: {
+    types: ['employee', 'leave', 'types'] as const,
+    balances: (year?: number) => ['employee', 'leave', 'balances', year] as const,
+    requests: (filters?: LeaveRequestFilters) => ['employee', 'leave', 'requests', filters] as const,
+    request: (code: string) => ['employee', 'leave', 'requests', code] as const,
+  },
+  attendance: {
+    today: ['employee', 'attendance', 'today'] as const,
+    list: (filters?: AttendanceFilters) => ['employee', 'attendance', 'list', filters] as const,
+    summary: (month: number, year: number) => ['employee', 'attendance', 'summary', month, year] as const,
+  },
+  sessions: {
+    list: (filters?: SessionFilters) => ['employee', 'sessions', 'list', filters] as const,
+    current: ['employee', 'sessions', 'current'] as const,
+    summary: (month: number, year: number) => ['employee', 'sessions', 'summary', month, year] as const,
+  },
+  holidays: (year?: number) => ['employee', 'holidays', year] as const,
 };
 
 /**
@@ -304,6 +328,210 @@ export const useMyGitActivity = (filters: GitActivityFilters) => {
     queryFn: () => employeeService.getMyGitActivity(filters),
     enabled: !!filters.start_date && !!filters.end_date,
     staleTime: 60000,
+  });
+};
+
+// ============================================================================
+// LEAVE MANAGEMENT HOOKS
+// ============================================================================
+
+/**
+ * Get all leave types
+ */
+export const useLeaveTypes = () => {
+  return useQuery({
+    queryKey: employeeKeys.leave.types,
+    queryFn: employeeService.getLeaveTypes,
+    staleTime: 300000, // 5 minutes - leave types rarely change
+  });
+};
+
+/**
+ * Get leave balances for current or specific year
+ */
+export const useLeaveBalances = (year?: number) => {
+  return useQuery({
+    queryKey: employeeKeys.leave.balances(year),
+    queryFn: () => employeeService.getLeaveBalances(year),
+    staleTime: 60000,
+  });
+};
+
+/**
+ * Get my leave requests
+ */
+export const useMyLeaveRequests = (filters?: LeaveRequestFilters) => {
+  return useQuery({
+    queryKey: employeeKeys.leave.requests(filters),
+    queryFn: () => employeeService.getMyLeaveRequests(filters),
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get a specific leave request by code
+ */
+export const useLeaveRequest = (code: string) => {
+  return useQuery({
+    queryKey: employeeKeys.leave.request(code),
+    queryFn: () => employeeService.getLeaveRequest(code),
+    enabled: !!code,
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Submit a new leave request
+ */
+export const useSubmitLeaveRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: SubmitLeaveRequest) => employeeService.submitLeaveRequest(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employee', 'leave'] });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Cancel a leave request
+ */
+export const useCancelLeaveRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (code: string) => employeeService.cancelLeaveRequest(code),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employee', 'leave'] });
+    },
+    onError: handleError,
+  });
+};
+
+// ============================================================================
+// ATTENDANCE HOOKS
+// ============================================================================
+
+/**
+ * Get today's attendance status
+ */
+export const useTodayAttendance = () => {
+  return useQuery({
+    queryKey: employeeKeys.attendance.today,
+    queryFn: employeeService.getTodayAttendance,
+    staleTime: 10000, // 10 seconds - refresh often for real-time status
+    refetchInterval: 60000, // Refetch every minute
+  });
+};
+
+/**
+ * Check in for the day
+ */
+export const useCheckIn = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data?: CheckInOutRequest) => employeeService.checkIn(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeeKeys.attendance.today });
+      queryClient.invalidateQueries({ queryKey: ['employee', 'attendance'] });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Check out for the day
+ */
+export const useCheckOut = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data?: CheckInOutRequest) => employeeService.checkOut(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeeKeys.attendance.today });
+      queryClient.invalidateQueries({ queryKey: ['employee', 'attendance'] });
+    },
+    onError: handleError,
+  });
+};
+
+/**
+ * Get attendance records with filters
+ */
+export const useMyAttendance = (filters?: AttendanceFilters) => {
+  return useQuery({
+    queryKey: employeeKeys.attendance.list(filters),
+    queryFn: () => employeeService.getMyAttendance(filters),
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get attendance summary for a specific month
+ */
+export const useAttendanceSummary = (month: number, year: number) => {
+  return useQuery({
+    queryKey: employeeKeys.attendance.summary(month, year),
+    queryFn: () => employeeService.getAttendanceSummary(month, year),
+    enabled: month > 0 && year > 0,
+    staleTime: 60000,
+  });
+};
+
+// ============================================================================
+// SESSIONS HOOKS
+// ============================================================================
+
+/**
+ * Get my sessions with filters
+ */
+export const useMySessions = (filters?: SessionFilters) => {
+  return useQuery({
+    queryKey: employeeKeys.sessions.list(filters),
+    queryFn: () => employeeService.getMySessions(filters),
+    staleTime: 30000,
+  });
+};
+
+/**
+ * Get current active session
+ */
+export const useCurrentSession = () => {
+  return useQuery({
+    queryKey: employeeKeys.sessions.current,
+    queryFn: employeeService.getCurrentSession,
+    staleTime: 10000,
+    refetchInterval: 60000,
+  });
+};
+
+/**
+ * Get session summary for a specific month
+ */
+export const useSessionSummary = (month: number, year: number) => {
+  return useQuery({
+    queryKey: employeeKeys.sessions.summary(month, year),
+    queryFn: () => employeeService.getSessionSummary(month, year),
+    enabled: month > 0 && year > 0,
+    staleTime: 60000,
+  });
+};
+
+// ============================================================================
+// HOLIDAYS HOOKS
+// ============================================================================
+
+/**
+ * Get holidays for a specific year
+ */
+export const useHolidays = (year?: number) => {
+  return useQuery({
+    queryKey: employeeKeys.holidays(year),
+    queryFn: () => employeeService.getHolidays(year),
+    staleTime: 300000, // 5 minutes - holidays don't change often
   });
 };
 

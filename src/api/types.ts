@@ -2151,3 +2151,361 @@ export interface DeleteAllReadResponse {
 }
 
 
+// ============================================================================
+// ATTENDANCE & LEAVE MANAGEMENT TYPES
+// ============================================================================
+
+// Leave Status
+export type LeaveRequestStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+export type AttendanceStatus = 'present' | 'absent' | 'on_leave' | 'wfh' | 'holiday' | 'half_day';
+export type HalfDayType = 'first_half' | 'second_half';
+export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'unknown';
+
+// Leave Type
+export interface LeaveType {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  default_days_per_year: number;
+  is_paid: boolean;
+  requires_approval: boolean;
+  requires_document: boolean;
+  max_consecutive_days: number;
+  min_advance_notice_days: number;
+  allow_carryover: boolean;
+  max_carryover_days: number;
+  color_code: string;
+  is_active?: boolean;
+}
+
+// Leave Balance
+export interface LeaveBalanceItem {
+  leave_type: {
+    code: string;
+    name: string;
+    color: string;
+  };
+  total_days: number;
+  used_days: number;
+  pending_days: number;
+  remaining_days: number;
+  carried_over: number;
+}
+
+export interface LeaveBalancesResponse {
+  year: number;
+  balances: LeaveBalanceItem[];
+  summary: {
+    total_leaves_available: number;
+    total_leaves_used: number;
+    total_leaves_pending: number;
+  };
+}
+
+// Leave Request
+export interface SubmitLeaveRequest {
+  leave_type_code: string;
+  start_date: string;
+  end_date: string;
+  is_half_day?: boolean;
+  half_day_type?: HalfDayType | null;
+  reason: string;
+  supporting_document_url?: string | null;
+}
+
+export interface LeaveRequest {
+  request_code: string;
+  employee?: {
+    user_code: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string;
+  };
+  leave_type: {
+    code: string;
+    name: string;
+    color: string;
+  };
+  start_date: string;
+  end_date: string;
+  total_days: number;
+  is_half_day: boolean;
+  half_day_type: HalfDayType | null;
+  reason: string;
+  supporting_document_url: string | null;
+  status: LeaveRequestStatus;
+  reviewer?: {
+    user_code: string;
+    full_name: string;
+  } | null;
+  reviewed_at: string | null;
+  reviewer_comments: string | null;
+  created_at: string;
+  days_until_start?: number;
+}
+
+export interface LeaveRequestsResponse {
+  requests: LeaveRequest[];
+  pagination: PaginationResponse;
+}
+
+export interface PendingLeaveRequestsResponse {
+  pending_requests: LeaveRequest[];
+  count: number;
+}
+
+// Team Leave Calendar
+export interface LeaveCalendarEntry {
+  date: string;
+  user_code: string;
+  user_name: string;
+  leave_type: string;
+  leave_type_color: string;
+  is_half_day: boolean;
+  half_day_type: HalfDayType | null;
+}
+
+export interface TeamLeaveCalendarResponse {
+  month: number;
+  year: number;
+  entries: LeaveCalendarEntry[];
+  summary: {
+    total_leave_days: number;
+    employees_on_leave: number;
+  };
+}
+
+// Attendance
+export interface TodayAttendance {
+  date: string;
+  status: AttendanceStatus;
+  check_in_time: string | null;
+  check_out_time: string | null;
+  worked_hours: number | null;
+  is_late: boolean;
+  late_minutes: number;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  check_in_time: string | null;
+  check_out_time: string | null;
+  worked_hours: number | null;
+  status: AttendanceStatus;
+  is_late: boolean;
+  late_minutes: number;
+  is_early_departure: boolean;
+  early_departure_minutes: number;
+  notes: string | null;
+  leave_type: string | null;
+}
+
+export interface AttendanceRecordsResponse {
+  records: AttendanceRecord[];
+  pagination: PaginationResponse;
+}
+
+export interface AttendanceSummary {
+  month: number;
+  year: number;
+  working_days: number;
+  summary: {
+    present: number;
+    absent: number;
+    on_leave: number;
+    wfh: number;
+    holidays: number;
+    half_day: number;
+  };
+  punctuality: {
+    on_time: number;
+    late_arrivals: number;
+    average_late_minutes: number;
+  };
+  hours: {
+    expected: number;
+    worked: number;
+    overtime: number;
+  };
+}
+
+export interface CheckInOutRequest {
+  notes?: string;
+}
+
+// Team Attendance
+export interface TeamMemberAttendance {
+  user_code: string;
+  full_name: string;
+  check_in_time?: string;
+  is_late?: boolean;
+  leave_type?: string;
+  avatar_url?: string;
+}
+
+export interface TeamTodayAttendance {
+  date: string;
+  present: {
+    count: number;
+    members: TeamMemberAttendance[];
+  };
+  absent: {
+    count: number;
+    members: TeamMemberAttendance[];
+  };
+  on_leave: {
+    count: number;
+    members: TeamMemberAttendance[];
+  };
+  wfh: {
+    count: number;
+    members: TeamMemberAttendance[];
+  };
+}
+
+// Sessions
+export interface Session {
+  login_code: string;
+  login_at: string;
+  logout_at: string | null;
+  session_duration_minutes: number | null;
+  device_type: DeviceType;
+  ip_address: string;
+  is_active: boolean;
+  user_code?: string;
+  user_name?: string;
+}
+
+export interface SessionsResponse {
+  sessions: Session[];
+  pagination: PaginationResponse;
+}
+
+export interface CurrentSession {
+  login_code: string;
+  login_at: string;
+  device_type: DeviceType;
+  ip_address: string;
+  duration_minutes: number;
+}
+
+export interface SessionSummary {
+  month: number;
+  year: number;
+  total_sessions: number;
+  total_hours: number;
+  average_session_hours: number;
+  by_device: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
+  };
+}
+
+export interface TeamActiveSessionsResponse {
+  active_sessions: Session[];
+  count: number;
+}
+
+// Holidays
+export interface Holiday {
+  id: string;
+  name: string;
+  date: string;
+  year: number;
+  is_optional: boolean;
+  description: string | null;
+}
+
+export interface HolidaysResponse {
+  year: number;
+  holidays: Holiday[];
+  total: number;
+}
+
+export interface CreateHolidayRequest {
+  name: string;
+  date: string;
+  year: number;
+  is_optional?: boolean;
+  description?: string;
+}
+
+// Admin Leave Types Management
+export interface CreateLeaveTypeRequest {
+  code: string;
+  name: string;
+  description: string;
+  default_days_per_year: number;
+  is_paid?: boolean;
+  requires_approval?: boolean;
+  requires_document?: boolean;
+  max_consecutive_days?: number;
+  min_advance_notice_days?: number;
+  allow_carryover?: boolean;
+  max_carryover_days?: number;
+  color_code?: string;
+}
+
+export interface UpdateLeaveTypeRequest {
+  name?: string;
+  description?: string;
+  default_days_per_year?: number;
+  is_paid?: boolean;
+  requires_approval?: boolean;
+  requires_document?: boolean;
+  max_consecutive_days?: number;
+  min_advance_notice_days?: number;
+  allow_carryover?: boolean;
+  max_carryover_days?: number;
+  color_code?: string;
+  is_active?: boolean;
+}
+
+// Admin Leave Balance Management
+export interface InitializeBalancesRequest {
+  year: number;
+}
+
+export interface AdjustBalanceRequest {
+  leave_type_id: string;
+  year: number;
+  adjustment: number;
+  reason: string;
+}
+
+// Leave Request Review
+export interface ReviewLeaveRequest {
+  comments?: string;
+}
+
+// Filter types
+export interface LeaveRequestFilters {
+  page?: number;
+  limit?: number;
+  status?: LeaveRequestStatus;
+  leave_type_code?: string;
+  from_date?: string;
+  to_date?: string;
+  user_code?: string;
+}
+
+export interface AttendanceFilters {
+  page?: number;
+  limit?: number;
+  from_date?: string;
+  to_date?: string;
+  status?: AttendanceStatus;
+  is_late?: boolean;
+}
+
+export interface SessionFilters {
+  page?: number;
+  limit?: number;
+  from_date?: string;
+  to_date?: string;
+  is_active?: boolean;
+}
+

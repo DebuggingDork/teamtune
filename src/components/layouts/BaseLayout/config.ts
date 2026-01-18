@@ -116,14 +116,14 @@ export const navigationConfig: Record<UserRole, NavItem[]> = {
       icon: Users,
     },
     {
+      path: "/dashboard/team-lead/leave-management",
+      label: "Leave Requests",
+      icon: Calendar,
+    },
+    {
       path: "/dashboard/team-lead/communications",
       label: "Communications",
       icon: Megaphone,
-    },
-    {
-      path: "/dashboard/team-lead/profile",
-      label: "Profile",
-      icon: UserCog,
     },
     {
       path: "/dashboard/team-lead/github",

@@ -81,6 +81,17 @@ import type {
   FeedbackRequestListItem,
   FeedbackResponsesData,
   FeedbackSummary,
+  // Attendance & Leave Types
+  LeaveRequest,
+  LeaveRequestsResponse,
+  LeaveRequestFilters,
+  PendingLeaveRequestsResponse,
+  TeamLeaveCalendarResponse,
+  TeamTodayAttendance,
+  AttendanceRecordsResponse,
+  AttendanceFilters,
+  TeamActiveSessionsResponse,
+  ReviewLeaveRequest,
 } from '@/api/types';
 
 // ============================================================================
@@ -960,6 +971,141 @@ export const getFeedbackResponses = async (requestCode: string): Promise<Feedbac
 export const getFeedbackSummary = async (requestCode: string): Promise<FeedbackSummary> => {
   const response = await apiClient.get<FeedbackSummary>(
     ENDPOINTS.TEAM_LEAD.FEEDBACK_REQUESTS.GET_SUMMARY(requestCode)
+  );
+  return response.data;
+};
+
+// ============================================================================
+// TEAM LEAVE MANAGEMENT
+// ============================================================================
+
+/**
+ * Get team leave requests with optional filters
+ */
+export const getTeamLeaveRequests = async (
+  teamCode: string,
+  filters?: LeaveRequestFilters
+): Promise<LeaveRequestsResponse> => {
+  const queryParams = new URLSearchParams();
+  if (filters?.page) queryParams.append('page', filters.page.toString());
+  if (filters?.limit) queryParams.append('limit', filters.limit.toString());
+  if (filters?.status) queryParams.append('status', filters.status);
+  if (filters?.user_code) queryParams.append('user_code', filters.user_code);
+  if (filters?.leave_type_code) queryParams.append('leave_type_code', filters.leave_type_code);
+  if (filters?.from_date) queryParams.append('from_date', filters.from_date);
+  if (filters?.to_date) queryParams.append('to_date', filters.to_date);
+
+  const queryString = queryParams.toString();
+  const url = queryString
+    ? `${ENDPOINTS.TEAM_LEAD.LEAVE.REQUESTS(teamCode)}?${queryString}`
+    : ENDPOINTS.TEAM_LEAD.LEAVE.REQUESTS(teamCode);
+
+  const response = await apiClient.get<LeaveRequestsResponse>(url);
+  return response.data;
+};
+
+/**
+ * Get pending leave requests for the team
+ */
+export const getPendingLeaveRequests = async (
+  teamCode: string
+): Promise<PendingLeaveRequestsResponse> => {
+  const response = await apiClient.get<PendingLeaveRequestsResponse>(
+    ENDPOINTS.TEAM_LEAD.LEAVE.PENDING(teamCode)
+  );
+  return response.data;
+};
+
+/**
+ * Approve a leave request
+ */
+export const approveLeaveRequest = async (
+  teamCode: string,
+  requestCode: string,
+  data?: ReviewLeaveRequest
+): Promise<{ message: string }> => {
+  const response = await apiClient.put<{ message: string }>(
+    ENDPOINTS.TEAM_LEAD.LEAVE.APPROVE(teamCode, requestCode),
+    data || {}
+  );
+  return response.data;
+};
+
+/**
+ * Reject a leave request
+ */
+export const rejectLeaveRequest = async (
+  teamCode: string,
+  requestCode: string,
+  data: ReviewLeaveRequest
+): Promise<{ message: string }> => {
+  const response = await apiClient.put<{ message: string }>(
+    ENDPOINTS.TEAM_LEAD.LEAVE.REJECT(teamCode, requestCode),
+    data
+  );
+  return response.data;
+};
+
+/**
+ * Get team leave calendar for a specific month
+ */
+export const getTeamLeaveCalendar = async (
+  teamCode: string,
+  month: number,
+  year: number
+): Promise<TeamLeaveCalendarResponse> => {
+  const url = `${ENDPOINTS.TEAM_LEAD.LEAVE.CALENDAR(teamCode)}?month=${month}&year=${year}`;
+  const response = await apiClient.get<TeamLeaveCalendarResponse>(url);
+  return response.data;
+};
+
+// ============================================================================
+// TEAM ATTENDANCE MANAGEMENT
+// ============================================================================
+
+/**
+ * Get team's today attendance overview
+ */
+export const getTeamTodayAttendance = async (
+  teamCode: string
+): Promise<TeamTodayAttendance> => {
+  const response = await apiClient.get<TeamTodayAttendance>(
+    ENDPOINTS.TEAM_LEAD.ATTENDANCE.TODAY(teamCode)
+  );
+  return response.data;
+};
+
+/**
+ * Get team attendance records with optional filters
+ */
+export const getTeamAttendance = async (
+  teamCode: string,
+  filters?: AttendanceFilters
+): Promise<AttendanceRecordsResponse> => {
+  const queryParams = new URLSearchParams();
+  if (filters?.page) queryParams.append('page', filters.page.toString());
+  if (filters?.limit) queryParams.append('limit', filters.limit.toString());
+  if (filters?.from_date) queryParams.append('from_date', filters.from_date);
+  if (filters?.to_date) queryParams.append('to_date', filters.to_date);
+  if (filters?.status) queryParams.append('status', filters.status);
+
+  const queryString = queryParams.toString();
+  const url = queryString
+    ? `${ENDPOINTS.TEAM_LEAD.ATTENDANCE.LIST(teamCode)}?${queryString}`
+    : ENDPOINTS.TEAM_LEAD.ATTENDANCE.LIST(teamCode);
+
+  const response = await apiClient.get<AttendanceRecordsResponse>(url);
+  return response.data;
+};
+
+/**
+ * Get team's active sessions
+ */
+export const getTeamActiveSessions = async (
+  teamCode: string
+): Promise<TeamActiveSessionsResponse> => {
+  const response = await apiClient.get<TeamActiveSessionsResponse>(
+    ENDPOINTS.TEAM_LEAD.SESSIONS.ACTIVE(teamCode)
   );
   return response.data;
 };

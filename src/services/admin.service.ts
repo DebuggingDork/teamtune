@@ -43,6 +43,16 @@ import type {
   AdminProjectDetails,
   AdminProjectStatsResponse,
   ProjectStatus,
+  // Attendance & Leave Management Types
+  LeaveType,
+  CreateLeaveTypeRequest,
+  UpdateLeaveTypeRequest,
+  Holiday,
+  HolidaysResponse,
+  CreateHolidayRequest,
+  InitializeBalancesRequest,
+  AdjustBalanceRequest,
+  LeaveBalancesResponse,
 } from '@/api/types';
 
 /**
@@ -315,6 +325,128 @@ export const getAdminProjectDetails = async (projectId: string): Promise<AdminPr
  */
 export const getAdminProjectStats = async (): Promise<AdminProjectStatsResponse> => {
   const response = await apiClient.get<AdminProjectStatsResponse>(ENDPOINTS.ADMIN.PROJECTS.STATS);
+  return response.data;
+};
+
+// ============================================================================
+// LEAVE TYPES MANAGEMENT
+// ============================================================================
+
+/**
+ * Get all leave types (including inactive if specified)
+ */
+export const getAdminLeaveTypes = async (includeInactive?: boolean): Promise<LeaveType[]> => {
+  const url = includeInactive
+    ? `${ENDPOINTS.ADMIN.LEAVE_TYPES.LIST}?include_inactive=true`
+    : ENDPOINTS.ADMIN.LEAVE_TYPES.LIST;
+  const response = await apiClient.get<LeaveType[]>(url);
+  return response.data;
+};
+
+/**
+ * Create a new leave type
+ */
+export const createLeaveType = async (data: CreateLeaveTypeRequest): Promise<LeaveType> => {
+  const response = await apiClient.post<LeaveType>(ENDPOINTS.ADMIN.LEAVE_TYPES.CREATE, data);
+  return response.data;
+};
+
+/**
+ * Update an existing leave type
+ */
+export const updateLeaveType = async (id: string, data: UpdateLeaveTypeRequest): Promise<LeaveType> => {
+  const response = await apiClient.put<LeaveType>(ENDPOINTS.ADMIN.LEAVE_TYPES.UPDATE(id), data);
+  return response.data;
+};
+
+/**
+ * Deactivate a leave type
+ */
+export const deactivateLeaveType = async (id: string): Promise<{ message: string }> => {
+  const response = await apiClient.delete<{ message: string }>(ENDPOINTS.ADMIN.LEAVE_TYPES.DELETE(id));
+  return response.data;
+};
+
+// ============================================================================
+// LEAVE BALANCE MANAGEMENT
+// ============================================================================
+
+/**
+ * Initialize leave balances for a year
+ */
+export const initializeLeaveBalances = async (data: InitializeBalancesRequest): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(ENDPOINTS.ADMIN.LEAVE_BALANCES.INITIALIZE, data);
+  return response.data;
+};
+
+/**
+ * Adjust a user's leave balance
+ */
+export const adjustLeaveBalance = async (userId: string, data: AdjustBalanceRequest): Promise<{ message: string }> => {
+  const response = await apiClient.put<{ message: string }>(ENDPOINTS.ADMIN.LEAVE_BALANCES.ADJUST(userId), data);
+  return response.data;
+};
+
+/**
+ * Get all leave balances for a year
+ */
+export const getAllLeaveBalances = async (year?: number): Promise<LeaveBalancesResponse[]> => {
+  const currentYear = year || new Date().getFullYear();
+  const url = `${ENDPOINTS.ADMIN.LEAVE_BALANCES.LIST}?year=${currentYear}`;
+  const response = await apiClient.get<LeaveBalancesResponse[]>(url);
+  return response.data;
+};
+
+// ============================================================================
+// HOLIDAY MANAGEMENT
+// ============================================================================
+
+/**
+ * Get all holidays for a year
+ */
+export const getAdminHolidays = async (year?: number): Promise<HolidaysResponse> => {
+  const currentYear = year || new Date().getFullYear();
+  const url = `${ENDPOINTS.ADMIN.HOLIDAYS.LIST}?year=${currentYear}`;
+  const response = await apiClient.get<HolidaysResponse>(url);
+  return response.data;
+};
+
+/**
+ * Create a new holiday
+ */
+export const createHoliday = async (data: CreateHolidayRequest): Promise<Holiday> => {
+  const response = await apiClient.post<Holiday>(ENDPOINTS.ADMIN.HOLIDAYS.CREATE, data);
+  return response.data;
+};
+
+/**
+ * Delete a holiday
+ */
+export const deleteHoliday = async (id: string): Promise<{ message: string }> => {
+  const response = await apiClient.delete<{ message: string }>(ENDPOINTS.ADMIN.HOLIDAYS.DELETE(id));
+  return response.data;
+};
+
+// ============================================================================
+// REPORTS
+// ============================================================================
+
+/**
+ * Get attendance report
+ */
+export const getAttendanceReport = async (fromDate: string, toDate: string): Promise<unknown> => {
+  const url = `${ENDPOINTS.ADMIN.REPORTS.ATTENDANCE}?from_date=${fromDate}&to_date=${toDate}`;
+  const response = await apiClient.get<unknown>(url);
+  return response.data;
+};
+
+/**
+ * Get leave report
+ */
+export const getLeaveReport = async (year?: number): Promise<unknown> => {
+  const currentYear = year || new Date().getFullYear();
+  const url = `${ENDPOINTS.ADMIN.REPORTS.LEAVE}?year=${currentYear}`;
+  const response = await apiClient.get<unknown>(url);
   return response.data;
 };
 

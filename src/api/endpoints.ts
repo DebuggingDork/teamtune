@@ -52,6 +52,34 @@ export const ENDPOINTS = {
       GET: (projectId: string) => `${API_BASE}${API_PREFIX}/admin/projects/${projectId}`,
       STATS: `${API_BASE}${API_PREFIX}/admin/projects/stats`,
     },
+
+    // Leave Types Management
+    LEAVE_TYPES: {
+      LIST: `${API_BASE}${API_PREFIX}/admin/leave-types`,
+      CREATE: `${API_BASE}${API_PREFIX}/admin/leave-types`,
+      UPDATE: (id: string) => `${API_BASE}${API_PREFIX}/admin/leave-types/${id}`,
+      DELETE: (id: string) => `${API_BASE}${API_PREFIX}/admin/leave-types/${id}`,
+    },
+
+    // Leave Balance Management
+    LEAVE_BALANCES: {
+      LIST: `${API_BASE}${API_PREFIX}/admin/leave/balances`,
+      INITIALIZE: `${API_BASE}${API_PREFIX}/admin/leave/balances/initialize`,
+      ADJUST: (userId: string) => `${API_BASE}${API_PREFIX}/admin/leave/balances/${userId}`,
+    },
+
+    // Holiday Management
+    HOLIDAYS: {
+      LIST: `${API_BASE}${API_PREFIX}/admin/holidays`,
+      CREATE: `${API_BASE}${API_PREFIX}/admin/holidays`,
+      DELETE: (id: string) => `${API_BASE}${API_PREFIX}/admin/holidays/${id}`,
+    },
+
+    // Attendance & Leave Reports
+    REPORTS: {
+      ATTENDANCE: `${API_BASE}${API_PREFIX}/admin/attendance/report`,
+      LEAVE: `${API_BASE}${API_PREFIX}/admin/leave/report`,
+    },
   },
 
   // Project Manager
@@ -250,6 +278,26 @@ export const ENDPOINTS = {
       MEMBER_GIT_ACTIVITY: (teamCode: string, userCode: string) =>
         `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/members/${userCode}/git-activity`,
     },
+
+    // Leave Management
+    LEAVE: {
+      REQUESTS: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/leave/requests`,
+      PENDING: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/leave/requests/pending`,
+      APPROVE: (teamCode: string, code: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/leave/requests/${code}/approve`,
+      REJECT: (teamCode: string, code: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/leave/requests/${code}/reject`,
+      CALENDAR: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/leave/calendar`,
+    },
+
+    // Team Attendance
+    ATTENDANCE: {
+      TODAY: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/attendance/today`,
+      LIST: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/attendance`,
+    },
+
+    // Team Sessions
+    SESSIONS: {
+      ACTIVE: (teamCode: string) => `${API_BASE}${API_PREFIX}/team-lead/teams/${teamCode}/sessions/active`,
+    },
   },
 
   // Employee
@@ -289,6 +337,38 @@ export const ENDPOINTS = {
       REQUEST_REVIEW: (prId: string) => `${API_BASE}${API_PREFIX}/employee/github/pull-requests/${prId}/request-review`,
     },
     GIT_ACTIVITY: `${API_BASE}${API_PREFIX}/employee/git-activity`,
+
+    // Leave Management
+    LEAVE: {
+      TYPES: `${API_BASE}${API_PREFIX}/employee/leave/types`,
+      BALANCES: `${API_BASE}${API_PREFIX}/employee/leave/balances`,
+      BALANCES_BY_YEAR: (year: number) => `${API_BASE}${API_PREFIX}/employee/leave/balances/${year}`,
+      REQUESTS: {
+        LIST: `${API_BASE}${API_PREFIX}/employee/leave/requests`,
+        CREATE: `${API_BASE}${API_PREFIX}/employee/leave/requests`,
+        GET: (code: string) => `${API_BASE}${API_PREFIX}/employee/leave/requests/${code}`,
+        CANCEL: (code: string) => `${API_BASE}${API_PREFIX}/employee/leave/requests/${code}/cancel`,
+      },
+    },
+
+    // Attendance
+    ATTENDANCE: {
+      TODAY: `${API_BASE}${API_PREFIX}/employee/attendance/today`,
+      CHECK_IN: `${API_BASE}${API_PREFIX}/employee/attendance/check-in`,
+      CHECK_OUT: `${API_BASE}${API_PREFIX}/employee/attendance/check-out`,
+      LIST: `${API_BASE}${API_PREFIX}/employee/attendance`,
+      SUMMARY: `${API_BASE}${API_PREFIX}/employee/attendance/summary`,
+    },
+
+    // Sessions
+    SESSIONS: {
+      LIST: `${API_BASE}${API_PREFIX}/employee/sessions`,
+      CURRENT: `${API_BASE}${API_PREFIX}/employee/sessions/current`,
+      SUMMARY: `${API_BASE}${API_PREFIX}/employee/sessions/summary`,
+    },
+
+    // Holidays
+    HOLIDAYS: `${API_BASE}${API_PREFIX}/employee/holidays`,
   },
 
   // GitHub OAuth
