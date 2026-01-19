@@ -29,7 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useNotificationContext, usePriorityStyles } from "@/contexts/NotificationContext";
-import type { Notification, NotificationCategory, NotificationPriority } from "@/api/types";
+import type { Notification, NotificationCategory, NotificationPriority } from "@/api/types/index";
 import { formatDistanceToNow } from "date-fns";
 
 interface NotificationPanelProps {

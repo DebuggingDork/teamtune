@@ -1,4 +1,4 @@
-import { ApiError } from '@/api/types';
+import { ApiError } from '@/api/types/index';
 import { toast } from '@/hooks/use-toast';
 
 /**

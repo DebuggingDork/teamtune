@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   User,
   PaginationParams,
@@ -22,7 +22,7 @@ import type {
   TeamPerformanceResponse,
   EmployeeProfile,
   UpdateProfileRequest,
-} from '@/api/types';
+} from '@/api/types/index';
 
 /**
  * Get project manager's profile

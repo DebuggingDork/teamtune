@@ -31,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { MemberLayout } from "@/components/layouts/MemberLayout";
 import { useMyTasks, useUpdateMyTaskStatus } from "@/hooks/useEmployee";
 import { toast } from "@/hooks/use-toast";
-import type { TaskStatus, TaskFilters } from "@/api/types";
+import type { TaskStatus, TaskFilters } from "@/api/types/index";
 import { format } from "date-fns";
 
 const TasksPage = () => {

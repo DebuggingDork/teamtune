@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { usePlugins, useDisconnectGitHubPlugin } from "@/hooks/useAdmin";
-import type { PluginStatus } from "@/api/types";
+import type { PluginStatus } from "@/api/types/index";
 
 const AdminSettings = () => {
   const [isLoading, setIsLoading] = useState(false);

@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   // Existing types
   Task,
@@ -92,7 +92,7 @@ import type {
   AttendanceFilters,
   TeamActiveSessionsResponse,
   ReviewLeaveRequest,
-} from '@/api/types';
+} from '@/api/types/index';
 
 // ============================================================================
 // PROFILE MANAGEMENT

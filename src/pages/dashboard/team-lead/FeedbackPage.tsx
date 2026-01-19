@@ -83,7 +83,7 @@ import type {
   ObservationCategory,
   ObservationRating,
   Observation,
-} from "@/api/types";
+} from "@/api/types/index";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";

@@ -50,7 +50,7 @@ import { ProjectManagerLayout } from "@/components/layouts/ProjectManagerLayout"
 import { useProjects, useCreateProject, useDeleteProject, useBulkDeleteProjects, useUpdateProjectStatus } from "@/hooks/useProjectManager";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import type { CreateProjectRequest, ProjectStatus } from "@/api/types";
+import type { CreateProjectRequest, ProjectStatus } from "@/api/types/index";
 
 const ProjectsPage = () => {
   const navigate = useNavigate();

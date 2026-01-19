@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useCallback, ReactNode } fr
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { useUnreadCount, useMarkAsRead, useMarkAllAsRead, useDeleteNotification, useDeleteAllRead } from '@/hooks/useNotifications';
-import type { Notification, UserRole, NotificationPriority } from '@/api/types';
+import type { Notification, UserRole, NotificationPriority } from '@/api/types/index';
 import { toast } from '@/hooks/use-toast';
 
 interface NotificationContextType {

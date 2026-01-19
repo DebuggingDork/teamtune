@@ -52,7 +52,7 @@ import {
   useMyTasks,
 } from "@/hooks/useEmployee";
 import { toast } from "@/hooks/use-toast";
-import type { CreateTimeEntryRequest, UpdateTimeEntryRequest, TimeEntryFilters } from "@/api/types";
+import type { CreateTimeEntryRequest, UpdateTimeEntryRequest, TimeEntryFilters } from "@/api/types/index";
 import { format } from "date-fns";
 
 const TimeTrackingPage = () => {

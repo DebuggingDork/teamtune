@@ -43,7 +43,7 @@ import {
     useCreateSprint,
 } from "@/hooks/useTeamLead";
 import { toast } from "@/hooks/use-toast";
-import type { Sprint, UpdateSprintRequest, CloseSprintRequest, CreateSprintRequest } from "@/api/types";
+import type { Sprint, UpdateSprintRequest, CloseSprintRequest, CreateSprintRequest } from "@/api/types/index";
 import { format } from "date-fns";
 
 const StatusBadge = ({ status }: { status: Sprint['status'] }) => {

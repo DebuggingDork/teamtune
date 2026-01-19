@@ -52,7 +52,7 @@ import {
     useCancelLeaveRequest,
     useHolidays,
 } from '@/hooks/useEmployee';
-import type { LeaveRequestStatus, SubmitLeaveRequest } from '@/api/types';
+import type { LeaveRequestStatus, SubmitLeaveRequest } from '@/api/types/index';
 
 // Status styling
 const statusConfig: Record<LeaveRequestStatus, { color: string; icon: typeof CheckCircle2; label: string }> = {

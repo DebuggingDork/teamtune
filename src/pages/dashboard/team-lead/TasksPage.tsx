@@ -65,7 +65,7 @@ import {
 } from "@/hooks/useTeamLead";
 import { toast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { TaskStatus, CreateTaskRequest, UpdateTaskRequest, TaskFilters } from "@/api/types";
+import type { TaskStatus, CreateTaskRequest, UpdateTaskRequest, TaskFilters } from "@/api/types/index";
 import { format } from "date-fns";
 
 const TasksPage = () => {

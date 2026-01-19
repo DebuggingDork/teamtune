@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User } from '@/api/types';
+import { User } from '@/api/types/index';
 import { getToken, setToken, removeToken, getUser, setUser, clearAuth } from '@/utils/storage';
 import * as authService from '@/services/auth.service';
 import { handleError } from '@/utils/errorHandler';

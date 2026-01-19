@@ -4,7 +4,7 @@ import type {
   NotificationFilters,
   MarkAllAsReadRequest,
   UserRole,
-} from '@/api/types';
+} from '@/api/types/index';
 import { handleError } from '@/utils/errorHandler';
 
 // Query Keys

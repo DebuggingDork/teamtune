@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   PendingUser,
   User,
@@ -53,7 +53,7 @@ import type {
   InitializeBalancesRequest,
   AdjustBalanceRequest,
   LeaveBalancesResponse,
-} from '@/api/types';
+} from '@/api/types/index';
 
 /**
  * Get list of pending users

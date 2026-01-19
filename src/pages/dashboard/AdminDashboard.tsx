@@ -55,7 +55,7 @@ import AdminUsers from "@/components/admin/AdminUsers";
 import AdminRoles from "@/components/admin/AdminRoles";
 import AdminSettings from "@/components/admin/AdminSettings";
 import NotificationPanel from "@/components/common/NotificationPanel";
-import type { UserRole } from "@/api/types";
+import type { UserRole } from "@/api/types/index";
 // Import new shared components
 import { StatCard, RoleSelect } from "@/components/shared";
 

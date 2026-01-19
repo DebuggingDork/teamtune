@@ -36,7 +36,7 @@ import {
     useAttendanceSummary,
     useHolidays,
 } from '@/hooks/useEmployee';
-import type { AttendanceStatus } from '@/api/types';
+import type { AttendanceStatus } from '@/api/types/index';
 
 // Status color mapping
 const statusColors: Record<AttendanceStatus, string> = {

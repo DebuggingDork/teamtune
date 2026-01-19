@@ -80,7 +80,7 @@ import type {
   RemoveTeamLeadRequest,
   AddTeamMembersRequest,
   UpdateProjectRequest,
-} from "@/api/types";
+} from "@/api/types/index";
 
 const ProjectDetail = () => {
   const { projectCode } = useParams<{ projectCode: string }>();

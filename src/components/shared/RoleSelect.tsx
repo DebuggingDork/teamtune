@@ -6,7 +6,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { UserRole } from "@/api/types";
+import { UserRole } from "@/api/types/index";
 
 export interface RoleSelectProps {
   value: UserRole;

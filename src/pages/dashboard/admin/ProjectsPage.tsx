@@ -30,7 +30,7 @@ import {
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 import { useAdminProjects, useAdminProjectStats } from "@/hooks/useAdmin";
 import { format, differenceInDays } from "date-fns";
-import type { ProjectStatus } from "@/api/types";
+import type { ProjectStatus } from "@/api/types/index";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ProjectsPage = () => {

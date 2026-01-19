@@ -37,7 +37,7 @@ import {
     useBulkApproveTimeEntries,
 } from "@/hooks/useTeamLead";
 import { toast } from "@/hooks/use-toast";
-import type { PendingTimeEntry } from "@/api/types";
+import type { PendingTimeEntry } from "@/api/types/index";
 import { format, startOfWeek, endOfWeek, addDays, subDays, isSameDay } from "date-fns";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 

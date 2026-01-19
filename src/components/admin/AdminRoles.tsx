@@ -52,7 +52,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRoleStats, useUsersByRole, usePromoteToProjectManager, usePromoteToTeamLead, useChangeUserRole, useManagedProjects, useLedTeams, useAllUsers } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
-import type { UserRole } from "@/api/types";
+import type { UserRole } from "@/api/types/index";
 
 const AdminRoles = () => {
   const { data: roleStats, isLoading: isLoadingStats } = useRoleStats();

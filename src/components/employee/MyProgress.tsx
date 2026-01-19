@@ -21,7 +21,7 @@ import {
 import { AreaChart, Area, XAxis, YAxis, BarChart, Bar } from "recharts";
 import { useMyTasks, useMyTimeEntries, useMyProjects } from "@/hooks/useEmployee";
 import { format, subDays, startOfWeek, endOfWeek, eachWeekOfInterval } from "date-fns";
-import type { Task } from "@/api/types";
+import type { Task } from "@/api/types/index";
 
 const chartConfig = {
   completed: { label: "Completed", color: "hsl(var(--chart-1))" },

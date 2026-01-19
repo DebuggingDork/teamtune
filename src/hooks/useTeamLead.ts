@@ -41,7 +41,7 @@ import type {
   LeaveRequestFilters,
   AttendanceFilters,
   ReviewLeaveRequest,
-} from '@/api/types';
+} from '@/api/types/index';
 import { handleError } from '@/utils/errorHandler';
 
 // ============================================================================

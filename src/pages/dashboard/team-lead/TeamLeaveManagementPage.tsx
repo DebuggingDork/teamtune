@@ -48,7 +48,7 @@ import {
     useTeamLeaveCalendar,
     useMyTeams,
 } from '@/hooks/useTeamLead';
-import type { LeaveRequestStatus } from '@/api/types';
+import type { LeaveRequestStatus } from '@/api/types/index';
 
 // Status styling
 const statusConfig: Record<LeaveRequestStatus, { color: string; icon: typeof CheckCircle2; label: string }> = {

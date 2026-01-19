@@ -50,7 +50,7 @@ import { useProjects, useEmployees, useCreateProject, useDeleteProject, useBulkD
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import type { CreateProjectRequest } from "@/api/types";
+import type { CreateProjectRequest } from "@/api/types/index";
 import { StatCard } from "@/components/shared";
 import { getUserNameFromEmail } from "@/components/layouts/BaseLayout/hooks";
 

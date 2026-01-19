@@ -10,7 +10,7 @@ import type {
     MergePRRequest,
     PRState,
     UserRole,
-} from '@/api/types';
+} from '@/api/types/index';
 import { handleError } from '@/utils/errorHandler';
 import { useAuth } from '@/hooks/useAuth';
 

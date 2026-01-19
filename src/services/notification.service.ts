@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   Notification,
   NotificationFilters,
@@ -10,7 +10,7 @@ import type {
   MarkAllAsReadResponse,
   DeleteAllReadResponse,
   UserRole,
-} from '@/api/types';
+} from '@/api/types/index';
 
 // Map UserRole to API role path
 type ApiRole = 'employee' | 'team-lead' | 'project-manager' | 'admin';

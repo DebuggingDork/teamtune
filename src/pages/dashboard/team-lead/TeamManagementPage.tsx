@@ -42,7 +42,7 @@ import {
   useUpdateTeamMemberAllocation,
 } from "@/hooks/useTeamLead";
 import { toast } from "@/hooks/use-toast";
-import type { LinkRepositoryRequest, AddTeamMemberRequest, UpdateTeamMemberAllocationRequest } from "@/api/types";
+import type { LinkRepositoryRequest, AddTeamMemberRequest, UpdateTeamMemberAllocationRequest } from "@/api/types/index";
 import {
   AlertDialog,
   AlertDialogAction,

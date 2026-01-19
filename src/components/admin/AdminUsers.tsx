@@ -64,7 +64,7 @@ import {
 import { useAllUsers, useBlockUser, useUnblockUser, useBulkApproveUsers, useBulkRejectUsers, useDeleteUser, useBulkDeleteUsers, useManagedProjects, useLedTeams, useDemoteProjectManager, useDemoteTeamLead } from "@/hooks/useAdmin";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import type { UserRole, UserStatus } from "@/api/types";
+import type { UserRole, UserStatus } from "@/api/types/index";
 
 // Component to show user details (projects/teams)
 const UserDetailsSection = ({ userId, role }: { userId: string; role: UserRole }) => {

@@ -80,7 +80,7 @@ import {
   useActiveFlags
 } from "@/hooks/useTeamLead";
 import { format, differenceInDays } from "date-fns";
-import type { ObservationCategory, ObservationRating, Observation, Alert, Risk, Sprint } from "@/api/types";
+import type { ObservationCategory, ObservationRating, Observation, Alert, Risk, Sprint } from "@/api/types/index";
 import { toast } from "@/hooks/use-toast";
 // Import shared components and hooks
 import { useDateRanges } from "@/hooks/useDateRanges";

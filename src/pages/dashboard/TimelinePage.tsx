@@ -24,7 +24,7 @@ import {
 import { ProjectManagerLayout } from "@/components/layouts/ProjectManagerLayout";
 import { useProjects } from "@/hooks/useProjectManager";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, isToday } from "date-fns";
-import type { Project } from "@/api/types";
+import type { Project } from "@/api/types/index";
 
 const TimelinePage = () => {
   const navigate = useNavigate();

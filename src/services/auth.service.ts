@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   LoginRequest,
   LoginResponse,
@@ -7,7 +7,7 @@ import type {
   RegisterResponse,
   RegistrationStatusResponse,
   LogoutResponse,
-} from '@/api/types';
+} from '@/api/types/index';
 
 /**
  * Register a new employee

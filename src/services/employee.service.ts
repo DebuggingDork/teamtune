@@ -1,5 +1,5 @@
 import apiClient from '@/api/client';
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 import type {
   Task,
   TasksResponse,
@@ -41,7 +41,7 @@ import type {
   SessionSummary,
   SessionFilters,
   HolidaysResponse,
-} from '@/api/types';
+} from '@/api/types/index';
 
 /**
  * Get my tasks

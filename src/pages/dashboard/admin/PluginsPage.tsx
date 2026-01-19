@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { usePlugins, useConnectGitHubPlugin, useUpdatePlugin, useSyncPlugin } from "@/hooks/useAdmin";
 import { toast } from "@/hooks/use-toast";
-import type { PluginStatus } from "@/api/types";
+import type { PluginStatus } from "@/api/types/index";
 import { AdminLayout } from "@/components/layouts/AdminLayout";
 
 const PluginsPage = () => {

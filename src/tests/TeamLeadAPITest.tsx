@@ -73,7 +73,7 @@ import type {
     // Team Lead Team Types
     MyTeamsResponse,
     TeamLeadTeam,
-} from '@/api/types';
+} from '@/api/types/index';
 
 // Test 2: Verify all hooks are exported
 import {
@@ -215,7 +215,7 @@ import {
 } from '@/services/teamLead.service';
 
 // Test 4: Verify endpoints are configured
-import { ENDPOINTS } from '@/api/endpoints';
+import { ENDPOINTS } from '@/api/endpoints/index';
 
 /**
  * Run this function in console to verify all integrations

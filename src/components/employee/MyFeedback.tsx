@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMyObservations } from "@/hooks/useEmployee";
 import { format } from "date-fns";
-import type { Observation } from "@/api/types";
+import type { Observation } from "@/api/types/index";
 
 const MyFeedback = () => {
   const { data: observationsData, isLoading } = useMyObservations();

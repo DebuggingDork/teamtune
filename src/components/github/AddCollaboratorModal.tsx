@@ -21,7 +21,7 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { GitHubPermission } from '@/api/types';
+import { GitHubPermission } from '@/api/types/index';
 
 interface AddCollaboratorModalProps {
     teamCode: string;
